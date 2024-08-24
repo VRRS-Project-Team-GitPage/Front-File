@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { useEffect } from "react";
+import Theme_Colors, { Gray } from "./assets/styles/Theme_Colors";
 import * as Font from "expo-font"; // custom font를 사용하기 위해 import
 
 export default function App() {
@@ -44,8 +45,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: Gray.white,
   },
 });
