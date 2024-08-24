@@ -14,6 +14,8 @@
 3. 작성이 완료되었다면, 작성한 페이지의 오른쪽에 있는 Create a branch를 선택해, 해당 이슈에 해당하는 브랜치를 생성힌다.
      - Assigness(담당자)는 작성자 본인으로 선택한다.
 5. Github Desktop 에서 생성한 브랜치를 선택한다.
-6. 브랜치에서 작업 후 완료되었다면 commit - push를 진행한다.
-7. git hub로 들어와 활성화 된 Pull request를 간단히 작성한다.
+6. 브랜치에서 작업이 완료되었다면 commit - push를 진행한다.
+   - ***만약 본인이 commit 하기 전 master 브랜치에서 merge(병합)이 일어났다면 marster 파일과 merge 후 오류가 없는 경우에만 push  해주세요***
+   - 저는 예시 작업에서 모든 과정에 commit-push를 진행했으나, 혼동을 줄이기 위해 최종 파일만 push 부탁드립니다.
+8. git hub로 들어와 활성화 된 Pull request를 간단히 작성한다.
 > 이 과정이 완료되면 코드 확인 후 Merge(병합 과정)을 진행합니다.
