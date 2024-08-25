@@ -20,5 +20,6 @@
 8. git hub로 들어와 활성화 된 Pull request를 간단히 작성한다.
 > 이 과정이 완료되면 코드 확인 후 Merge(병합 과정)을 진행합니다.
 
-### 2-1. 6번 => commit 전 merge 가 일어난 경우
-- fetch upstream을 진행하여 현자 자신이 작업하고 있는 파일 내 merge된 요소를 추가합니다.
+### 2-1. 6번 => commit 전 merge 가 일어난 경우(desktop 기준)
+1. branch option에서 Choose a branch to merge into ... 버튼을 선택한다.
+2. main branch와 merge 한다.
