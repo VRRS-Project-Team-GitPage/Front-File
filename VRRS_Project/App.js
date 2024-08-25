@@ -1,7 +1,10 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import Theme_Colors, { Gray_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
 import * as Font from "expo-font"; // custom font를 사용하기 위해 import
+
+import Main_BottomBar from "./Components/Main_Components/Main_BottomBar";
 
 export default function App() {
   // 폰트 로드를 위한 state 변수
@@ -35,8 +38,8 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
       <StatusBar style="auto" />
+      <Main_BottomBar />
     </View>
   );
 }
@@ -44,8 +47,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: Gray_theme.white, //이렇게 사용하실 수 있습니다.
   },
 });
