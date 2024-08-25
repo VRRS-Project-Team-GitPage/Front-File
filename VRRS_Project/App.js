@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
-import Theme_Colors, { Gray } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
+import Theme_Colors, { Gray_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
 import * as Font from "expo-font"; // custom font를 사용하기 위해 import
 
 import Main_BottomBar from "./Components/Main_Components/Main_BottomBar";
@@ -47,6 +47,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Gray.white, //이렇게 사용하실 수 있습니다.
+    backgroundColor: Gray_theme.white, //이렇게 사용하실 수 있습니다.
   },
 });
