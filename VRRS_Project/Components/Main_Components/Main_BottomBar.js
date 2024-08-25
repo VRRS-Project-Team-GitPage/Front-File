@@ -1,4 +1,4 @@
-import { Text, View, Image } from "react-native";
+import { Text, View, Image, Touchable, TouchableOpacity } from "react-native";
 // navigation 사용을 위한 Props import
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -83,20 +83,24 @@ export default function Main_BottomBar() {
           name="Read"
           component={ReadingScreen}
           options={{
-            tabBarIcon: ({ focused, color }) => {
+            tabBarIconStyle: {
+              marginBottom: 48,
+              borderBlockColor: Gray_theme.white,
+            },
+            tabBarIcon: () => {
               //화면에 표시될 아이콘
               return (
                 <Image
                   // 선택 여부에 따라 다른 이미지 출력
                   source={BarIcons.readIcon}
                   style={{
-                    height: 24,
-                    width: 24,
-                    tintColor: focused ? color : color,
+                    height: 80,
+                    width: 80,
                   }}
                 ></Image>
               );
             },
+            tabBarLabel: "",
           }}
         ></Tab.Screen>
         <Tab.Screen

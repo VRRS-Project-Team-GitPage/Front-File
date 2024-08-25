@@ -1,3 +1,6 @@
+// 하단바 아이콘 변수입니다.
+// 필요시 import 하여 사용하실 수 있습니다.
+
 export default barIcons = {
   homeIcon: require("./Bar_Icons/Home.png"),
   homeIcon_C: require("./Bar_Icons/Home-click.png"),
