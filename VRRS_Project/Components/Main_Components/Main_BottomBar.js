@@ -1,4 +1,12 @@
-import { Text, View, Image, Touchable, TouchableOpacity } from "react-native";
+import {
+  Text,
+  View,
+  Image,
+  Touchable,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+} from "react-native";
 // navigation 사용을 위한 Props import
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -8,8 +16,10 @@ import DicScreen from "./Dic_Components/DicScreen";
 import ReadingScreen from "./Reading_Components/ReadingScreen";
 import RecommendScreen from "./Recommend_Components/RecommendScreen";
 import UserScreen from "./User_Components/UserScreen";
+// assests 사용을 위한 import
 import BarIcons from "../../assets/Icons/BarIcons";
 import { Gray_theme, Main_theme } from "../../assets/styles/Theme_Colors";
+import MainIcons from "../../assets/Icons/MainIcons";
 
 // navigation Bar를 사용하기 위한 변수
 const Tab = createBottomTabNavigator();
@@ -26,6 +36,7 @@ export default function Main_BottomBar() {
             borderTopEndRadius: 20,
             position: "absolute",
           },
+          // 특정 Screen에 해당하는 하단바가 선택되었을 때 요소의 색상입니다.
           tabBarActiveTintColor: Main_theme.main_30,
           tabBarInactiveTintColor: Gray_theme.gray_30,
           tabBarLabelStyle: {
@@ -42,6 +53,11 @@ export default function Main_BottomBar() {
           component={HomeScreen}
           options={{
             tabBarLabel: "홈", //화면에 표시될 텍스트
+            // Screen의 헤더를 숨깁니다.
+            headerShown: false,
+            headerBackgroundContainerStyle: {
+              backgroundColor: Main_theme.main_10,
+            },
             tabBarIcon: ({ focused, color }) => {
               //화면에 표시될 아이콘
               return (
@@ -149,3 +165,11 @@ export default function Main_BottomBar() {
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  homeScreen_header: {
+    height: 60,
+    justifyContent: "center",
+    flexDirection: "row",
+  },
+});
