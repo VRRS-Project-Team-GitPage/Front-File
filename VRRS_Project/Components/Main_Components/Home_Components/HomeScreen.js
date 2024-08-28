@@ -5,12 +5,15 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
+  TouchableHighlight,
+  TouchableNativeFeedback,
 } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
-// StatusBar 영역을 확보하기 위헤 import
+// StatusBar 영역을 확보하기 위해 import
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import MainIcons from "../../../assets/Icons/MainIcons";
+import Octicons from "@expo/vector-icons/Octicons";
 import { useState } from "react";
 
 export default function HomeScreen() {
@@ -38,12 +41,8 @@ export default function HomeScreen() {
         >
           <View
             style={{
-              paddingHorizontal: 16,
               width: windowWidth - 120,
-              height: 40,
-              backgroundColor: Gray_theme.white,
-              borderRadius: 15,
-              justifyContent: "center",
+              ...styles.headerTextInput,
             }}
           >
             <Text
@@ -55,6 +54,11 @@ export default function HomeScreen() {
             >
               다양한 제품들을 만나보세요
             </Text>
+            <Octicons
+              name="x-circle-fill"
+              size={16}
+              color={Main_theme.main_50}
+            />
           </View>
         </TouchableOpacity>
       </View>
@@ -90,15 +94,19 @@ export default function HomeScreen() {
               오늘은 이런 제품 어떠세요?
             </Text>
           </View>
-          <TouchableOpacity activeOpacity={0.8}>
+          <TouchableNativeFeedback
+            background={TouchableNativeFeedback.Ripple(Main_theme.main_30)}
+          >
             <View
               style={{
                 alignSelf: "center",
                 width: windowWidth - 48,
-                height: 120,
+                paddingVertical: 12,
                 borderRadius: 10,
-                backgroundColor: Main_theme.main_50,
+                backgroundColor: Gray_theme.white,
+                alignContent: "center",
                 flexDirection: "row",
+                elevation: 4,
               }}
             >
               <View
@@ -110,8 +118,8 @@ export default function HomeScreen() {
               >
                 <Text
                   style={{
-                    fontFamily: "Pretendard-Regular",
-                    color: Main_theme.main_10,
+                    fontFamily: "Pretendard-Medium",
+                    color: Main_theme.main_30,
                   }}
                 >
                   무엇을 먹어야 할까? 고민될 때!
@@ -120,7 +128,7 @@ export default function HomeScreen() {
                   style={{
                     fontFamily: "Pretendard-Bold",
                     fontSize: 28,
-                    color: Gray_theme.white,
+                    color: Main_theme.main_50,
                   }}
                 >
                   지금 추천받기
@@ -135,17 +143,39 @@ export default function HomeScreen() {
                 }}
               ></Image>
             </View>
-          </TouchableOpacity>
+          </TouchableNativeFeedback>
         </View>
-        <View style={styles.mainContents}>
+        <View style={{ ...styles.mainContents, height: windowHeight }}>
+          <View style={{ marginTop: 8 }}>
+            <TouchableOpacity style={styles.mainDicHeader} activeOpacity={0.6}>
+              <Text
+                style={{
+                  fontFamily: "Pretendard-SemiBold",
+                  fontSize: 16,
+                  color: Gray_theme.balck,
+                }}
+              >
+                {userType}은 지금 ❤️‍🔥
+              </Text>
+              <Octicons name="chevron-right" size={24} color="black" />
+            </TouchableOpacity>
+            <View style={styles.mainDicContainer}></View>
+          </View>
+          <View></View>
           <View>
-            <View
-              style={{
-                marginHorizontal: 24,
-              }}
-            >
-              <Text>{userType}은 지금 ❤️‍🔥</Text>
-            </View>
+            <TouchableOpacity style={styles.mainDicHeader} activeOpacity={0.6}>
+              <Text
+                style={{
+                  fontFamily: "Pretendard-SemiBold",
+                  fontSize: 16,
+                  color: Gray_theme.balck,
+                }}
+              >
+                전체 인기순위
+              </Text>
+              <Octicons name="chevron-right" size={24} color="black" />
+            </TouchableOpacity>
+            <View style={styles.mainDicContainer}></View>
           </View>
         </View>
       </ScrollView>
@@ -161,23 +191,41 @@ const styles = StyleSheet.create({
   },
   topContents: {},
   header: {
-    //backgroundColor: "#222",
+    //backgroundColor: "#222", //영역 테스트 용 코드입니다.
     flexDirection: "row",
     paddingHorizontal: 24,
     paddingVertical: 12,
     alignContent: "center",
   },
-  headerTextInput: {},
+  headerTextInput: {
+    paddingHorizontal: 16,
+    height: 40,
+    backgroundColor: Gray_theme.white,
+    borderRadius: 20,
+    alignItems: "center",
+
+    justifyContent: "space-between",
+    flexDirection: "row",
+  },
   mainTitle: {
-    //backgroundColor: Main_theme.main_reverse,
+    //backgroundColor: Main_theme.main_reverse, //영역 테스트 용 코드입니다.
     marginVertical: 24,
     marginHorizontal: 24,
   },
   mainContents: {
-    flex: 1,
     backgroundColor: Gray_theme.white,
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     marginTop: 32,
+  },
+  mainDicHeader: {
+    marginHorizontal: 24,
+    marginTop: 32,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  mainDicContainer: {
+    marginVertical: 16,
+    marginHorizontal: 24,
   },
 });
