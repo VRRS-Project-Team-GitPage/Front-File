@@ -100,7 +100,7 @@ export default function Main_BottomBar() {
           component={ReadingScreen}
           options={{
             tabBarIconStyle: {
-              marginBottom: 48,
+              marginBottom: 36,
               borderBlockColor: Gray_theme.white,
             },
             tabBarIcon: () => {
@@ -110,8 +110,8 @@ export default function Main_BottomBar() {
                   // 선택 여부에 따라 다른 이미지 출력
                   source={BarIcons.readIcon}
                   style={{
-                    height: 80,
-                    width: 80,
+                    height: 72,
+                    width: 72,
                   }}
                 ></Image>
               );

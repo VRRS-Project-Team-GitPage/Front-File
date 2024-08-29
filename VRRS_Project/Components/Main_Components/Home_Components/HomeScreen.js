@@ -8,19 +8,35 @@ import {
   TouchableHighlight,
   TouchableNativeFeedback,
 } from "react-native";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { useState, useEffect } from "react";
+// 클릭 시 적용되는 애니메이션 Component
+import TouchableScale from "../../../assets/styles/TouchableScale";
+import { StyleSheet, useWindowDimensions, FlatList } from "react-native";
 // StatusBar 영역을 확보하기 위해 import
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
+import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import MainIcons from "../../../assets/Icons/MainIcons";
 import Octicons from "@expo/vector-icons/Octicons";
-import { useState } from "react";
+import {
+  getAllProducts,
+  getVegTypeName,
+} from "../../../assets/ServerDatas/Dummy/dummyProducts";
 
 export default function HomeScreen() {
   // user 닉네임을 불러와 저장하는 state
   const [userName, setUserName] = useState("김철수");
   // user 유형을 불러와 저장하는 state
   const [userType, setUserType] = useState("비건");
+
+  const [productData, setProductData] = useState([]);
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
+    const products = getAllProducts();
+    setProductData(products);
+  }, []);
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
@@ -62,23 +78,23 @@ export default function HomeScreen() {
           </View>
         </TouchableOpacity>
       </View>
-      <ScrollView>
+      <ScrollView bounces={true} showsVerticalScrollIndicator={false}>
         <View style={styles.topContents}>
           <View style={styles.mainTitle}>
             <View style={{ flexDirection: "row", marginBottom: 4 }}>
               <Text
                 style={{
                   fontFamily: "Pretendard-Bold",
-                  fontSize: 24,
-                  color: Gray_theme.gray_80,
+                  fontSize: 20,
+                  color: Gray_theme.balck,
                 }}
               >
-                반가워요,{" "}
+                반가워요, {""}
               </Text>
               <Text
                 style={{
                   fontFamily: "Pretendard-Bold",
-                  fontSize: 24,
+                  fontSize: 20,
                   color: Main_theme.main_50,
                 }}
               >
@@ -88,38 +104,40 @@ export default function HomeScreen() {
             <Text
               style={{
                 fontFamily: "Pretendard-Regular",
-                color: Gray_theme.gray_80,
+                color: Gray_theme.balck,
               }}
             >
-              오늘은 이런 제품 어떠세요?
+              오늘도 함께 채식을 실천해요!
             </Text>
           </View>
-          <TouchableNativeFeedback
-            background={TouchableNativeFeedback.Ripple(Main_theme.main_30)}
+          <TouchableScale
+            activeOpacity={0.8}
+            style={{ justifyContent: "center" }}
           >
             <View
               style={{
                 alignSelf: "center",
                 width: windowWidth - 48,
-                paddingVertical: 12,
-                borderRadius: 10,
+                paddingVertical: 4,
+                borderRadius: 30,
                 backgroundColor: Gray_theme.white,
+
                 alignContent: "center",
                 flexDirection: "row",
-                elevation: 4,
               }}
             >
               <View
                 style={{
                   marginHorizontal: 24,
                   marginVertical: 24,
-                  alignContent: "center",
+                  justifyContent: "center",
                 }}
               >
                 <Text
                   style={{
                     fontFamily: "Pretendard-Medium",
-                    color: Main_theme.main_30,
+                    fontSize: 12,
+                    color: Gray_theme.gray_70,
                   }}
                 >
                   무엇을 먹어야 할까? 고민될 때!
@@ -127,8 +145,8 @@ export default function HomeScreen() {
                 <Text
                   style={{
                     fontFamily: "Pretendard-Bold",
-                    fontSize: 28,
-                    color: Main_theme.main_50,
+                    fontSize: 16,
+                    color: Gray_theme.balck,
                   }}
                 >
                   지금 추천받기
@@ -137,46 +155,91 @@ export default function HomeScreen() {
               <Image
                 source={MainIcons.paper}
                 style={{
-                  width: 100,
-                  height: 100,
-                  alignSelf: "center",
+                  width: 120,
+                  height: 120,
+                  position: "absolute",
+                  bottom: 4,
+                  right: 16,
                 }}
               ></Image>
             </View>
-          </TouchableNativeFeedback>
+          </TouchableScale>
         </View>
-        <View style={{ ...styles.mainContents, height: windowHeight }}>
-          <View style={{ marginTop: 8 }}>
-            <TouchableOpacity style={styles.mainDicHeader} activeOpacity={0.6}>
-              <Text
-                style={{
-                  fontFamily: "Pretendard-SemiBold",
-                  fontSize: 16,
-                  color: Gray_theme.balck,
-                }}
-              >
-                {userType}은 지금 ❤️‍🔥
-              </Text>
+        <View style={styles.mainContents}>
+          <View style={{ marginTop: 16 }}>
+            <TouchableOpacity
+              style={{
+                marginTop: 32,
+                ...styles.mainDicHeader,
+              }}
+              activeOpacity={0.6}
+            >
+              <Text style={styles.mainDicTitle}>{userType}은 지금 ❤️‍🔥</Text>
               <Octicons name="chevron-right" size={24} color="black" />
             </TouchableOpacity>
-            <View style={styles.mainDicContainer}></View>
+            <View style={styles.mainDicContainer}>
+              <FlatList
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                data={productData} // 상태로 관리되는 제품 데이터를 사용
+                keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
+                renderItem={({ item }) => (
+                  <View style={styles.itemContainer}>
+                    <Image
+                      source={{ uri: item.image_url }}
+                      style={styles.image}
+                    />
+                    <View style={styles.textContainer}>
+                      {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                      <Text style={styles.name}>{item.name}</Text>
+                      <Text style={styles.category}>{item.category}</Text>
+                      <Text style={styles.vegType}>
+                        {getVegTypeName(item.veg_type_id)}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
           </View>
-          <View></View>
+          <Line style={{ marginVertical: 16 }}></Line>
           <View>
-            <TouchableOpacity style={styles.mainDicHeader} activeOpacity={0.6}>
-              <Text
-                style={{
-                  fontFamily: "Pretendard-SemiBold",
-                  fontSize: 16,
-                  color: Gray_theme.balck,
-                }}
-              >
-                전체 인기순위
-              </Text>
+            <TouchableOpacity
+              style={{
+                marginTop: 16,
+                ...styles.mainDicHeader,
+              }}
+              activeOpacity={0.6}
+            >
+              <Text style={styles.mainDicTitle}>전체 인기순위</Text>
               <Octicons name="chevron-right" size={24} color="black" />
             </TouchableOpacity>
-            <View style={styles.mainDicContainer}></View>
+            <View style={styles.mainDicContainer}>
+              <FlatList
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                data={productData} // 상태로 관리되는 제품 데이터를 사용
+                keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
+                renderItem={({ item }) => (
+                  <View style={styles.itemContainer}>
+                    <Image
+                      source={{ uri: item.image_url }}
+                      style={styles.image}
+                    />
+                    <View style={styles.textContainer}>
+                      {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                      <Text style={styles.name}>{item.name}</Text>
+                      <Text style={styles.category}>{item.category}</Text>
+                      <Text style={styles.vegType}>
+                        {getVegTypeName(item.veg_type_id)}
+                      </Text>
+                    </View>
+                  </View>
+                )}
+              />
+            </View>
           </View>
+          <View style={{ height: 80 }}></View>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -209,23 +272,69 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     //backgroundColor: Main_theme.main_reverse, //영역 테스트 용 코드입니다.
-    marginVertical: 24,
+    marginTop: 24,
+    marginBottom: 16,
     marginHorizontal: 24,
   },
   mainContents: {
     backgroundColor: Gray_theme.white,
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
+    flex: 1,
+    borderTopRightRadius: 50,
     marginTop: 32,
   },
   mainDicHeader: {
     marginHorizontal: 24,
-    marginTop: 32,
+    marginBottom: 4,
     flexDirection: "row",
     justifyContent: "space-between",
   },
   mainDicContainer: {
     marginVertical: 16,
     marginHorizontal: 24,
+  },
+  mainDicTitle: {
+    fontFamily: "Pretendard-Bold",
+    fontSize: 16,
+    color: Gray_theme.balck,
+  },
+
+  //flatList
+  itemContainer: {
+    marginRight: 16,
+  },
+
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    borderColor: Gray_theme.gray_20,
+    marginBottom: 4,
+  },
+  textContainer: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  name: {
+    fontSize: 14,
+    color: Gray_theme.balck,
+    fontFamily: "Pretendard-SemiBold",
+  },
+  category: {
+    marginTop: 2,
+    fontSize: 12,
+    color: Gray_theme.gray_60,
+    fontFamily: "Pretendard-Regular",
+  },
+  vegType: {
+    marginTop: 8,
+    fontSize: 10,
+    fontFamily: "Pretendard-Bold",
+    color: Main_theme.main_50,
+    backgroundColor: Main_theme.main_10,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    alignSelf: "flex-start",
   },
 });
