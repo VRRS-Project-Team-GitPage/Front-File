@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  TouchableHighlight,
   TouchableNativeFeedback,
 } from "react-native";
 import { useState, useEffect } from "react";
@@ -43,6 +42,13 @@ export default function HomeScreen({ navigation }) {
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeight = useWindowDimensions().height;
+  if (!user) {
+    return (
+      <View style={styles.container}>
+        <Text>유저 정보 로딩 중...</Text>
+      </View>
+    );
+  }
   return (
     <SafeAreaView style={styles.homeContainer}>
       <View style={styles.header}>
@@ -56,6 +62,7 @@ export default function HomeScreen({ navigation }) {
         <TouchableOpacity
           style={{ justifyContent: "center", marginHorizontal: 24 }}
           activeOpacity={0.8}
+          onPress={() => navigation.navigate("MainSearch")}
         >
           <View
             style={{
@@ -177,7 +184,7 @@ export default function HomeScreen({ navigation }) {
               }}
               activeOpacity={0.6}
             >
-              <Text style={styles.mainDicTitle}>은 지금 ❤️‍🔥</Text>
+              <Text style={styles.mainDicTitle}>비건은 지금 ❤️‍🔥</Text>
               <Octicons name="chevron-right" size={24} color="black" />
             </TouchableOpacity>
             <View style={styles.mainDicContainer}>

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Theme_Colors, { Gray_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
 import * as Font from "expo-font"; // custom font를 사용하기 위해 import
 import { UserProvider } from "./assets/ServerDatas/Users/UserContext"; //user 정보를 전역적으로 사용하기 위해 import
-
 import Main_BottomBar from "./Components/Main_Components/Main_BottomBar";
 
 export default function App() {

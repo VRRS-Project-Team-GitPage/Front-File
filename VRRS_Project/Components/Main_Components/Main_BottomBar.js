@@ -11,7 +11,6 @@ import {
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 // navigation으로 연결할 Screen을 import
-import HomeScreen from "./Home_Components/HomeScreen";
 import DicScreen from "./Dic_Components/DicScreen";
 import ReadingScreen from "./Reading_Components/ReadingScreen";
 import RecommendScreen from "./Recommend_Components/RecommendScreen";
@@ -20,6 +19,8 @@ import UserScreen from "./User_Components/UserScreen";
 import BarIcons from "../../assets/Icons/BarIcons";
 import { Gray_theme, Main_theme } from "../../assets/styles/Theme_Colors";
 import MainIcons from "../../assets/Icons/MainIcons";
+// stack 페이지들을 import
+import HomeStack from "./Home_Components/HomeStack";
 
 // navigation Bar를 사용하기 위한 변수
 const Tab = createBottomTabNavigator();
@@ -28,7 +29,7 @@ export default function Main_BottomBar() {
   return (
     <NavigationContainer>
       <Tab.Navigator
-        initialRouteName="Home"
+        initialRouteName="HomeTab"
         screenOptions={{
           tabBarStyle: {
             height: 60,
@@ -49,8 +50,19 @@ export default function Main_BottomBar() {
         }}
       >
         <Tab.Screen
-          name="Home"
-          component={HomeScreen}
+          name="HomeTab"
+          component={HomeStack}
+          // 하단바 선택 시 중첩 요소를 삭제
+          listeners={({ navigation, route }) => ({
+            tabPress: (e) => {
+              // Prevent default action
+              e.preventDefault();
+
+              // Do something with the `navigation` object
+              navigation.navigate("Home");
+              //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
+            },
+          })}
           options={{
             tabBarLabel: "홈", //화면에 표시될 텍스트
             // Screen의 헤더를 숨깁니다.
@@ -79,6 +91,8 @@ export default function Main_BottomBar() {
           component={DicScreen}
           options={{
             tabBarLabel: "사전", //화면에 표시될 텍스트
+            // Screen의 헤더를 숨깁니다.
+            headerShown: false,
             tabBarIcon: ({ focused, color }) => {
               //화면에 표시될 아이콘
               return (
