@@ -5,22 +5,24 @@ import { Animated, TouchableWithoutFeedback, StyleSheet } from "react-native";
 
 // Component name: TouchableScale
 // <TouchableScale></TouchableScale> 형태로 사용합니다.
-const TouchableScale = ({ children, onPress, style, scaleTo = 0.95 }) => {
+const TouchableScale = ({ children, onPress, style, scaleTo = 0.97 }) => {
   const scaleValue = useRef(new Animated.Value(1)).current;
 
   // 터시 시 작동하는 함수입니다.
   const handlePressIn = () => {
     // 크기를 감소시키는 애니메이션
-    Animated.spring(scaleValue, {
+    Animated.timing(scaleValue, {
       toValue: scaleTo, //크기를 얼마나 줄일 것인지에 대한 Option입니다.
+      duration: 100,
       useNativeDriver: true,
     }).start();
   };
 
   // 터치 완료 시 작동하는 함수입니다.
   const handlePressOut = () => {
-    Animated.spring(scaleValue, {
+    Animated.timing(scaleValue, {
       toValue: 1, // 크기를 원래대로 돌려줍니다.
+      duration: 100,
       useNativeDriver: true,
     }).start();
   };

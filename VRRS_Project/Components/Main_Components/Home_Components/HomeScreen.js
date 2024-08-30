@@ -9,28 +9,30 @@ import {
   TouchableNativeFeedback,
 } from "react-native";
 import { useState, useEffect } from "react";
+// Server data를 사용하기 위해 저장한 component들을 import(현재는 더미 데이터를 사용)
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 // 클릭 시 적용되는 애니메이션 Component
 import TouchableScale from "../../../assets/styles/TouchableScale";
 import { StyleSheet, useWindowDimensions, FlatList } from "react-native";
 // StatusBar 영역을 확보하기 위해 import
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import MainIcons from "../../../assets/Icons/MainIcons";
 import Octicons from "@expo/vector-icons/Octicons";
+
 import {
   getAllProducts,
   getVegTypeName,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 
-export default function HomeScreen() {
-  // user 닉네임을 불러와 저장하는 state
-  const [userName, setUserName] = useState("김철수");
-  // user 유형을 불러와 저장하는 state
-  const [userType, setUserType] = useState("비건");
+export default function HomeScreen({ navigation }) {
+  // user의 정보를 불러옴
+  const { user } = useUser();
 
+  // 제품 정보를 저장하는 state
   const [productData, setProductData] = useState([]);
-
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
     // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
@@ -98,7 +100,7 @@ export default function HomeScreen() {
                   color: Main_theme.main_50,
                 }}
               >
-                {userName}님!
+                {user.username}님!
               </Text>
             </View>
             <Text
@@ -113,13 +115,14 @@ export default function HomeScreen() {
           <TouchableScale
             activeOpacity={0.8}
             style={{ justifyContent: "center" }}
+            onPress={() => navigation.navigate("Reco")}
           >
             <View
               style={{
                 alignSelf: "center",
                 width: windowWidth - 48,
                 paddingVertical: 4,
-                borderRadius: 30,
+                borderRadius: 12,
                 backgroundColor: Gray_theme.white,
 
                 alignContent: "center",
@@ -166,7 +169,7 @@ export default function HomeScreen() {
           </TouchableScale>
         </View>
         <View style={styles.mainContents}>
-          <View style={{ marginTop: 16 }}>
+          <View style={{ marginTop: 8 }}>
             <TouchableOpacity
               style={{
                 marginTop: 32,
@@ -174,7 +177,7 @@ export default function HomeScreen() {
               }}
               activeOpacity={0.6}
             >
-              <Text style={styles.mainDicTitle}>{userType}은 지금 ❤️‍🔥</Text>
+              <Text style={styles.mainDicTitle}>은 지금 ❤️‍🔥</Text>
               <Octicons name="chevron-right" size={24} color="black" />
             </TouchableOpacity>
             <View style={styles.mainDicContainer}>
@@ -185,18 +188,21 @@ export default function HomeScreen() {
                 keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
                 renderItem={({ item }) => (
                   <View style={styles.itemContainer}>
-                    <Image
-                      source={{ uri: item.image_url }}
-                      style={styles.image}
-                    />
-                    <View style={styles.textContainer}>
-                      {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
-                      <Text style={styles.name}>{item.name}</Text>
-                      <Text style={styles.category}>{item.category}</Text>
-                      <Text style={styles.vegType}>
-                        {getVegTypeName(item.veg_type_id)}
-                      </Text>
-                    </View>
+                    <TouchableScale>
+                      <Image
+                        source={{ uri: item.image_url }}
+                        style={styles.image}
+                      />
+
+                      <View style={styles.textContainer}>
+                        {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                        <Text style={styles.name}>{item.name}</Text>
+                        <Text style={styles.category}>{item.category}</Text>
+                        <Text style={styles.vegType}>
+                          {getVegTypeName(item.veg_type_id)}
+                        </Text>
+                      </View>
+                    </TouchableScale>
                   </View>
                 )}
               />
@@ -222,18 +228,21 @@ export default function HomeScreen() {
                 keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
                 renderItem={({ item }) => (
                   <View style={styles.itemContainer}>
-                    <Image
-                      source={{ uri: item.image_url }}
-                      style={styles.image}
-                    />
-                    <View style={styles.textContainer}>
-                      {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
-                      <Text style={styles.name}>{item.name}</Text>
-                      <Text style={styles.category}>{item.category}</Text>
-                      <Text style={styles.vegType}>
-                        {getVegTypeName(item.veg_type_id)}
-                      </Text>
-                    </View>
+                    <TouchableScale>
+                      <Image
+                        source={{ uri: item.image_url }}
+                        style={styles.image}
+                      />
+
+                      <View style={styles.textContainer}>
+                        {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                        <Text style={styles.name}>{item.name}</Text>
+                        <Text style={styles.category}>{item.category}</Text>
+                        <Text style={styles.vegType}>
+                          {getVegTypeName(item.veg_type_id)}
+                        </Text>
+                      </View>
+                    </TouchableScale>
                   </View>
                 )}
               />
@@ -249,7 +258,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,
-    backgroundColor: Main_theme.main_10,
+    backgroundColor: Main_theme.main_20,
     flexDirection: "column",
   },
   topContents: {},
@@ -272,8 +281,7 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     //backgroundColor: Main_theme.main_reverse, //영역 테스트 용 코드입니다.
-    marginTop: 24,
-    marginBottom: 16,
+    marginVertical: 24,
     marginHorizontal: 24,
   },
   mainContents: {
