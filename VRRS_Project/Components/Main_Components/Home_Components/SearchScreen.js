@@ -7,18 +7,27 @@ import {
   StyleSheet,
   useWindowDimensions,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import Octicons from "@expo/vector-icons/Octicons";
 
 function SearchScreen({ navigation }) {
-  useTabBarVisibility(false);
+  // textInput에 작성되는 text
   const [searchText, setSearchText] = useState("");
-  const textInputRef = useRef(null);
+  // textInput에 작성되는 text 저장 state
+  const [searchList, setSearchList] = useState([]);
+
+  const textInputRef = useRef();
   useEffect(() => {
     textInputRef.current?.focus();
   }, []);
+  useTabBarVisibility(false);
+
+  const saveSearchText = () => {
+    setSearchText();
+  };
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
