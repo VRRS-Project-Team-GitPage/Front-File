@@ -4,7 +4,7 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { vegTypes } from "../Dummy/dummyVegTypes"; // 채식 유형 데이터 가져오기
 
-// UserContext 생성
+// UserContext 생성 => user 정보를 전역적으로 관리
 const UserContext = createContext(null);
 
 // AsyncStorage에 저장할 때 사용할 키
@@ -20,6 +20,10 @@ const getVegTypeNameById = (id) => {
 export const UserProvider = ({ children }) => {
   // 유저 상태 관리
   const [user, setUser] = useState(null);
+
+  // 유저 이름과 채식 유형 이름을 전역 변수로 저장
+  const username = user?.username || "";
+  const vegTypeName = user ? getVegTypeNameById(user.veg_type_id) : "";
 
   // 더미 유저 데이터를 AsyncStorage에 저장하는 함수
   const saveUserToStorage = async (userData) => {
@@ -59,7 +63,9 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user }}>{children}</UserContext.Provider>
+    <UserContext.Provider value={{ user, username, vegTypeName }}>
+      {children}
+    </UserContext.Provider>
   );
 };
 

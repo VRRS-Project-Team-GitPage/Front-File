@@ -2,10 +2,9 @@ import {
   View,
   Text,
   Image,
-  TextInput,
   TouchableOpacity,
   ScrollView,
-  TouchableNativeFeedback,
+  ActivityIndicator,
 } from "react-native";
 import { useState, useEffect } from "react";
 // Server data를 사용하기 위해 저장한 component들을 import(현재는 더미 데이터를 사용)
@@ -28,7 +27,7 @@ import {
 
 export default function HomeScreen({ navigation }) {
   // user의 정보를 불러옴
-  const { user } = useUser();
+  const { user, username, vegTypeName } = useUser();
 
   // 제품 정보를 저장하는 state
   const [productData, setProductData] = useState([]);
@@ -45,7 +44,7 @@ export default function HomeScreen({ navigation }) {
   if (!user) {
     return (
       <View style={styles.container}>
-        <Text>유저 정보 로딩 중...</Text>
+        <ActivityIndicator />
       </View>
     );
   }
@@ -107,7 +106,7 @@ export default function HomeScreen({ navigation }) {
                   color: Main_theme.main_50,
                 }}
               >
-                {user.username}님!
+                {username}님!
               </Text>
             </View>
             <Text
@@ -184,7 +183,7 @@ export default function HomeScreen({ navigation }) {
               }}
               activeOpacity={0.6}
             >
-              <Text style={styles.mainDicTitle}>비건은 지금 ❤️‍🔥</Text>
+              <Text style={styles.mainDicTitle}>{vegTypeName}은 지금 ❤️‍🔥</Text>
               <Octicons name="chevron-right" size={24} color="black" />
             </TouchableOpacity>
             <View style={styles.mainDicContainer}>
@@ -193,25 +192,35 @@ export default function HomeScreen({ navigation }) {
                 showsHorizontalScrollIndicator={false}
                 data={productData} // 상태로 관리되는 제품 데이터를 사용
                 keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
-                renderItem={({ item }) => (
-                  <View style={styles.itemContainer}>
-                    <TouchableScale>
-                      <Image
-                        source={{ uri: item.image_url }}
-                        style={styles.image}
-                      />
+                renderItem={({ item }) => {
+                  // 아이템의 채식 유형 이름이 현재 사용자의 채식 유형과 일치하는지 확인
+                  const itemVegTypeName = getVegTypeName(item.veg_type_id);
+                  if (itemVegTypeName !== vegTypeName) {
+                    return null; // 일치하지 않으면 아무것도 렌더링하지 않음
+                  }
 
-                      <View style={styles.textContainer}>
-                        {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
-                        <Text style={styles.name}>{item.name}</Text>
-                        <Text style={styles.category}>{item.category}</Text>
-                        <Text style={styles.vegType}>
-                          {getVegTypeName(item.veg_type_id)}
-                        </Text>
-                      </View>
-                    </TouchableScale>
-                  </View>
-                )}
+                  // 일치할 경우에만 해당 아이템을 렌더링
+                  return (
+                    <View style={styles.itemContainer}>
+                      <TouchableScale>
+                        <Image
+                          source={{ uri: item.image_url }}
+                          style={styles.image}
+                        />
+
+                        <View style={styles.textContainer}>
+                          {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                          <Text style={styles.name}>{item.name}</Text>
+                          <Text style={styles.category}>{item.category}</Text>
+                          <Text style={styles.vegType}>
+                            {itemVegTypeName}
+                            {/* 아이템의 채식 유형 이름 표시 */}
+                          </Text>
+                        </View>
+                      </TouchableScale>
+                    </View>
+                  );
+                }}
               />
             </View>
           </View>
