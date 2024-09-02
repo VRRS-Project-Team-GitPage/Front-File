@@ -24,6 +24,7 @@ const useTabBarVisibility = (visible) => {
       });
     }
 
+    // 다른 스크린으로 이동 시 다시 Tab Bar가 보임
     return () => {
       if (parentNavigator) {
         parentNavigator.setOptions({
@@ -32,7 +33,7 @@ const useTabBarVisibility = (visible) => {
             borderTopStartRadius: 20,
             borderTopEndRadius: 20,
             position: "absolute",
-          }, // Show tab bar again when leaving screen
+          },
         });
       }
     };

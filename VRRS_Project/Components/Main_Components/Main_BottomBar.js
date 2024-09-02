@@ -21,6 +21,7 @@ import { Gray_theme, Main_theme } from "../../assets/styles/Theme_Colors";
 import MainIcons from "../../assets/Icons/MainIcons";
 // stack 페이지들을 import
 import HomeStack from "./Home_Components/HomeStack";
+import DicStack from "./Dic_Components/DicStack";
 
 // navigation Bar를 사용하기 위한 변수
 const Tab = createBottomTabNavigator();
@@ -87,12 +88,13 @@ export default function Main_BottomBar() {
           }}
         ></Tab.Screen>
         <Tab.Screen
-          name="Dic"
-          component={DicScreen}
+          name="DicTab"
+          component={DicStack}
           options={{
             tabBarLabel: "사전", //화면에 표시될 텍스트
             // Screen의 헤더를 숨깁니다.
             headerShown: false,
+            tabBarHideOnKeyboard: true,
             tabBarIcon: ({ focused, color }) => {
               //화면에 표시될 아이콘
               return (
