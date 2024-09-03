@@ -10,12 +10,14 @@ import {
   ToastAndroid,
   FlatList,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext";
 import {
   getAllProducts,
   getVegTypeName,
+  products,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
@@ -74,19 +76,51 @@ export default function DicScreen({ route, navigation }) {
     BackHandler.addEventListener("hardwareBackPress", backAction);
   }, [backAction]);
 
+  // 사전의 등록순 / 인기순 정렬 버튼: 기본값으로 '등록순' 설정
+  const [sortOrder, setSortOrder] = useState("등록순");
+  const [sortedProducts, setSortedProducts] = useState(products); // 기본 제품 목록을 상태로 설정
+
+  // 정렬 버튼의 옵션에 사전의 항목을 정렬하는 함수
+  const sortProducts = (order) => {
+    let sortedList = [...products];
+    if (order === "등록순") {
+      sortedList.sort(
+        // 항목별로 등록 날짜를 비교하여 정렬
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+    } else if (order === "인기순") {
+      sortedList.sort(
+        (a, b) => b.likes + b.commentsCount - (a.likes + a.commentsCount)
+      );
+    }
+    setSortedProducts(sortedList);
+  };
+
+  React.useEffect(() => {
+    sortProducts(sortOrder);
+  }, []);
+
+  // 정렬 버튼을 눌렀을 때 호출할 함수
+  const handleSortOrderChange = (order) => {
+    setSortOrder(order);
+    sortProducts(order);
+  };
+
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
+  const [selectedOption, setSelectedOption] = useState("등록순"); // 선택된 옵션
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen); // 드롭다운 상태를 토글
+  };
+
+  const selectOption = (option) => {
+    setSelectedOption(option); // 옵션 선택 시 상태 업데이트
+    setIsDropdownOpen(false); // 옵션 선택 후 드롭다운 닫기
+  };
+
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeight = useWindowDimensions().height;
-
-  // 유형 선택 여부를 저장하는 변수
-  const [selectedId, setSelectedId] = useState(null);
-
-  // 선택된 버튼의 ID에 따라 제품을 필터링합니다.
-  const filterProducts = (id) => {
-    // 선택된 ID가 없으면 기본적으로 모든 제품을 표시합니다.
-    const maxId = id !== null ? id : 6;
-    return products.filter((product) => product.veg_type_id <= maxId);
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -138,25 +172,33 @@ export default function DicScreen({ route, navigation }) {
             개인 사전
           </Text>
         </View>
-        <View style={styles.firstBtn}>
-          <Text
-            style={{
-              fontFamily: "Pretendard-Regular",
-              fontSize: 12,
-              marginRight: 6,
-              color: Gray_theme.gray_80,
-            }}
-          >
-            등록순
-          </Text>
-          <Octicons name="chevron-down" size={16} color={Gray_theme.gray_80} />
+        <View>
+          <TouchableOpacity onPress={toggleDropdown} style={styles.firstBtn}>
+            <Text style={styles.buttonText}>{selectedOption}</Text>
+            <Octicons
+              name="chevron-down"
+              size={16}
+              color={Gray_theme.gray_80}
+            />
+          </TouchableOpacity>
+
+          {isDropdownOpen && (
+            <View style={styles.dropdownList}>
+              <TouchableOpacity onPress={() => selectOption("등록순")}>
+                <Text style={styles.dropdownItem}>등록순</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => selectOption("인기순")}>
+                <Text style={styles.dropdownItem}>인기순</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
       <View></View>
       <FlatList
         style={{ paddingHorizontal: 8 }}
         showsVerticalScrollIndicator={false}
-        data={productData}
+        data={sortedProducts}
         keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
         renderItem={({ item }) => {
           // 제품의 유형을 저장하는 변수
@@ -217,19 +259,47 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-Medium",
     fontSize: 12,
   },
+  // 게인 사전, drop list가 있는 페이지
   firstHeader: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     paddingVertical: 12,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
+
+  // 등록순 / 인기순 버튼
   firstBtn: {
     flexDirection: "row",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
     backgroundColor: Gray_theme.gray_20,
+  },
+  buttonText: {
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
+    marginRight: 6,
+    color: Gray_theme.gray_80,
+  },
+  dropdownList: {
+    backgroundColor: Gray_theme.white,
+    borderRadius: 20,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "absolute", // 드롭다운을 버튼 아래에 위치시키기 위해
+    top: 44, // 버튼 아래로 40px 떨어지게 설정
+    left: 0,
+    right: 0,
+
+    zIndex: 1000, // 다른 요소들보다 위에 위치
+  },
+  dropdownItem: {
+    paddingVertical: 10,
+    paddingHorizontal: 8,
+    fontSize: 14,
+    color: Gray_theme.gray_80,
   },
   itemContainer: {
     padding: 10,

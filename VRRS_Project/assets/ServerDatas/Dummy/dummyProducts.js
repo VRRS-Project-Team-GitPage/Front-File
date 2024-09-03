@@ -8,7 +8,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 1, // Vegan
+    veg_type_id: 1,
+    likes: 94,
+    commentsCount: 20,
+    created_at: new Date("2023-09-01T12:00:00Z"),
   },
   {
     id: 2,
@@ -16,7 +19,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 1, // 비건
+    veg_type_id: 1,
+    likes: 50,
+    commentsCount: 12,
+    created_at: new Date("2023-09-02T15:00:00Z"),
   },
   {
     id: 3,
@@ -24,7 +30,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 1, // 비건
+    veg_type_id: 1,
+    likes: 60,
+    commentsCount: 14,
+    created_at: new Date("2023-09-03T10:00:00Z"),
   },
   {
     id: 4,
@@ -32,7 +41,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 1, // 비건
+    veg_type_id: 1,
+    likes: 78,
+    commentsCount: 18,
+    created_at: new Date("2023-09-04T08:00:00Z"),
   },
   {
     id: 5,
@@ -40,7 +52,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 2, // 락토
+    veg_type_id: 2,
+    likes: 88,
+    commentsCount: 22,
+    created_at: new Date("2023-09-05T14:00:00Z"),
   },
   {
     id: 6,
@@ -48,7 +63,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 2, // 락토
+    veg_type_id: 2,
+    likes: 66,
+    commentsCount: 19,
+    created_at: new Date("2023-09-06T11:00:00Z"),
   },
   {
     id: 7,
@@ -56,7 +74,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 3, // 오보
+    veg_type_id: 3,
+    likes: 77,
+    commentsCount: 21,
+    created_at: new Date("2024-03-07T13:00:00Z"),
   },
   {
     id: 8,
@@ -64,7 +85,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 3, // 오보
+    veg_type_id: 3,
+    likes: 70,
+    commentsCount: 20,
+    created_at: new Date("2024-09-08T09:00:00Z"),
   },
   {
     id: 9,
@@ -72,7 +96,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 4, // 락토-오보
+    veg_type_id: 4,
+    likes: 92,
+    commentsCount: 23,
+    created_at: new Date("2023-11-09T17:00:00Z"),
   },
   {
     id: 10,
@@ -80,7 +107,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 4, // 락토-오보
+    veg_type_id: 4,
+    likes: 81,
+    commentsCount: 22,
+    created_at: new Date("2023-09-10T16:00:00Z"),
   },
   {
     id: 11,
@@ -88,7 +118,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 5, // 페스코
+    veg_type_id: 5,
+    likes: 99,
+    commentsCount: 24,
+    created_at: new Date("2023-09-17T07:00:00Z"),
   },
   {
     id: 12,
@@ -96,7 +129,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 5, // 페스코
+    veg_type_id: 5,
+    likes: 83,
+    commentsCount: 23,
+    created_at: new Date("2023-09-12T12:00:00Z"),
   },
   {
     id: 13,
@@ -104,7 +140,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 6, // 폴로
+    veg_type_id: 6,
+    likes: 90,
+    commentsCount: 25,
+    created_at: new Date("2023-09-13T18:00:00Z"),
   },
   {
     id: 14,
@@ -112,7 +151,10 @@ export const products = [
     category: "카테고리",
     ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
     image_url: "https://via.placeholder.com/150",
-    veg_type_id: 6, // 폴로
+    veg_type_id: 6,
+    likes: 82,
+    commentsCount: 22,
+    created_at: new Date("2023-09-14T15:00:00Z"),
   },
 ];
 
