@@ -9,9 +9,14 @@ import {
   BackHandler,
   ToastAndroid,
   FlatList,
+  Image,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext";
+import {
+  getAllProducts,
+  getVegTypeName,
+} from "../../../assets/ServerDatas/Dummy/dummyProducts";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 
@@ -21,6 +26,15 @@ export default function DicScreen({ route, navigation }) {
     useContext(SearchContext);
   // SearchScreen에서 넘어온 파라미터
   const { text, triggerSubmit } = route.params || {};
+
+  // 제품 정보를 저장하는 state
+  const [productData, setProductData] = useState([]);
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
+    const products = getAllProducts();
+    setProductData(products);
+  }, []);
 
   useEffect(() => {
     if (triggerSubmit) {
@@ -51,7 +65,7 @@ export default function DicScreen({ route, navigation }) {
     //boolean 값을 부여하지 않는 경우 -> 그대로 어플리케이션이 종료됨
     if (navigation?.canGoBack()) {
       setSearchText("");
-      navigation.navigate("Home");
+      navigation.goBack();
       return true;
     }
     return false;
@@ -75,20 +89,8 @@ export default function DicScreen({ route, navigation }) {
   };
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: Gray_theme.white,
-      }}
-    >
-      <View
-        style={{
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
+    <SafeAreaView style={styles.container}>
+      <View style={styles.searchHeader}>
         <Octicons
           name="arrow-left"
           size={24}
@@ -101,14 +103,8 @@ export default function DicScreen({ route, navigation }) {
         />
         <TextInput
           style={{
-            height: 40,
             width: windowWidth - 72,
-            backgroundColor: Gray_theme.gray_20,
-            borderRadius: 10,
-            paddingLeft: 16,
-            paddingRight: 48,
-            fontFamily: "Pretendard-Medium",
-            fontSize: 12,
+            ...styles.searchTextInput,
           }}
           placeholder="검색어를 입력해주세요"
           onChangeText={(text) => setSearchText(text)}
@@ -128,30 +124,148 @@ export default function DicScreen({ route, navigation }) {
           }}
         />
       </View>
+      <View style={styles.firstHeader}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Octicons name="check" size={16} color={Gray_theme.gray_40} />
+          <Text
+            style={{
+              marginLeft: 8,
+              color: Gray_theme.gray_40,
+              fontSize: 12,
+              fontFamily: "Pretendard-Medium",
+            }}
+          >
+            개인 사전
+          </Text>
+        </View>
+        <View style={styles.firstBtn}>
+          <Text
+            style={{
+              fontFamily: "Pretendard-Regular",
+              fontSize: 12,
+              marginRight: 6,
+              color: Gray_theme.gray_80,
+            }}
+          >
+            등록순
+          </Text>
+          <Octicons name="chevron-down" size={16} color={Gray_theme.gray_80} />
+        </View>
+      </View>
+      <View></View>
+      <FlatList
+        style={{ paddingHorizontal: 8 }}
+        showsVerticalScrollIndicator={false}
+        data={productData}
+        keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
+        renderItem={({ item }) => {
+          // 제품의 유형을 저장하는 변수
+          const itemVegTypeName = getVegTypeName(item.veg_type_id);
+          // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
+          return (
+            <View style={styles.itemContainer}>
+              <Image source={{ uri: item.image_url }} style={styles.image} />
+
+              <View style={styles.textContainer}>
+                {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                <View>
+                  <Text style={styles.name}>{item.name}</Text>
+                  <Text style={styles.category}>{item.category}</Text>
+                </View>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text style={styles.vegType}>
+                    {itemVegTypeName}
+                    {/* 아이템의 채식 유형 이름 표시 */}
+                  </Text>
+                  <View>
+                    <View></View>
+                    <View></View>
+                  </View>
+                </View>
+              </View>
+            </View>
+          );
+        }}
+      />
+
+      <View style={{ height: 60 }}></View>
     </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    backgroundColor: Gray_theme.white,
   },
-  buttonContainer: {
+  searchHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     flexDirection: "row",
-    flexWrap: "wrap",
+    alignItems: "center",
+  },
+  searchTextInput: {
+    height: 40,
+    backgroundColor: Gray_theme.gray_20,
+    borderRadius: 10,
+    paddingLeft: 16,
+    paddingRight: 48,
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
+  },
+  firstHeader: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 20,
+    alignItems: "center",
+  },
+  firstBtn: {
+    flexDirection: "row",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: Gray_theme.gray_20,
   },
   itemContainer: {
     padding: 10,
     borderBottomWidth: 1,
+    borderColor: Gray_theme.gray_20,
     flexDirection: "row",
     alignItems: "center",
   },
   image: {
-    width: 50,
-    height: 50,
-    marginRight: 10,
+    width: 88,
+    height: 88,
+    borderRadius: 10,
+  },
+  textContainer: {
+    paddingHorizontal: 8,
+    marginLeft: 8,
+  },
+  name: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 16,
+  },
+  category: {
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
+    color: Gray_theme.gray_60,
+  },
+  vegType: {
+    marginTop: 8,
+    fontSize: 10,
+    fontFamily: "Pretendard-Bold",
+    color: Main_theme.main_50,
+    backgroundColor: Main_theme.main_10,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    alignSelf: "flex-start",
   },
   detailsContainer: {
     flex: 1,

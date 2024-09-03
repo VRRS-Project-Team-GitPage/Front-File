@@ -324,7 +324,7 @@ const styles = StyleSheet.create({
 
   //flatList
   itemContainer: {
-    marginRight: 16,
+    marginRight: 24,
   },
 
   image: {
