@@ -5,38 +5,43 @@ import {
   View,
   Text,
   TextInput,
-  Button,
   BackHandler,
   ToastAndroid,
   FlatList,
   Image,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext";
+// 제품 정보 import
 import {
   getAllProducts,
   getVegTypeName,
   products,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
+// style 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 
 export default function DicScreen({ route, navigation }) {
+  // 화면 크기를 저장한 변수
+  const windowWidth = useWindowDimensions().width;
+  const windowHeight = useWindowDimensions().height;
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
+    const products = getAllProducts();
+  }, []);
+
+  // [상단 헤더의 검색창 영역에 관한 내용입니다.]
+
   // Search Context를 사용하기 위해 전역적으로 받아온 내용
   const { searchText, setSearchText, saveSearchText } =
     useContext(SearchContext);
   // SearchScreen에서 넘어온 파라미터
   const { text, triggerSubmit } = route.params || {};
-
-  // 제품 정보를 저장하는 state
-  const [productData, setProductData] = useState([]);
-  // 컴포넌트 마운트 시 데이터 로드
-  useEffect(() => {
-    // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
-    const products = getAllProducts();
-    setProductData(products);
-  }, []);
 
   useEffect(() => {
     if (triggerSubmit) {
@@ -44,14 +49,8 @@ export default function DicScreen({ route, navigation }) {
     }
   }, [triggerSubmit]);
 
-  // toast message를 띄워주기 위한 함수
-  const showToastWithGravity = () => {
-    ToastAndroid.showWithGravity(
-      "검색어를 입력해주세요",
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM
-    );
-  };
+  const [searchQuery, setSearchQuery] = useState(""); // 검색어 상태
+  const [filteredProducts, setFilteredProducts] = useState([]); // 필터링된 제품 리스트
 
   // 사용자가 검색했을 때 적용되는 함수입니다.
   const handleOnSubmitEditing = () => {
@@ -62,52 +61,40 @@ export default function DicScreen({ route, navigation }) {
     }
   };
 
-  // 사용자가 뒤로가기를 눌렀을 경우 TextInput을 비우는 함수
-  const backAction = () => {
-    //boolean 값을 부여하지 않는 경우 -> 그대로 어플리케이션이 종료됨
-    if (navigation?.canGoBack()) {
-      setSearchText("");
-      navigation.goBack();
-      return true;
-    }
-    return false;
-  };
   useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", backAction);
-  }, [backAction]);
+    filterProducts(searchQuery); // 검색어가 변경될 때마다 필터링
+  }, [searchQuery]);
 
-  // 사전의 등록순 / 인기순 정렬 버튼: 기본값으로 '등록순' 설정
-  const [sortOrder, setSortOrder] = useState("등록순");
-  const [sortedProducts, setSortedProducts] = useState(products); // 기본 제품 목록을 상태로 설정
-
-  // 정렬 버튼의 옵션에 사전의 항목을 정렬하는 함수
-  const sortProducts = (order) => {
-    let sortedList = [...products];
-    if (order === "등록순") {
-      sortedList.sort(
-        // 항목별로 등록 날짜를 비교하여 정렬
-        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+  const filterProducts = (query) => {
+    if (query === "") {
+      setFilteredProducts(products); // 검색어가 비어있으면 전체 리스트 표시
+    } else {
+      const filteredList = products.filter(
+        (product) =>
+          product.name.toLowerCase().includes(query.toLowerCase()) ||
+          product.category.toLowerCase().includes(query.toLowerCase()) ||
+          product.ingredients.some((ingredient) =>
+            ingredient.toLowerCase().includes(query.toLowerCase())
+          )
       );
-    } else if (order === "인기순") {
-      sortedList.sort(
-        (a, b) => b.likes + b.commentsCount - (a.likes + a.commentsCount)
-      );
+      setFilteredProducts(filteredList); // 필터링된 리스트 업데이트
     }
-    setSortedProducts(sortedList);
   };
 
-  React.useEffect(() => {
-    sortProducts(sortOrder);
-  }, []);
-
-  // 정렬 버튼을 눌렀을 때 호출할 함수
-  const handleSortOrderChange = (order) => {
-    setSortOrder(order);
-    sortProducts(order);
+  // toast message를 띄워주기 위한 함수
+  const showToastWithGravity = () => {
+    ToastAndroid.showWithGravity(
+      "검색어를 입력해주세요",
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM
+    );
   };
+
+  // [드롭 다운 버튼에 관한 내용입니다.]
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
   const [selectedOption, setSelectedOption] = useState("등록순"); // 선택된 옵션
+  const [sortedProducts, setSortedProducts] = useState([]); // 정렬된 제품 리스트
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen); // 드롭다운 상태를 토글
@@ -118,9 +105,32 @@ export default function DicScreen({ route, navigation }) {
     setIsDropdownOpen(false); // 옵션 선택 후 드롭다운 닫기
   };
 
-  // 화면 크기를 저장한 변수
-  const windowWidth = useWindowDimensions().width;
-  const windowHeight = useWindowDimensions().height;
+  useEffect(() => {
+    sortProducts(); // 옵션 선택 시마다 정렬
+  }, [selectedOption]);
+
+  const sortProducts = () => {
+    let sortedList = [...products]; // 원본 배열을 복사하여 정렬
+
+    if (selectedOption === "등록순") {
+      sortedList.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      );
+    } else if (selectedOption === "인기순") {
+      sortedList.sort(
+        (a, b) => b.likes + b.commentsCount - (a.likes + a.commentsCount)
+      );
+    }
+
+    setSortedProducts(sortedList); // 정렬된 리스트 업데이트
+  };
+
+  // 화면 밖을 클릭했을 때 드롭다운 닫기
+  const closeDropdown = () => {
+    if (isDropdownOpen) {
+      setIsDropdownOpen(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -172,27 +182,49 @@ export default function DicScreen({ route, navigation }) {
             개인 사전
           </Text>
         </View>
-        <View>
-          <TouchableOpacity onPress={toggleDropdown} style={styles.firstBtn}>
-            <Text style={styles.buttonText}>{selectedOption}</Text>
-            <Octicons
-              name="chevron-down"
-              size={16}
-              color={Gray_theme.gray_80}
-            />
-          </TouchableOpacity>
+        <TouchableOpacity
+          onPress={toggleDropdown}
+          style={styles.firstBtn}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.buttonText}>{selectedOption}</Text>
+          <Octicons name="chevron-down" size={16} color={Gray_theme.gray_80} />
+        </TouchableOpacity>
 
-          {isDropdownOpen && (
-            <View style={styles.dropdownList}>
-              <TouchableOpacity onPress={() => selectOption("등록순")}>
-                <Text style={styles.dropdownItem}>등록순</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => selectOption("인기순")}>
-                <Text style={styles.dropdownItem}>인기순</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
+        {isDropdownOpen && (
+          <View style={styles.dropdownList}>
+            <TouchableOpacity onPress={() => selectOption("등록순")}>
+              <View style={styles.dropdownItemContainer}>
+                <Text
+                  style={[
+                    styles.dropdownItem,
+                    selectedOption === "등록순" && styles.selectedOptionText,
+                  ]}
+                >
+                  등록순
+                </Text>
+                {selectedOption === "등록순" && (
+                  <Octicons name="check" size={12} color={Main_theme.main_30} />
+                )}
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => selectOption("인기순")}>
+              <View style={styles.dropdownItemContainer}>
+                <Text
+                  style={[
+                    styles.dropdownItem,
+                    selectedOption === "인기순" && styles.selectedOptionText,
+                  ]}
+                >
+                  인기순
+                </Text>
+                {selectedOption === "인기순" && (
+                  <Octicons name="check" size={12} color={Main_theme.main_30} />
+                )}
+              </View>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
       <View></View>
       <FlatList
@@ -267,10 +299,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-
-  // 등록순 / 인기순 버튼
   firstBtn: {
     flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
@@ -285,22 +316,35 @@ const styles = StyleSheet.create({
   dropdownList: {
     backgroundColor: Gray_theme.white,
     borderRadius: 20,
-    borderWidth: 1,
+    elevation: 3,
     justifyContent: "center",
-    alignItems: "center",
+    width: 86,
     position: "absolute", // 드롭다운을 버튼 아래에 위치시키기 위해
-    top: 44, // 버튼 아래로 40px 떨어지게 설정
-    left: 0,
-    right: 0,
+    top: 60, // 버튼 아래로 44px 떨어지게 설정
 
+    right: 24,
+    padding: 4,
     zIndex: 1000, // 다른 요소들보다 위에 위치
   },
+  dropdownItemContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
   dropdownItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 8,
-    fontSize: 14,
+    alignItems: "baseline",
+    fontSize: 12,
+    fontFamily: "Pretendard-Medium",
+    marginRight: 6,
     color: Gray_theme.gray_80,
   },
+  selectedOptionText: {
+    color: Main_theme.main_30, // 선택된 옵션의 텍스트 색상 변경
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 12,
+  },
+
   itemContainer: {
     padding: 10,
     borderBottomWidth: 1,
