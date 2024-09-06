@@ -23,7 +23,7 @@ import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
 
-export default function DicScreen({ route, navigation }) {
+export default function DicScreen2({ route, navigation }) {
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
 
@@ -58,7 +58,6 @@ export default function DicScreen({ route, navigation }) {
   useEffect(() => {
     if (triggerSubmit) {
       handleOnSubmitEditing(text); // 텍스트 반영 후, onSubmitEditing 동작 실행
-      navigation.setParams({ triggerSubmit: false });
     }
   }, [triggerSubmit]);
 

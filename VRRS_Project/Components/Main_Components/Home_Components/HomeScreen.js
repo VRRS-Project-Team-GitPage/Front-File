@@ -184,7 +184,11 @@ export default function HomeScreen({ navigation }) {
               activeOpacity={0.6}
             >
               <Text style={styles.mainDicTitle}>{vegTypeName}은 지금 ❤️‍🔥</Text>
-              <Octicons name="chevron-right" size={24} color="black" />
+              <Octicons
+                name="chevron-right"
+                size={24}
+                color={Gray_theme.gray_80}
+              />
             </TouchableOpacity>
             <View style={styles.mainDicContainer}>
               <FlatList
@@ -234,7 +238,11 @@ export default function HomeScreen({ navigation }) {
               activeOpacity={0.6}
             >
               <Text style={styles.mainDicTitle}>전체 인기순위</Text>
-              <Octicons name="chevron-right" size={24} color="black" />
+              <Octicons
+                name="chevron-right"
+                size={24}
+                color={Gray_theme.gray_80}
+              />
             </TouchableOpacity>
             <View style={styles.mainDicContainer}>
               <FlatList

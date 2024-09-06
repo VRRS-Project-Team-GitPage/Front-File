@@ -57,7 +57,6 @@ function SearchScreen({ navigation }) {
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
-  const windowHeight = useWindowDimensions().height;
 
   const handleSearch = () => {
     navigation.navigate("DicTab", {
@@ -70,7 +69,7 @@ function SearchScreen({ navigation }) {
       <View
         style={{
           paddingHorizontal: 16,
-          paddingVertical: 8,
+          paddingVertical: 16,
           flexDirection: "row",
           alignItems: "center",
         }}

@@ -2,6 +2,7 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import DicScreen from "./DicScreen";
+import DicScreen2 from "./DicScreen2";
 import ProducInfotScreen from "./DicProductScreen";
 
 const Stack = createNativeStackNavigator();
@@ -12,6 +13,11 @@ export default function DicStack() {
       <Stack.Screen
         name="DicList"
         component={DicScreen}
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="DicList2"
+        component={DicScreen2}
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
