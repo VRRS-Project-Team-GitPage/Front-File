@@ -1,6 +1,11 @@
 import React, { useCallback } from "react";
 import { useState, useEffect, useContext } from "react";
-import { useWindowDimensions, StyleSheet, ScrollView } from "react-native";
+import {
+  useWindowDimensions,
+  StyleSheet,
+  ScrollView,
+  Button,
+} from "react-native";
 import {
   View,
   Text,
@@ -40,7 +45,7 @@ export default function DicScreen({ route, navigation }) {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
         setSearchText("");
         setChecked("전체");
-        checkTypeBtn("전체");
+        checkTypeBtn(checked);
         selectOption("등록순");
         sortProducts();
       };
@@ -78,6 +83,9 @@ export default function DicScreen({ route, navigation }) {
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
           product.category
+            .toLocaleLowerCase()
+            .includes(query.toLocaleLowerCase()) ||
+          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -134,6 +142,9 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(searchText.toLocaleLowerCase()) ||
+          getVegTypeName(product.veg_type_id)
+            .toLocaleLowerCase()
+            .includes(searchText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
             ingredient
               .toLocaleLowerCase()
@@ -178,6 +189,9 @@ export default function DicScreen({ route, navigation }) {
             .toLocaleLowerCase()
             .includes(searchText.toLocaleLowerCase()) ||
           product.category
+            .toLocaleLowerCase()
+            .includes(searchText.toLocaleLowerCase()) ||
+          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(searchText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -427,6 +441,12 @@ export default function DicScreen({ route, navigation }) {
           }}
         />
       </View>
+      <Button
+        onPress={() => {
+          navigation.navigate("DicList2");
+        }}
+        title="두 번째 시안 확인"
+      ></Button>
       <View style={{ height: 60 }}></View>
     </SafeAreaView>
   );

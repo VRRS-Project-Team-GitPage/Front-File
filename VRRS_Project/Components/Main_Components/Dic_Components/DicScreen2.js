@@ -58,6 +58,7 @@ export default function DicScreen2({ route, navigation }) {
   useEffect(() => {
     if (triggerSubmit) {
       handleOnSubmitEditing(text); // 텍스트 반영 후, onSubmitEditing 동작 실행
+      navigation.setParams({ triggerSubmit: false });
     }
   }, [triggerSubmit]);
 
@@ -258,35 +259,30 @@ export default function DicScreen2({ route, navigation }) {
                     onPress={() => {
                       checkTypeBtn(btnType);
                     }}
-                    style={{
-                      borderBottomWidth: 1,
-                      borderColor: Gray_theme.gray_20,
-                    }}
                   >
-                    <View
+                    <Text
                       style={{
-                        borderBottomWidth: isSelected ? 3 : null,
-                        borderColor: Main_theme.main_30,
-                        paddingHorizontal: 4,
+                        color: isSelected
+                          ? Main_theme.main_50
+                          : Gray_theme.gray_40,
+                        fontFamily: isSelected
+                          ? "Pretendard-Bold"
+                          : "Pretendard-Medium",
+                        fontSize: 10,
+                        marginHorizontal: 4,
+                        marginBottom: 12,
+                        backgroundColor: isSelected
+                          ? Main_theme.main_10
+                          : Gray_theme.gray_20,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        borderRadius: 20,
+                        alignSelf: "flex-start",
+                        alignSelf: "center",
                       }}
                     >
-                      <Text
-                        style={{
-                          color: isSelected
-                            ? Main_theme.main_30
-                            : Gray_theme.gray_40,
-                          fontFamily: isSelected
-                            ? "Pretendard-Bold"
-                            : "Pretendard-Medium",
-                          fontSize: 14,
-                          marginHorizontal: 12,
-                          marginBottom: 12,
-                          alignSelf: "center",
-                        }}
-                      >
-                        {btnType}
-                      </Text>
-                    </View>
+                      {btnType}
+                    </Text>
                     <View
                       style={{
                         borderRadius: 3,
