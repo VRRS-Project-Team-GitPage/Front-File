@@ -29,8 +29,13 @@ export default function HomeScreen({ navigation }) {
   // user의 정보를 불러옴
   const { user, username, vegTypeName } = useUser();
 
+  // 화면 크기를 저장한 변수
+  const windowWidth = useWindowDimensions().width;
   // 제품 정보를 저장하는 state
   const [productData, setProductData] = useState([]);
+  // 필터된 제품 리스트를 저장하는 변수
+  const [filterList, setFilterList] = useState([]);
+
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
     // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
@@ -38,9 +43,19 @@ export default function HomeScreen({ navigation }) {
     setProductData(products);
   }, []);
 
-  // 화면 크기를 저장한 변수
-  const windowWidth = useWindowDimensions().width;
-  const windowHeight = useWindowDimensions().height;
+  useEffect(() => {
+    if (productData.length > 0) {
+      filterUserType();
+    }
+  }, [productData]);
+
+  const filterUserType = () => {
+    let sortedList = [...productData].sort(
+      (a, b) => b.likes + b.commentsCount - (a.likes + a.commentsCount)
+    );
+    setFilterList(sortedList);
+  };
+
   if (!user) {
     return (
       <View style={styles.container}>
@@ -48,6 +63,7 @@ export default function HomeScreen({ navigation }) {
       </View>
     );
   }
+
   return (
     <SafeAreaView style={styles.homeContainer}>
       <View style={styles.header}>
@@ -61,7 +77,9 @@ export default function HomeScreen({ navigation }) {
         <TouchableOpacity
           style={{ justifyContent: "center", marginHorizontal: 24 }}
           activeOpacity={0.8}
-          onPress={() => navigation.navigate("MainSearch")}
+          onPress={() => {
+            navigation.navigate("MainSearch");
+          }}
         >
           <View
             style={{
@@ -177,6 +195,16 @@ export default function HomeScreen({ navigation }) {
         <View style={styles.mainContents}>
           <View style={{ marginTop: 8 }}>
             <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("DicTab", {
+                  screen: "DicList",
+                  params: {
+                    type: vegTypeName, // 전체 제품을 필터로 설정
+                    sortOption: "인기순", // 인기순으로 정렬
+                    autoSearch: true, // 자동으로 검색을 트리거
+                  },
+                });
+              }}
               style={{
                 marginTop: 32,
                 ...styles.mainDicHeader,
@@ -194,15 +222,13 @@ export default function HomeScreen({ navigation }) {
               <FlatList
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
-                data={productData} // 상태로 관리되는 제품 데이터를 사용
+                data={filterList.slice(0, 50)} // 상태로 관리되는 제품 데이터를 사용
                 keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
                 renderItem={({ item }) => {
-                  // 아이템의 채식 유형 이름이 현재 사용자의 채식 유형과 일치하는지 확인
                   const itemVegTypeName = getVegTypeName(item.veg_type_id);
                   if (itemVegTypeName !== vegTypeName) {
-                    return null; // 일치하지 않으면 아무것도 렌더링하지 않음
+                    return null;
                   }
-
                   // 일치할 경우에만 해당 아이템을 렌더링
                   return (
                     <View style={styles.itemContainer}>
@@ -231,6 +257,16 @@ export default function HomeScreen({ navigation }) {
           <Line style={{ marginVertical: 16 }}></Line>
           <View>
             <TouchableOpacity
+              onPress={() => {
+                navigation.navigate("DicTab", {
+                  screen: "DicList",
+                  params: {
+                    type: "전체", // 전체 제품을 필터로 설정
+                    sortOption: "인기순", // 인기순으로 정렬
+                    autoSearch: true, // 자동으로 검색을 트리거
+                  },
+                });
+              }}
               style={{
                 marginTop: 16,
                 ...styles.mainDicHeader,
@@ -248,7 +284,7 @@ export default function HomeScreen({ navigation }) {
               <FlatList
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
-                data={productData} // 상태로 관리되는 제품 데이터를 사용
+                data={filterList.slice(0, 10)} // 상태로 관리되는 제품 데이터를 사용
                 keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
                 renderItem={({ item }) => (
                   <View style={styles.itemContainer}>
