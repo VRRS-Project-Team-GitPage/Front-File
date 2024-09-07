@@ -2,7 +2,7 @@
 name: 'Issue: 이슈 작성 템플릿'
 about: '해당 템플릿을 통해 이슈를 직상해주세요. '
 title: ''
-labels: chore, comment, design, feat, fix, question, refactor, remove, rename, test
+labels: ''
 assignees: Leeseoleem
 
 ---
