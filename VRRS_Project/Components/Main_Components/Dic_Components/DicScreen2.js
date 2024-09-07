@@ -1,11 +1,6 @@
 import React, { useCallback } from "react";
 import { useState, useEffect, useContext } from "react";
-import {
-  useWindowDimensions,
-  StyleSheet,
-  ScrollView,
-  Button,
-} from "react-native";
+import { useWindowDimensions, StyleSheet, ScrollView } from "react-native";
 import {
   View,
   Text,
@@ -28,7 +23,7 @@ import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
 
-export default function DicScreen({ route, navigation }) {
+export default function DicScreen2({ route, navigation }) {
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
 
@@ -45,7 +40,7 @@ export default function DicScreen({ route, navigation }) {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
         setSearchText("");
         setChecked("전체");
-        checkTypeBtn(checked);
+        checkTypeBtn("전체");
         selectOption("등록순");
         sortProducts();
       };
@@ -83,9 +78,6 @@ export default function DicScreen({ route, navigation }) {
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
           product.category
-            .toLocaleLowerCase()
-            .includes(query.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -142,9 +134,6 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(searchText.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
-            .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
             ingredient
               .toLocaleLowerCase()
@@ -189,9 +178,6 @@ export default function DicScreen({ route, navigation }) {
             .toLocaleLowerCase()
             .includes(searchText.toLocaleLowerCase()) ||
           product.category
-            .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(searchText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -273,35 +259,30 @@ export default function DicScreen({ route, navigation }) {
                     onPress={() => {
                       checkTypeBtn(btnType);
                     }}
-                    style={{
-                      borderBottomWidth: 1,
-                      borderColor: Gray_theme.gray_20,
-                    }}
                   >
-                    <View
+                    <Text
                       style={{
-                        borderBottomWidth: isSelected ? 3 : null,
-                        borderColor: Main_theme.main_30,
-                        paddingHorizontal: 4,
+                        color: isSelected
+                          ? Main_theme.main_50
+                          : Gray_theme.gray_40,
+                        fontFamily: isSelected
+                          ? "Pretendard-Bold"
+                          : "Pretendard-Medium",
+                        fontSize: 10,
+                        marginHorizontal: 4,
+                        marginBottom: 12,
+                        backgroundColor: isSelected
+                          ? Main_theme.main_10
+                          : Gray_theme.gray_20,
+                        paddingVertical: 8,
+                        paddingHorizontal: 12,
+                        borderRadius: 20,
+                        alignSelf: "flex-start",
+                        alignSelf: "center",
                       }}
                     >
-                      <Text
-                        style={{
-                          color: isSelected
-                            ? Main_theme.main_30
-                            : Gray_theme.gray_40,
-                          fontFamily: isSelected
-                            ? "Pretendard-Bold"
-                            : "Pretendard-Medium",
-                          fontSize: 14,
-                          marginHorizontal: 12,
-                          marginBottom: 12,
-                          alignSelf: "center",
-                        }}
-                      >
-                        {btnType}
-                      </Text>
-                    </View>
+                      {btnType}
+                    </Text>
                     <View
                       style={{
                         borderRadius: 3,
@@ -441,12 +422,6 @@ export default function DicScreen({ route, navigation }) {
           }}
         />
       </View>
-      <Button
-        onPress={() => {
-          navigation.navigate("DicList2");
-        }}
-        title="두 번째 시안 확인"
-      ></Button>
       <View style={{ height: 60 }}></View>
     </SafeAreaView>
   );

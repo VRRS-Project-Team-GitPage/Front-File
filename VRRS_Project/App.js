@@ -3,7 +3,9 @@ import { StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
 import Theme_Colors, { Gray_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
 import * as Font from "expo-font"; // custom font를 사용하기 위해 import
+// 전역적으로 사용될 정보 import
 import { UserProvider } from "./assets/ServerDatas/Users/UserContext"; //user 정보를 전역적으로 사용하기 위해 import
+import { SearchProvider } from "./assets/ServerDatas/ReuseDatas/SearchContext";
 import Main_BottomBar from "./Components/Main_Components/Main_BottomBar";
 
 export default function App() {
@@ -39,10 +41,12 @@ export default function App() {
   return (
     // USerProvider를 최상위 Component로 하여 앱 전역적으로 user의 정보를 사용할 수 있도록 함
     <UserProvider>
-      <View style={styles.container}>
-        <StatusBar style="auto" />
-        <Main_BottomBar />
-      </View>
+      <SearchProvider>
+        <View style={styles.container}>
+          <StatusBar style="auto" />
+          <Main_BottomBar />
+        </View>
+      </SearchProvider>
     </UserProvider>
   );
 }

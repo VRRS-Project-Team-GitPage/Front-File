@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useLayoutEffect,
+  useContext,
+} from "react";
 import {
   View,
   Text,
@@ -14,15 +20,25 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import Octicons from "@expo/vector-icons/Octicons";
+import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext";
 
 // AsyncStorage에서 데이터를 가져올 때 사용할 키
 const STORAGE_KEY = "@Search_List";
 
 function SearchScreen({ navigation }) {
   const textInputRef = useRef();
-  useEffect(() => {
-    loadSearchList();
-  }, []);
+
+  const {
+    searchText,
+    setSearchText,
+    searchList,
+    setSearchList,
+    deleteList,
+    deleteAllList,
+    saveSearchText,
+  } = useContext(SearchContext);
+
+  useTabBarVisibility(false);
 
   // toast message를 띄워주기 위한 함수
   const showToastWithGravity = () => {
@@ -31,80 +47,6 @@ function SearchScreen({ navigation }) {
       ToastAndroid.SHORT,
       ToastAndroid.BOTTOM
     );
-  };
-  useTabBarVisibility(false);
-
-  // textInput에 작성되는 text
-  const [searchText, setSearchText] = useState("");
-  // 로컬 저장소에서 불러온 리스트를 저장하는 state
-  const [searchList, setSearchList] = useState([]);
-
-  // 입력된 텍스트를 저장하고 리스트를 업데이트하는 함수
-  const saveSearchText = async () => {
-    const checkIdx = searchList.findIndex((item) => item.text === searchText);
-    if (checkIdx !== -1) {
-      const newList = [...searchList];
-      const item = newList[checkIdx];
-      newList.splice(checkIdx, 1);
-      const saveNewList = [item, ...newList];
-
-      // 업데이트 된 리스트를 반영
-      setSearchList(saveNewList);
-      // 업데이트 된 리스트를 AsyncStorage에 저장
-      await saveSearchList(saveNewList);
-      // textInput 초기화
-      setSearchText("");
-    } else {
-      const newList = [
-        {
-          id: Date.now(),
-          text: searchText,
-        },
-        ...searchList,
-      ];
-
-      // 리스트의 길이가 20개를 넘으면, 가장 오래된 항목을 제거
-      if (newList.length > 20) {
-        newList.pop(); // 배열의 마지막 항목 제거
-      }
-
-      // 업데이트 된 리스트를 반영
-      setSearchList(newList);
-      // 업데이트 된 리스트를 AsyncStorage에 저장
-      await saveSearchList(newList);
-      // textInput 초기화
-      setSearchText("");
-    }
-
-    handleSearch();
-  };
-
-  // list의 항목을 지우는 함수
-  // id => 지우고 싶은 항목의 id
-  const deleteList = async (id) => {
-    const newList = searchList.filter((item) => item.id != id);
-    setSearchList(newList);
-    await saveSearchList(newList);
-  };
-
-  // list의 모든 항목을 지우는 함수
-  // id => 지우고 싶은 항목의 id
-  const deleteAllList = async (id) => {
-    setSearchList([]);
-    await saveSearchList([]);
-  };
-
-  // 리스트를 AsyncStorage에 저장하는 함수
-  const saveSearchList = async (newList) => {
-    const saveNewList = JSON.stringify(newList);
-    await AsyncStorage.setItem(STORAGE_KEY, saveNewList);
-  };
-
-  // AsyncStorage에서 리스트를 불러오는 함수
-  const loadSearchList = async () => {
-    const load_lists = await AsyncStorage.getItem(STORAGE_KEY);
-    const parsedLists = load_lists ? JSON.parse(load_lists) : []; // JSON.parse: String => Object 변환 / Null 체크 추가
-    setSearchList(parsedLists);
   };
 
   // textInput에 해당하는 text를 입력해주는 함수
@@ -115,26 +57,19 @@ function SearchScreen({ navigation }) {
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
-  const windowHeight = useWindowDimensions().height;
 
   const handleSearch = () => {
-    navigation.navigate("Dic", {
-      screen: "Dic",
-      params: { Text: searchText },
+    navigation.navigate("DicTab", {
+      screen: "DicList",
+      params: { text: searchText, triggerSubmit: true },
     });
   };
-
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        backgroundColor: Gray_theme.white,
-      }}
-    >
+    <SafeAreaView style={{ flex: 1, backgroundColor: Gray_theme.white }}>
       <View
         style={{
           paddingHorizontal: 16,
-          paddingVertical: 8,
+          paddingVertical: 16,
           flexDirection: "row",
           alignItems: "center",
         }}
@@ -166,6 +101,7 @@ function SearchScreen({ navigation }) {
               return showToastWithGravity();
             } else {
               saveSearchText();
+              handleSearch();
             }
           }}
         />
@@ -173,22 +109,13 @@ function SearchScreen({ navigation }) {
           name="x-circle-fill"
           size={16}
           color={Gray_theme.gray_50}
-          style={{
-            position: "absolute",
-            right: 40,
-          }}
+          style={{ position: "absolute", right: 40 }}
           onPress={() => {
             setSearchText("");
           }}
         />
       </View>
-      <View
-        style={{
-          paddingHorizontal: 24,
-          marginTop: 24,
-          marginBottom: 16,
-        }}
-      >
+      <View style={{ paddingHorizontal: 24, marginTop: 24, marginBottom: 16 }}>
         <View
           style={{
             flexDirection: "row",
@@ -232,27 +159,17 @@ function SearchScreen({ navigation }) {
             >
               <TouchableOpacity
                 activeOpacity={0.6}
-                onPress={(t) => {
+                onPress={() => {
                   goToSearch(item.text);
                 }}
               >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <Text style={{ color: Gray_theme.gray_40 }}>{item.text}</Text>
-                </View>
+                <Text style={{ color: Gray_theme.gray_40 }}>{item.text}</Text>
               </TouchableOpacity>
               <Octicons
                 name="x"
                 size={16}
                 color={Gray_theme.gray_40}
-                onPress={() => {
-                  deleteList(item.id);
-                }}
+                onPress={() => deleteList(item.id)}
               />
             </View>
           </View>
