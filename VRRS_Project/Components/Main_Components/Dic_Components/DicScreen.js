@@ -44,8 +44,7 @@ export default function DicScreen({ route, navigation }) {
       return () => {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
         setSearchText("");
-        setChecked("전체");
-        checkTypeBtn(checked);
+        checkTypeBtn("전체");
         selectOption("등록순");
         sortProducts();
       };
@@ -63,19 +62,20 @@ export default function DicScreen({ route, navigation }) {
   useEffect(() => {
     if (triggerSubmit) {
       handleOnSubmitEditing(text); // 텍스트 반영 후, onSubmitEditing 동작 실행
+      sortProducts();
       navigation.setParams({ triggerSubmit: false });
     }
   }, [triggerSubmit]);
 
-  useEffect(() => {
-    sortProducts();
-  }, [handleOnSubmitEditing]);
+  //useEffect(() => { sortProducts();}, [handleOnSubmitEditing]);
 
   const handleOnSubmitEditing = (query) => {
     if (query === "") {
       sethCeckedFilterList(sortedProducts);
       setChecked("전체");
       checkTypeBtn("전체");
+      selectOption("등록순");
+      sortProducts();
     } else {
       const filteredList = checkedFilterList.filter(
         (product) =>
@@ -106,7 +106,6 @@ export default function DicScreen({ route, navigation }) {
       checkTypeBtn(type);
       selectOption(sortOption);
       sortProducts();
-
       navigation.setParams({ autoSearch: false });
     }
   }, [autoSearch]);

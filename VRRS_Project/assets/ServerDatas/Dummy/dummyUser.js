@@ -16,6 +16,12 @@ export const users = [
     username: "구본하",
     veg_type_id: 3, // 오보
   },
+  { id: 4, username: "안돌진", veg_type_id: 4 },
+
+  { id: 5, username: "박민수", veg_type_id: 4 },
+  { id: 6, username: "최수정", veg_type_id: 5 },
+  { id: 7, username: "홍길동", veg_type_id: 6 },
+  { id: 8, username: "이영희", veg_type_id: 1 },
 ];
 
 // 특정 유저의 채식 유형 이름을 ID로 찾는 함수
