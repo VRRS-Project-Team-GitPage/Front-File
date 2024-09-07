@@ -97,6 +97,20 @@ export default function DicScreen({ route, navigation }) {
     }
   };
 
+  // [HomeScreen 연동 관련 내용입니다.]
+  const { type, sortOption, autoSearch } = route.params || {};
+
+  useEffect(() => {
+    if (autoSearch) {
+      setChecked(type);
+      checkTypeBtn(type);
+      selectOption(sortOption);
+      sortProducts();
+
+      navigation.setParams({ autoSearch: false });
+    }
+  }, [autoSearch]);
+
   // [드롭 다운 버튼에 관한 내용입니다.]
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
