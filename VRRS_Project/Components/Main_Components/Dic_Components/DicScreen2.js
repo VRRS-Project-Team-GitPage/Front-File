@@ -55,6 +55,17 @@ export default function DicScreen2({ route, navigation }) {
       ToastAndroid.BOTTOM
     );
   };
+  const { type, sortOption, autoSearch } = route.params || {};
+
+  useEffect(() => {
+    if (autoSearch) {
+      checkTypeBtn(type);
+      selectOption(sortOption);
+      sortProducts();
+
+      navigation.setParams({ autoSearch: false });
+    }
+  }, [autoSearch]);
 
   // [상단 헤더의 검색창 영역에 관한 내용입니다.]
 

@@ -46,8 +46,8 @@ export default function DicScreen({ route, navigation }) {
   // 화면 포커싱 시 초기 화면으로 돌리기 위한 변수
   const scrollViewRef = useRef(null);
 
+  // 스크롤뷰를 처음으로 돌리는 함수
   const scrollViewReturn = () => {
-    // 검색 로직을 처리한 후
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ x: 0, animated: true });
     }
@@ -75,6 +75,18 @@ export default function DicScreen({ route, navigation }) {
       ToastAndroid.BOTTOM
     );
   };
+
+  const { type, sortOption, autoSearch } = route.params || {};
+
+  useEffect(() => {
+    if (autoSearch) {
+      checkTypeBtn(type);
+      selectOption(sortOption);
+      sortProducts();
+
+      navigation.setParams({ autoSearch: false });
+    }
+  }, [autoSearch]);
 
   // [상단 헤더의 검색창 영역에 관한 내용입니다.]
 
@@ -110,7 +122,7 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
+          getVegTypeName(product.pro_type_id)
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -167,9 +179,7 @@ export default function DicScreen({ route, navigation }) {
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
     } else if (selectedOption === "인기순") {
-      sortedList.sort(
-        (a, b) => b.likes + b.commentsCount - (a.likes + a.commentsCount)
-      );
+      sortedList.sort((a, b) => b.rec + b.rec - (a.rec + a.review));
     }
 
     if (filterText !== "") {
@@ -181,7 +191,7 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
+          getVegTypeName(product.pro_type_id)
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -208,7 +218,7 @@ export default function DicScreen({ route, navigation }) {
 
     if (btnType !== "전체") {
       filteredList = filteredList.filter(
-        (product) => getVegTypeName(product.veg_type_id) === btnType
+        (product) => getVegTypeName(product.pro_type_id) === btnType
       );
     }
 
@@ -221,7 +231,7 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
+          getVegTypeName(product.pro_type_id)
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -445,14 +455,11 @@ export default function DicScreen({ route, navigation }) {
             keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
             renderItem={({ item }) => {
               // 제품의 유형을 저장하는 변수
-              const itemVegTypeName = getVegTypeName(item.veg_type_id);
+              const itemVegTypeName = getVegTypeName(item.pro_type_id);
               // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
               return (
                 <View style={styles.itemContainer}>
-                  <Image
-                    source={{ uri: item.image_url }}
-                    style={styles.image}
-                  />
+                  <Image source={{ uri: item.img_path }} style={styles.image} />
 
                   <View style={styles.textContainer}>
                     {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
@@ -483,7 +490,7 @@ export default function DicScreen({ route, navigation }) {
                           marginBottom: 2,
                         }}
                       />
-                      <Text style={styles.infoText}>{item.likes}</Text>
+                      <Text style={styles.infoText}>{item.rec}</Text>
                     </View>
                     <View style={styles.infoContents}>
                       <Octicons
@@ -492,7 +499,7 @@ export default function DicScreen({ route, navigation }) {
                         color={Gray_theme.gray_40}
                         style={{ marginRight: 4 }}
                       />
-                      <Text style={styles.infoText}>{item.commentsCount}</Text>
+                      <Text style={styles.infoText}>{item.review}</Text>
                     </View>
                   </View>
                 </View>
