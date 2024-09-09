@@ -1,11 +1,11 @@
 import { View, Text, TextInput } from "react-native";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { StyleSheet, useWindowDimensions, ToastAndroid } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 
-export default function Rec_SearchScreen({ navigation }) {
+export default function Rec_KeywordScreen({ navigation }) {
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
@@ -71,7 +71,10 @@ export default function Rec_SearchScreen({ navigation }) {
                 if (searchText === "") {
                   showToastWithGravity();
                 } else {
-                  navigation.navigate("Rec_Result");
+                  navigation.navigate("Key_Result", {
+                    text: searchText,
+                    triggerSubmit: true,
+                  });
                 }
               }}
               style={{

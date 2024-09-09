@@ -2,9 +2,10 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import RecommendScreen from "./RecommendScreen";
-import Rec_SearchScreen from "./Rec_SearchScreen";
+import Rec_KeywordScreen from "./Rec_KeywordScreen";
 import Rec_CateScreen from "./Rec_CateScreen";
-import Rec_ResultScreen from "./Rec_ResultScreen";
+import Rec_KeyResultScreen from "./Rec_KeyResultScreen";
+import Rec_CateResultScreen from "./Rec_CateResultScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -17,8 +18,8 @@ export default function DicStack() {
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
-        name="Rec_Search"
-        component={Rec_SearchScreen}
+        name="Rec_Key"
+        component={Rec_KeywordScreen}
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
@@ -27,8 +28,13 @@ export default function DicStack() {
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
-        name="Rec_Result"
-        component={Rec_ResultScreen}
+        name="Key_Result"
+        component={Rec_KeyResultScreen}
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="Type_Result"
+        component={Rec_CateResultScreen}
         options={{ headerShown: false }}
       ></Stack.Screen>
     </Stack.Navigator>

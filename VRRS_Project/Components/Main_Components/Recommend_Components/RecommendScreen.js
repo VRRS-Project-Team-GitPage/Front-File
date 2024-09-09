@@ -31,7 +31,7 @@ export default function RecommendScreen({ navigation }) {
         <View style={styles.mainContents}>
           <TouchableScale
             onPress={() => {
-              navigation.navigate("Rec_Search");
+              navigation.navigate("Rec_Key");
             }}
           >
             <View
