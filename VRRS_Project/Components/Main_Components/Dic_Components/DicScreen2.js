@@ -8,6 +8,7 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  ToastAndroid,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -39,13 +40,21 @@ export default function DicScreen2({ route, navigation }) {
       return () => {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
         setSearchText("");
-        setChecked("전체");
         checkTypeBtn("전체");
         selectOption("등록순");
         sortProducts();
       };
     }, [])
   );
+
+  // toast message를 띄워주기 위한 함수
+  const showToastWithGravity = () => {
+    ToastAndroid.showWithGravity(
+      "검색어를 입력해주세요",
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM
+    );
+  };
 
   // [상단 헤더의 검색창 영역에 관한 내용입니다.]
 
@@ -62,17 +71,14 @@ export default function DicScreen2({ route, navigation }) {
     }
   }, [triggerSubmit]);
 
-  useEffect(() => {
-    sortProducts();
-  }, [handleOnSubmitEditing]);
+  const [filterText, setFilterText] = useState("");
 
   const handleOnSubmitEditing = (query) => {
     if (query === "") {
-      sethCeckedFilterList(sortedProducts);
-      setChecked("전체");
-      checkTypeBtn("전체");
+      showToastWithGravity();
+      setFilterText("");
     } else {
-      const filteredList = checkedFilterList.filter(
+      const filteredList = [...products].filter(
         (product) =>
           product.name
             .toLocaleLowerCase()
@@ -80,21 +86,30 @@ export default function DicScreen2({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
+          getVegTypeName(product.veg_type_id)
+            .toLocaleLowerCase()
+            .includes(query.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
             ingredient.toLocaleLowerCase().includes(query.toLocaleLowerCase())
           )
       );
+      setFilterText(query);
       saveSearchText();
-      sethCeckedFilterList(filteredList);
+      setSortedProducts(filteredList);
     }
+    checkTypeBtn("전체");
+    selectOption("등록순");
+    sortProducts();
   };
 
-  // [드롭 다운 버튼에 관한 내용입니다.]
+  // 검색 및 필터에 사용될 변수 모음입니다
+  const [sortedProducts, setSortedProducts] = useState([]); // 최종 정렬된 제품 리스트
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
   const [selectedOption, setSelectedOption] = useState("등록순"); // 선택된 옵션
-  const [sortedProducts, setSortedProducts] = useState([]); // 정렬된 제품 리스트
+  const [dropFilter, setDropFilter] = useState([]); // 드롭 다운 시 정렬된 리스트를 저장합니다.
 
+  // [드롭 다운 버튼에 관한 내용입니다.]
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen); // 드롭다운 상태를 토글
   };
@@ -104,13 +119,20 @@ export default function DicScreen2({ route, navigation }) {
     setIsDropdownOpen(false); // 옵션 선택 후 드롭다운 닫기
   };
 
+  // 화면 밖을 클릭했을 때 드롭다운 닫기
+  const closeDropdown = () => {
+    if (isDropdownOpen) {
+      setIsDropdownOpen(false);
+    }
+  };
+
   useEffect(() => {
     sortProducts(); // 옵션 선택 시마다 정렬
   }, [selectedOption]);
 
   useEffect(() => {
     checkTypeBtn(checked); // sortedProducts가 변경될 때마다 필터링
-  }, [sortedProducts]);
+  }, [dropFilter]);
 
   const sortProducts = () => {
     let sortedList = [...products];
@@ -125,68 +147,39 @@ export default function DicScreen2({ route, navigation }) {
       );
     }
 
-    if (searchText) {
+    if (filterText !== "") {
       sortedList = sortedList.filter(
         (product) =>
           product.name
             .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
+            .includes(filterText.toLocaleLowerCase()) ||
           product.category
             .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
+            .includes(filterText.toLocaleLowerCase()) ||
+          getVegTypeName(product.veg_type_id)
+            .toLocaleLowerCase()
+            .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
             ingredient
               .toLocaleLowerCase()
-              .includes(searchText.toLocaleLowerCase())
+              .includes(filterText.toLocaleLowerCase())
           )
       );
     }
 
-    if (checked !== "전체") {
-      sortedList = sortedList.filter(
-        (product) => getVegTypeName(product.veg_type_id) === checked
-      );
-    }
-
-    setSortedProducts(sortedList);
-    sethCeckedFilterList(sortedList);
-  };
-
-  // 화면 밖을 클릭했을 때 드롭다운 닫기
-  const closeDropdown = () => {
-    if (isDropdownOpen) {
-      setIsDropdownOpen(false);
-    }
+    setDropFilter(sortedList); // 드롭 로직 후 생성된 리스트
+    setSortedProducts(sortedList); // 전체 필터 리스트
   };
 
   // 유형 항목 체크에 관한 내용입니다.
   const [checked, setChecked] = useState("전체");
-  // 선택한 버튼에 따라 필터된 유형을 저장합니다.
-  const [checkedFilterList, sethCeckedFilterList] = useState([]);
 
   // 선택된 버튼에 따라 제품 리스트를 필터링 하는 함수
   // btnType: 버튼 유형을 받아오는 변수
   const checkTypeBtn = (btnType) => {
-    setChecked(btnType);
+    setChecked(btnType); // 어떤 버튼이 선택되었는지 받아옴
 
-    let filteredList = [...sortedProducts];
-
-    if (searchText) {
-      filteredList = filteredList.filter(
-        (product) =>
-          product.name
-            .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
-          product.category
-            .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
-          product.ingredients.some((ingredient) =>
-            ingredient
-              .toLocaleLowerCase()
-              .includes(searchText.toLocaleLowerCase())
-          )
-      );
-    }
+    let filteredList = [...dropFilter];
 
     if (btnType !== "전체") {
       filteredList = filteredList.filter(
@@ -194,7 +187,26 @@ export default function DicScreen2({ route, navigation }) {
       );
     }
 
-    sethCeckedFilterList(filteredList);
+    if (filterText !== "") {
+      filteredList = filteredList.filter(
+        (product) =>
+          product.name
+            .toLocaleLowerCase()
+            .includes(filterText.toLocaleLowerCase()) ||
+          product.category
+            .toLocaleLowerCase()
+            .includes(filterText.toLocaleLowerCase()) ||
+          getVegTypeName(product.veg_type_id)
+            .toLocaleLowerCase()
+            .includes(filterText.toLocaleLowerCase()) ||
+          product.ingredients.some((ingredient) =>
+            ingredient
+              .toLocaleLowerCase()
+              .includes(filterText.toLocaleLowerCase())
+          )
+      );
+    }
+    setSortedProducts(filteredList);
   };
 
   return (
@@ -366,7 +378,7 @@ export default function DicScreen2({ route, navigation }) {
         <FlatList
           style={{ paddingHorizontal: 8 }}
           showsVerticalScrollIndicator={false}
-          data={checkedFilterList}
+          data={sortedProducts}
           keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
           renderItem={({ item }) => {
             // 제품의 유형을 저장하는 변수

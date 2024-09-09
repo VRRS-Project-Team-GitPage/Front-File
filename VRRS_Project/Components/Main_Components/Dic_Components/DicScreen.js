@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import { useState, useEffect, useContext } from "react";
 import {
   useWindowDimensions,
@@ -13,6 +13,7 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  ToastAndroid,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,12 +26,16 @@ import {
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 // style 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
+import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import Octicons from "@expo/vector-icons/Octicons";
+import MainIcons from "../../../assets/Icons/MainIcons";
+// Data 관련 import
 import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
 
 export default function DicScreen({ route, navigation }) {
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
+  const windowHeigh = useWindowDimensions().height;
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
@@ -51,6 +56,15 @@ export default function DicScreen({ route, navigation }) {
     }, [])
   );
 
+  // toast message를 띄워주기 위한 함수
+  const showToastWithGravity = () => {
+    ToastAndroid.showWithGravity(
+      "검색어를 입력해주세요",
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM
+    );
+  };
+
   // [상단 헤더의 검색창 영역에 관한 내용입니다.]
 
   // Search Context를 사용하기 위해 전역적으로 받아온 내용
@@ -62,22 +76,18 @@ export default function DicScreen({ route, navigation }) {
   useEffect(() => {
     if (triggerSubmit) {
       handleOnSubmitEditing(text); // 텍스트 반영 후, onSubmitEditing 동작 실행
-      sortProducts();
       navigation.setParams({ triggerSubmit: false });
     }
   }, [triggerSubmit]);
 
-  //useEffect(() => { sortProducts();}, [handleOnSubmitEditing]);
+  const [filterText, setFilterText] = useState("");
 
   const handleOnSubmitEditing = (query) => {
     if (query === "") {
-      sethCeckedFilterList(sortedProducts);
-      setChecked("전체");
-      checkTypeBtn("전체");
-      selectOption("등록순");
-      sortProducts();
+      showToastWithGravity();
+      setFilterText("");
     } else {
-      const filteredList = checkedFilterList.filter(
+      const filteredList = [...products].filter(
         (product) =>
           product.name
             .toLocaleLowerCase()
@@ -92,30 +102,23 @@ export default function DicScreen({ route, navigation }) {
             ingredient.toLocaleLowerCase().includes(query.toLocaleLowerCase())
           )
       );
+      setFilterText(query);
       saveSearchText();
-      sethCeckedFilterList(filteredList);
+      setSortedProducts(filteredList);
     }
+    checkTypeBtn("전체");
+    selectOption("등록순");
+    sortProducts();
   };
 
-  // [HomeScreen 연동 관련 내용입니다.]
-  const { type, sortOption, autoSearch } = route.params || {};
-
-  useEffect(() => {
-    if (autoSearch) {
-      setChecked(type);
-      checkTypeBtn(type);
-      selectOption(sortOption);
-      sortProducts();
-      navigation.setParams({ autoSearch: false });
-    }
-  }, [autoSearch]);
-
-  // [드롭 다운 버튼에 관한 내용입니다.]
+  // 검색 및 필터에 사용될 변수 모음입니다
+  const [sortedProducts, setSortedProducts] = useState([]); // 최종 정렬된 제품 리스트
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
   const [selectedOption, setSelectedOption] = useState("등록순"); // 선택된 옵션
-  const [sortedProducts, setSortedProducts] = useState([]); // 정렬된 제품 리스트
+  const [dropFilter, setDropFilter] = useState([]); // 드롭 다운 시 정렬된 리스트를 저장합니다.
 
+  // [드롭 다운 버튼에 관한 내용입니다.]
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen); // 드롭다운 상태를 토글
   };
@@ -125,13 +128,20 @@ export default function DicScreen({ route, navigation }) {
     setIsDropdownOpen(false); // 옵션 선택 후 드롭다운 닫기
   };
 
+  // 화면 밖을 클릭했을 때 드롭다운 닫기
+  const closeDropdown = () => {
+    if (isDropdownOpen) {
+      setIsDropdownOpen(false);
+    }
+  };
+
   useEffect(() => {
     sortProducts(); // 옵션 선택 시마다 정렬
   }, [selectedOption]);
 
   useEffect(() => {
     checkTypeBtn(checked); // sortedProducts가 변경될 때마다 필터링
-  }, [sortedProducts]);
+  }, [dropFilter]);
 
   const sortProducts = () => {
     let sortedList = [...products];
@@ -146,74 +156,39 @@ export default function DicScreen({ route, navigation }) {
       );
     }
 
-    if (searchText) {
+    if (filterText !== "") {
       sortedList = sortedList.filter(
         (product) =>
           product.name
             .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
+            .includes(filterText.toLocaleLowerCase()) ||
           product.category
             .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
+            .includes(filterText.toLocaleLowerCase()) ||
           getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
+            .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
             ingredient
               .toLocaleLowerCase()
-              .includes(searchText.toLocaleLowerCase())
+              .includes(filterText.toLocaleLowerCase())
           )
       );
     }
 
-    if (checked !== "전체") {
-      sortedList = sortedList.filter(
-        (product) => getVegTypeName(product.veg_type_id) === checked
-      );
-    }
-
-    setSortedProducts(sortedList);
-    sethCeckedFilterList(sortedList);
-  };
-
-  // 화면 밖을 클릭했을 때 드롭다운 닫기
-  const closeDropdown = () => {
-    if (isDropdownOpen) {
-      setIsDropdownOpen(false);
-    }
+    setDropFilter(sortedList); // 드롭 로직 후 생성된 리스트
+    setSortedProducts(sortedList); // 전체 필터 리스트
   };
 
   // 유형 항목 체크에 관한 내용입니다.
   const [checked, setChecked] = useState("전체");
-  // 선택한 버튼에 따라 필터된 유형을 저장합니다.
-  const [checkedFilterList, sethCeckedFilterList] = useState([]);
 
   // 선택된 버튼에 따라 제품 리스트를 필터링 하는 함수
   // btnType: 버튼 유형을 받아오는 변수
   const checkTypeBtn = (btnType) => {
-    setChecked(btnType);
+    setChecked(btnType); // 어떤 버튼이 선택되었는지 받아옴
 
-    let filteredList = [...sortedProducts];
-
-    if (searchText) {
-      filteredList = filteredList.filter(
-        (product) =>
-          product.name
-            .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
-          product.category
-            .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
-            .toLocaleLowerCase()
-            .includes(searchText.toLocaleLowerCase()) ||
-          product.ingredients.some((ingredient) =>
-            ingredient
-              .toLocaleLowerCase()
-              .includes(searchText.toLocaleLowerCase())
-          )
-      );
-    }
+    let filteredList = [...dropFilter];
 
     if (btnType !== "전체") {
       filteredList = filteredList.filter(
@@ -221,7 +196,26 @@ export default function DicScreen({ route, navigation }) {
       );
     }
 
-    sethCeckedFilterList(filteredList);
+    if (filterText !== "") {
+      filteredList = filteredList.filter(
+        (product) =>
+          product.name
+            .toLocaleLowerCase()
+            .includes(filterText.toLocaleLowerCase()) ||
+          product.category
+            .toLocaleLowerCase()
+            .includes(filterText.toLocaleLowerCase()) ||
+          getVegTypeName(product.veg_type_id)
+            .toLocaleLowerCase()
+            .includes(filterText.toLocaleLowerCase()) ||
+          product.ingredients.some((ingredient) =>
+            ingredient
+              .toLocaleLowerCase()
+              .includes(filterText.toLocaleLowerCase())
+          )
+      );
+    }
+    setSortedProducts(filteredList);
   };
 
   return (
@@ -395,64 +389,100 @@ export default function DicScreen({ route, navigation }) {
             </View>
           )}
         </View>
-        <FlatList
-          style={{ paddingHorizontal: 8 }}
-          showsVerticalScrollIndicator={false}
-          data={checkedFilterList}
-          keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
-          renderItem={({ item }) => {
-            // 제품의 유형을 저장하는 변수
-            const itemVegTypeName = getVegTypeName(item.veg_type_id);
-            // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
-            return (
-              <View style={styles.itemContainer}>
-                <Image source={{ uri: item.image_url }} style={styles.image} />
+        {sortedProducts.length === 0 ? (
+          <View
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 120,
+            }}
+          >
+            <Image
+              source={MainIcons.fail}
+              style={{ width: 120, height: 120 }}
+            ></Image>
+            <Text
+              style={{
+                marginTop: 16,
+                color: Main_theme.main_50,
+                fontFamily: "Pretendard-Bold",
+              }}
+            >
+              검색 결과가 없어요...
+            </Text>
+            <Text
+              style={{
+                marginBottom: 24,
+                color: Main_theme.main_50,
+                fontFamily: "Pretendard-Bold",
+              }}
+            >
+              다른 검색어를 입력해주세요.
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            style={{ paddingHorizontal: 8 }}
+            showsVerticalScrollIndicator={false}
+            data={sortedProducts}
+            keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
+            renderItem={({ item }) => {
+              // 제품의 유형을 저장하는 변수
+              const itemVegTypeName = getVegTypeName(item.veg_type_id);
+              // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
+              return (
+                <View style={styles.itemContainer}>
+                  <Image
+                    source={{ uri: item.image_url }}
+                    style={styles.image}
+                  />
 
-                <View style={styles.textContainer}>
-                  {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
-                  <View>
-                    <Text style={styles.name}>{item.name}</Text>
-                    <Text style={styles.category}>{item.category}</Text>
-                  </View>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                    }}
-                  >
-                    <Text style={styles.vegType}>
-                      {itemVegTypeName}
-                      {/* 아이템의 채식 유형 이름 표시 */}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.itemInfo}>
-                  <View style={styles.infoContents}>
-                    <Octicons
-                      name="thumbsup"
-                      size={16}
-                      color={Gray_theme.gray_40}
+                  <View style={styles.textContainer}>
+                    {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                    <View>
+                      <Text style={styles.name}>{item.name}</Text>
+                      <Text style={styles.category}>{item.category}</Text>
+                    </View>
+                    <View
                       style={{
-                        marginRight: 4,
-                        marginBottom: 2,
+                        flexDirection: "row",
+                        justifyContent: "space-between",
                       }}
-                    />
-                    <Text style={styles.infoText}>{item.likes}</Text>
+                    >
+                      <Text style={styles.vegType}>
+                        {itemVegTypeName}
+                        {/* 아이템의 채식 유형 이름 표시 */}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.infoContents}>
-                    <Octicons
-                      name="comment"
-                      size={16}
-                      color={Gray_theme.gray_40}
-                      style={{ marginRight: 4 }}
-                    />
-                    <Text style={styles.infoText}>{item.commentsCount}</Text>
+                  <View style={styles.itemInfo}>
+                    <View style={styles.infoContents}>
+                      <Octicons
+                        name="thumbsup"
+                        size={16}
+                        color={Gray_theme.gray_40}
+                        style={{
+                          marginRight: 4,
+                          marginBottom: 2,
+                        }}
+                      />
+                      <Text style={styles.infoText}>{item.likes}</Text>
+                    </View>
+                    <View style={styles.infoContents}>
+                      <Octicons
+                        name="comment"
+                        size={16}
+                        color={Gray_theme.gray_40}
+                        style={{ marginRight: 4 }}
+                      />
+                      <Text style={styles.infoText}>{item.commentsCount}</Text>
+                    </View>
                   </View>
                 </View>
-              </View>
-            );
-          }}
-        />
+              );
+            }}
+          />
+        )}
       </View>
       <Button
         onPress={() => {
