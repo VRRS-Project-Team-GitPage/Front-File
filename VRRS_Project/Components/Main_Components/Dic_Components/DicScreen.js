@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect } from "react";
+import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { useState, useEffect, useContext } from "react";
 import {
   useWindowDimensions,
@@ -43,6 +43,16 @@ export default function DicScreen({ route, navigation }) {
     const products = getAllProducts();
   }, []);
 
+  // 화면 포커싱 시 초기 화면으로 돌리기 위한 변수
+  const scrollViewRef = useRef(null);
+
+  const scrollViewReturn = () => {
+    // 검색 로직을 처리한 후
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ x: 0, animated: true });
+    }
+  };
+
   // 화면이 포커싱 될 경우 사용되는 hook
   useFocusEffect(
     React.useCallback(() => {
@@ -52,6 +62,7 @@ export default function DicScreen({ route, navigation }) {
         checkTypeBtn("전체");
         selectOption("등록순");
         sortProducts();
+        scrollViewReturn();
       };
     }, [])
   );
@@ -82,6 +93,10 @@ export default function DicScreen({ route, navigation }) {
 
   const [filterText, setFilterText] = useState("");
 
+  useEffect(() => {
+    handleOnSubmitEditing(filterText);
+  }, [filterText]);
+
   const handleOnSubmitEditing = (query) => {
     if (query === "") {
       showToastWithGravity();
@@ -109,6 +124,7 @@ export default function DicScreen({ route, navigation }) {
     checkTypeBtn("전체");
     selectOption("등록순");
     sortProducts();
+    scrollViewReturn();
   };
 
   // 검색 및 필터에 사용될 변수 모음입니다
@@ -267,6 +283,7 @@ export default function DicScreen({ route, navigation }) {
           <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false}
+            ref={scrollViewRef}
             style={{ flexDirection: "row" }}
           >
             {vegTypes
