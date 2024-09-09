@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Gray_theme } from "../../../assets/styles/Theme_Colors";
+import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 
 export default function Rec_CateScreen({ navigation }) {
@@ -32,7 +32,18 @@ export default function Rec_CateScreen({ navigation }) {
           유형으로 추천받기
         </Text>
       </View>
-      <Text>RecommendScreen</Text>
+      <View>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>먹고 싶은</Text>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={{ ...styles.title, color: Main_theme.main_30 }}>
+              제품 유형
+            </Text>
+            <Text style={styles.title}>을</Text>
+          </View>
+          <Text style={styles.title}>선택해주세요.</Text>
+        </View>
+      </View>
     </SafeAreaView>
   );
 }
@@ -48,5 +59,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 24,
+  },
+  titleContainer: {
+    marginVertical: 32,
+    paddingHorizontal: 24,
+  },
+  title: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 24,
   },
 });

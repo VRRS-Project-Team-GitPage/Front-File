@@ -42,7 +42,14 @@ export default function RecommendScreen({ navigation }) {
               }}
             >
               <View>
-                <Text style={styles.btnTitle}>키워드로</Text>
+                <View style={{ flexDirection: "row" }}>
+                  <Text
+                    style={{ ...styles.btnTitle, color: Main_theme.main_30 }}
+                  >
+                    키워드
+                  </Text>
+                  <Text style={styles.btnTitle}>로</Text>
+                </View>
                 <Text style={styles.btnTitle}>추천받기</Text>
               </View>
               <Image
@@ -74,7 +81,15 @@ export default function RecommendScreen({ navigation }) {
                 }}
               ></Image>
               <View>
-                <Text style={styles.btnTitle}>유형으로</Text>
+                <View style={{ flexDirection: "row" }}>
+                  <Text
+                    style={{ ...styles.btnTitle, color: Main_theme.main_30 }}
+                  >
+                    유형
+                  </Text>
+                  <Text style={styles.btnTitle}>으로</Text>
+                </View>
+
                 <Text style={styles.btnTitle}>추천받기</Text>
               </View>
             </View>
@@ -119,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 32,
+    paddingHorizontal: 36,
     paddingTop: 32,
     borderRadius: 20,
     elevation: 2,
