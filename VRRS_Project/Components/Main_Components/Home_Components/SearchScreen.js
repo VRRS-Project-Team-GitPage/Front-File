@@ -68,6 +68,7 @@ function SearchScreen({ navigation }) {
     <SafeAreaView style={{ flex: 1, backgroundColor: Gray_theme.white }}>
       <View
         style={{
+          height: 60,
           paddingHorizontal: 16,
           paddingVertical: 16,
           flexDirection: "row",

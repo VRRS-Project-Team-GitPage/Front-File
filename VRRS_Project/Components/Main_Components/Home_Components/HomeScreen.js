@@ -139,7 +139,11 @@ export default function HomeScreen({ navigation }) {
           <TouchableScale
             activeOpacity={0.8}
             style={{ justifyContent: "center" }}
-            onPress={() => navigation.navigate("Reco")}
+            onPress={() =>
+              navigation.navigate("RecoTab", {
+                screen: "Rec_Main",
+              })
+            }
           >
             <View
               style={{

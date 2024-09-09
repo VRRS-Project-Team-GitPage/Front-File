@@ -67,6 +67,10 @@ export default function DicScreen({ route, navigation }) {
     }, [])
   );
 
+  useEffect(() => {
+    sortProducts();
+  }, [useFocusEffect]);
+
   // toast message를 띄워주기 위한 함수
   const showToastWithGravity = () => {
     ToastAndroid.showWithGravity(
@@ -524,6 +528,7 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
   },
   searchHeader: {
+    height: 60,
     paddingHorizontal: 16,
     paddingVertical: 16,
     flexDirection: "row",

@@ -5,4 +5,5 @@ export default mainIcons = {
   mainLogo: require("./Main_Icons/logo.png"),
   paper: require("./Main_Icons/paper.png"),
   fail: require("./Main_Icons/fail.png"),
+  keyword: require("./Main_Icons/keyword.png"),
 };
