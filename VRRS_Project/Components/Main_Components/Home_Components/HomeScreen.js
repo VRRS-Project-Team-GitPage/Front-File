@@ -51,7 +51,7 @@ export default function HomeScreen({ navigation }) {
 
   const filterUserType = () => {
     let sortedList = [...productData].sort(
-      (a, b) => b.likes + b.commentsCount - (a.likes + a.commentsCount)
+      (a, b) => b.rec + b.review - (a.rec + a.review)
     );
     setFilterList(sortedList);
   };
@@ -225,7 +225,7 @@ export default function HomeScreen({ navigation }) {
                 data={filterList.slice(0, 50)} // 상태로 관리되는 제품 데이터를 사용
                 keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
                 renderItem={({ item }) => {
-                  const itemVegTypeName = getVegTypeName(item.veg_type_id);
+                  const itemVegTypeName = getVegTypeName(item.pro_type_id);
                   if (itemVegTypeName !== vegTypeName) {
                     return null;
                   }
@@ -234,7 +234,7 @@ export default function HomeScreen({ navigation }) {
                     <View style={styles.itemContainer}>
                       <TouchableScale>
                         <Image
-                          source={{ uri: item.image_url }}
+                          source={{ uri: item.img_path }}
                           style={styles.image}
                         />
 
@@ -290,7 +290,7 @@ export default function HomeScreen({ navigation }) {
                   <View style={styles.itemContainer}>
                     <TouchableScale>
                       <Image
-                        source={{ uri: item.image_url }}
+                        source={{ uri: item.img_path }}
                         style={styles.image}
                       />
 
@@ -299,7 +299,7 @@ export default function HomeScreen({ navigation }) {
                         <Text style={styles.name}>{item.name}</Text>
                         <Text style={styles.category}>{item.category}</Text>
                         <Text style={styles.vegType}>
-                          {getVegTypeName(item.veg_type_id)}
+                          {getVegTypeName(item.pro_type_id)}
                         </Text>
                       </View>
                     </TouchableScale>
