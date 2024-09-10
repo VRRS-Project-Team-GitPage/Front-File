@@ -23,7 +23,8 @@ export default function Rec_CateResultScreen({ navigation }) {
         />
       </View>
       <Text>추후 결과 화면을 작성할 예정입니다.</Text>
-      <View>
+      <View style={styles.bottomContents}>
+        <Text style={styles.bottomText}>다른 제품을 알아보고 싶다면?</Text>
         <BtnC
           onPress={() => {
             navigation.navigate("Rec_Main");
@@ -48,5 +49,14 @@ const styles = StyleSheet.create({
   headerX: {
     position: "absolute",
     right: 24,
+  },
+
+  bottomContents: { position: "absolute", bottom: 24, right: 0, left: 0 },
+  bottomText: {
+    textAlign: "center",
+    marginBottom: 12,
+    color: Main_theme.main_50,
+    fontSize: 12,
+    fontFamily: "Pretendard-SemiBold",
   },
 });

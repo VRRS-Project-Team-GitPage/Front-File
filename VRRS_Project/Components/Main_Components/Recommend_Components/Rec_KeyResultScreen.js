@@ -45,7 +45,7 @@ export default function Rec_keyResultScreen({ navigation, route }) {
             {searchText}
           </Text>
           <Text style={{ ...styles.resultText, color: Gray_theme.balck }}>
-            이 포함된
+            이/가 포함된
           </Text>
         </View>
         <View style={{ flexDirection: "row" }}>

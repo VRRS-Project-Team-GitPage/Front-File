@@ -1,5 +1,6 @@
-import { View, Text, Image } from "react-native";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { useState } from "react";
+import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
+import { StyleSheet, useWindowDimensions, ToastAndroid } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import TouchableScale from "../../../assets/styles/TouchableScale";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
@@ -14,7 +15,36 @@ export default function Rec_CateScreen({ navigation }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
+  // 하단바를 숨기는 로직
   useTabBarVisibility(false);
+
+  // 선택된 카테고리를 관리하는 상태
+  const [selectedCategories, setSelectedCategories] = useState([]);
+
+  // 카테고리를 선택/해제하는 함수
+  const toggleCategory = (category) => {
+    if (selectedCategories.includes(category)) {
+      // 이미 선택된 경우 선택 해제
+      setSelectedCategories((prev) => prev.filter((item) => item !== category));
+    } else {
+      // 선택되지 않은 경우 선택
+      setSelectedCategories((prev) => [...prev, category]);
+    }
+  };
+
+  // "확인" 버튼을 눌렀을 때 선택된 카테고리를 다음 화면으로 전달
+  const handleConfirm = () => {
+    navigation.navigate("Cate_Result", { selectedCategories });
+  };
+
+  // toast message를 띄워주기 위한 함수
+  const showToastWithGravity = () => {
+    ToastAndroid.showWithGravity(
+      "하나 이상 선택해주세요",
+      ToastAndroid.SHORT,
+      ToastAndroid.BOTTOM
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -52,93 +82,45 @@ export default function Rec_CateScreen({ navigation }) {
           <Text style={styles.title}>선택해주세요.</Text>
         </View>
         <View style={styles.mainContainer}>
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              marginBottom: 24,
-            }}
-          >
-            <TouchableScale>
-              <View
+          {[
+            { id: "meal", name: "식사류", icon: Cate_Icons.burrito },
+            { id: "snack", name: "간식", icon: Cate_Icons.pop },
+            { id: "bakery", name: "베이커리", icon: Cate_Icons.bread },
+            { id: "beverage", name: "음료", icon: Cate_Icons.cup },
+          ].map((category) => (
+            <TouchableOpacity
+              key={category.id}
+              onPress={() => toggleCategory(category.id)}
+              activeOpacity={0.8}
+              style={{
+                ...styles.cateBtn,
+                backgroundColor: selectedCategories.includes(category.id)
+                  ? Main_theme.main_30
+                  : Gray_theme.white,
+                width: windowWidth / 2 - 36,
+                height: windowWidth / 2 - 36,
+              }}
+            >
+              <Image source={category.icon} style={{ width: 92, height: 92 }} />
+              <Text
                 style={{
-                  ...styles.cateBtn,
-                  width: windowWidth / 2 - 36,
-                  height: windowWidth / 2 - 36,
+                  ...styles.btnText,
+                  color: selectedCategories.includes(category.id)
+                    ? Gray_theme.white
+                    : Gray_theme.gray_90,
                 }}
               >
-                <Image
-                  source={Cate_Icons.burrito}
-                  style={{
-                    width: 92,
-                    height: 92,
-                  }}
-                ></Image>
-                <Text style={styles.btnText}>식사류</Text>
-              </View>
-            </TouchableScale>
-            <TouchableScale>
-              <View
-                style={{
-                  ...styles.cateBtn,
-                  width: windowWidth / 2 - 36,
-                  height: windowWidth / 2 - 36,
-                }}
-              >
-                <Image
-                  source={Cate_Icons.bread}
-                  style={{
-                    width: 92,
-                    height: 92,
-                  }}
-                ></Image>
-                <Text style={styles.btnText}>베이커리</Text>
-              </View>
-            </TouchableScale>
-          </View>
-          <View
-            style={{ flexDirection: "row", justifyContent: "space-between" }}
-          >
-            <TouchableScale>
-              <View
-                style={{
-                  ...styles.cateBtn,
-                  width: windowWidth / 2 - 36,
-                  height: windowWidth / 2 - 36,
-                }}
-              >
-                <Image
-                  source={Cate_Icons.pop}
-                  style={{
-                    width: 92,
-                    height: 92,
-                  }}
-                ></Image>
-                <Text style={styles.btnText}>간식</Text>
-              </View>
-            </TouchableScale>
-            <TouchableScale>
-              <View
-                style={{
-                  ...styles.cateBtn,
-                  width: windowWidth / 2 - 36,
-                  height: windowWidth / 2 - 36,
-                }}
-              >
-                <Image
-                  source={Cate_Icons.cup}
-                  style={{
-                    width: 92,
-                    height: 92,
-                  }}
-                ></Image>
-                <Text style={styles.btnText}>음료</Text>
-              </View>
-            </TouchableScale>
-          </View>
+                {category.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
         <View style={styles.bottomContents}>
-          <Btn>확인</Btn>
+          {selectedCategories.length === 0 ? (
+            <Btn onPress={showToastWithGravity}>확인</Btn>
+          ) : (
+            <BtnC onPress={handleConfirm}>확인</BtnC>
+          )}
         </View>
       </View>
     </SafeAreaView>
@@ -167,6 +149,7 @@ const styles = StyleSheet.create({
   },
   mainContainer: {
     flex: 1,
+    flexWrap: "wrap",
     backgroundColor: Gray_theme.gray_20,
     paddingHorizontal: 24,
     paddingVertical: 32,
@@ -174,6 +157,8 @@ const styles = StyleSheet.create({
   cateBtn: {
     borderRadius: 15,
     elevation: 3,
+    marginRight: 24,
+    marginBottom: 24,
     backgroundColor: Gray_theme.white,
     paddingVertical: 24,
     justifyContent: "space-between",

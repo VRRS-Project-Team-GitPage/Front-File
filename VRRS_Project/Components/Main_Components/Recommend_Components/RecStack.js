@@ -33,7 +33,7 @@ export default function DicStack() {
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
-        name="Type_Result"
+        name="Cate_Result"
         component={Rec_CateResultScreen}
         options={{ headerShown: false }}
       ></Stack.Screen>
