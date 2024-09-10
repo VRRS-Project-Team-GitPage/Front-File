@@ -22,6 +22,7 @@ import MainIcons from "../../assets/Icons/MainIcons";
 // stack 페이지들을 import
 import HomeStack from "./Home_Components/HomeStack";
 import DicStack from "./Dic_Components/DicStack";
+import RecStsck from "./Recommend_Components/RecStack";
 
 // navigation Bar를 사용하기 위한 변수
 const Tab = createBottomTabNavigator();
@@ -90,6 +91,17 @@ export default function Main_BottomBar() {
         <Tab.Screen
           name="DicTab"
           component={DicStack}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              // Prevent default action
+              e.preventDefault();
+              // Do something with the `navigation` object
+              navigation.navigate("DicTab", {
+                screen: "DicList",
+              });
+              //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
+            },
+          })}
           options={{
             tabBarLabel: "사전", //화면에 표시될 텍스트
             // Screen의 헤더를 숨깁니다.
@@ -136,10 +148,22 @@ export default function Main_BottomBar() {
           }}
         ></Tab.Screen>
         <Tab.Screen
-          name="Reco"
-          component={RecommendScreen}
+          name="RecoTab"
+          component={RecStsck}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              // Prevent default action
+              e.preventDefault();
+              // Do something with the `navigation` object
+              navigation.navigate("RecoTab", {
+                screen: "Rec_Main",
+              });
+              //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
+            },
+          })}
           options={{
             tabBarLabel: "추천", //화면에 표시될 텍스트
+            headerShown: false,
             tabBarIcon: ({ focused, color }) => {
               //화면에 표시될 아이콘
               return (

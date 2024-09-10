@@ -58,14 +58,14 @@ export default function DicScreen({ route, navigation }) {
     React.useCallback(() => {
       return () => {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
-        setSearchText("");
-        checkTypeBtn("전체");
-        selectOption("등록순");
-        sortProducts();
-        scrollViewReturn();
+        handleOnSubmitEditing("");
       };
     }, [])
   );
+
+  useEffect(() => {
+    sortProducts();
+  }, [useFocusEffect]);
 
   // toast message를 띄워주기 위한 함수
   const showToastWithGravity = () => {
@@ -111,7 +111,6 @@ export default function DicScreen({ route, navigation }) {
 
   const handleOnSubmitEditing = (query) => {
     if (query === "") {
-      showToastWithGravity();
       setFilterText("");
     } else {
       const filteredList = [...products].filter(
@@ -271,6 +270,9 @@ export default function DicScreen({ route, navigation }) {
           onChangeText={(text) => setSearchText(text)}
           value={searchText}
           onSubmitEditing={() => {
+            if (searchText === "") {
+              showToastWithGravity();
+            }
             handleOnSubmitEditing(searchText);
           }}
         />
@@ -524,6 +526,7 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
   },
   searchHeader: {
+    height: 60,
     paddingHorizontal: 16,
     paddingVertical: 16,
     flexDirection: "row",
