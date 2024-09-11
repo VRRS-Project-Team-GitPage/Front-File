@@ -80,7 +80,10 @@ export default function Rec_KeywordScreen({ navigation }) {
               style={{
                 width: windowWidth - 32,
                 backgroundColor: searchText ? Gray_theme.gray_20 : null,
-                borderWidth: searchText ? 0 : 1,
+                borderColor: searchText
+                  ? Gray_theme.gray_40
+                  : Gray_theme.gray_60,
+                borderWidth: 1,
                 ...styles.textInput,
               }}
             />
@@ -126,7 +129,6 @@ const styles = StyleSheet.create({
   },
   textInput: {
     height: 48,
-    borderColor: Gray_theme.gray_60,
     borderRadius: 10,
     paddingLeft: 16,
     paddingRight: 48,

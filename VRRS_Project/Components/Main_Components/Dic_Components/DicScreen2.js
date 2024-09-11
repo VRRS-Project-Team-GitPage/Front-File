@@ -1,6 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { useState, useEffect, useContext } from "react";
-import { useWindowDimensions, StyleSheet, ScrollView } from "react-native";
+import {
+  useWindowDimensions,
+  StyleSheet,
+  ScrollView,
+  Button,
+} from "react-native";
 import {
   View,
   Text,
@@ -21,12 +26,16 @@ import {
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 // style 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
+import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import Octicons from "@expo/vector-icons/Octicons";
+import MainIcons from "../../../assets/Icons/MainIcons";
+// Data 관련 import
 import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
 
-export default function DicScreen2({ route, navigation }) {
+export default function DicScreen({ route, navigation }) {
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
+  const windowHeigh = useWindowDimensions().height;
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
@@ -34,18 +43,29 @@ export default function DicScreen2({ route, navigation }) {
     const products = getAllProducts();
   }, []);
 
+  // 화면 포커싱 시 초기 화면으로 돌리기 위한 변수
+  const scrollViewRef = useRef(null);
+
+  // 스크롤뷰를 처음으로 돌리는 함수
+  const scrollViewReturn = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ x: 0, animated: true });
+    }
+  };
+
   // 화면이 포커싱 될 경우 사용되는 hook
   useFocusEffect(
     React.useCallback(() => {
       return () => {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
-        setSearchText("");
-        checkTypeBtn("전체");
-        selectOption("등록순");
-        sortProducts();
+        handleOnSubmitEditing("");
       };
     }, [])
   );
+
+  useEffect(() => {
+    sortProducts();
+  }, [useFocusEffect]);
 
   // toast message를 띄워주기 위한 함수
   const showToastWithGravity = () => {
@@ -55,6 +75,7 @@ export default function DicScreen2({ route, navigation }) {
       ToastAndroid.BOTTOM
     );
   };
+
   const { type, sortOption, autoSearch } = route.params || {};
 
   useEffect(() => {
@@ -84,9 +105,12 @@ export default function DicScreen2({ route, navigation }) {
 
   const [filterText, setFilterText] = useState("");
 
+  useEffect(() => {
+    handleOnSubmitEditing(filterText);
+  }, [filterText]);
+
   const handleOnSubmitEditing = (query) => {
     if (query === "") {
-      showToastWithGravity();
       setFilterText("");
     } else {
       const filteredList = [...products].filter(
@@ -97,7 +121,7 @@ export default function DicScreen2({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
+          getVegTypeName(product.pro_type_id)
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -111,6 +135,7 @@ export default function DicScreen2({ route, navigation }) {
     checkTypeBtn("전체");
     selectOption("등록순");
     sortProducts();
+    scrollViewReturn();
   };
 
   // 검색 및 필터에 사용될 변수 모음입니다
@@ -153,9 +178,7 @@ export default function DicScreen2({ route, navigation }) {
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
     } else if (selectedOption === "인기순") {
-      sortedList.sort(
-        (a, b) => b.likes + b.commentsCount - (a.likes + a.commentsCount)
-      );
+      sortedList.sort((a, b) => b.rec + b.rec - (a.rec + a.review));
     }
 
     if (filterText !== "") {
@@ -167,7 +190,7 @@ export default function DicScreen2({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
+          getVegTypeName(product.pro_type_id)
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -194,7 +217,7 @@ export default function DicScreen2({ route, navigation }) {
 
     if (btnType !== "전체") {
       filteredList = filteredList.filter(
-        (product) => getVegTypeName(product.veg_type_id) === btnType
+        (product) => getVegTypeName(product.pro_type_id) === btnType
       );
     }
 
@@ -207,7 +230,7 @@ export default function DicScreen2({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
-          getVegTypeName(product.veg_type_id)
+          getVegTypeName(product.pro_type_id)
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -269,6 +292,7 @@ export default function DicScreen2({ route, navigation }) {
           <ScrollView
             horizontal={true}
             showsHorizontalScrollIndicator={false}
+            ref={scrollViewRef}
             style={{ flexDirection: "row" }}
           >
             {vegTypes
@@ -291,7 +315,7 @@ export default function DicScreen2({ route, navigation }) {
                         fontFamily: isSelected
                           ? "Pretendard-Bold"
                           : "Pretendard-Medium",
-                        fontSize: 10,
+                        fontSize: 12,
                         marginHorizontal: 4,
                         marginBottom: 12,
                         backgroundColor: isSelected
@@ -300,8 +324,9 @@ export default function DicScreen2({ route, navigation }) {
                         paddingVertical: 8,
                         paddingHorizontal: 12,
                         borderRadius: 20,
-                        alignSelf: "flex-start",
                         alignSelf: "center",
+                        textAlign: "center",
+                        justifyContent: "center",
                       }}
                     >
                       {btnType}
@@ -393,11 +418,11 @@ export default function DicScreen2({ route, navigation }) {
           keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
           renderItem={({ item }) => {
             // 제품의 유형을 저장하는 변수
-            const itemVegTypeName = getVegTypeName(item.veg_type_id);
+            const itemVegTypeName = getVegTypeName(item.pro_type_id);
             // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
             return (
               <View style={styles.itemContainer}>
-                <Image source={{ uri: item.image_url }} style={styles.image} />
+                <Image source={{ uri: item.img_path }} style={styles.image} />
 
                 <View style={styles.textContainer}>
                   {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
@@ -428,7 +453,7 @@ export default function DicScreen2({ route, navigation }) {
                         marginBottom: 2,
                       }}
                     />
-                    <Text style={styles.infoText}>{item.likes}</Text>
+                    <Text style={styles.infoText}>{item.rec}</Text>
                   </View>
                   <View style={styles.infoContents}>
                     <Octicons
@@ -437,7 +462,7 @@ export default function DicScreen2({ route, navigation }) {
                       color={Gray_theme.gray_40}
                       style={{ marginRight: 4 }}
                     />
-                    <Text style={styles.infoText}>{item.commentsCount}</Text>
+                    <Text style={styles.infoText}>{item.review}</Text>
                   </View>
                 </View>
               </View>
@@ -529,6 +554,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     flexDirection: "row",
     borderColor: Gray_theme.gray_20,
+    zIndex: 10,
   },
   itemContainer: {
     padding: 10,
