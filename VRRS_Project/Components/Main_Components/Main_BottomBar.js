@@ -1,31 +1,38 @@
-import {
-  Text,
-  View,
-  Image,
-  Touchable,
-  TouchableOpacity,
-  TextInput,
-  StyleSheet,
-} from "react-native";
+import { Image, StyleSheet } from "react-native";
 // navigation 사용을 위한 Props import
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // navigation으로 연결할 Screen을 import
-import DicScreen from "./Dic_Components/DicScreen";
-import ReadingScreen from "./Reading_Components/ReadingScreen";
-import RecommendScreen from "./Recommend_Components/RecommendScreen";
 import UserScreen from "./User_Components/UserScreen";
+import ReadingScreen from "./Reading_Components/BottomSheetScreen";
 // assests 사용을 위한 import
 import BarIcons from "../../assets/Icons/BarIcons";
 import { Gray_theme, Main_theme } from "../../assets/styles/Theme_Colors";
-import MainIcons from "../../assets/Icons/MainIcons";
 // stack 페이지들을 import
 import HomeStack from "./Home_Components/HomeStack";
 import DicStack from "./Dic_Components/DicStack";
 import RecStsck from "./Recommend_Components/RecStack";
+import BottomSheetScreen from "./Reading_Components/BottomSheetScreen";
 
 // navigation Bar를 사용하기 위한 변수
 const Tab = createBottomTabNavigator();
+// Stack을 사용해 모달 관리
+const Stack = createNativeStackNavigator();
+
+function ReadingModal() {
+  return (
+    <Stack.Navigator
+      screenOptions={{
+        presentation: "transparentModal", // 모달을 투명하게 설정
+        headerShown: false,
+        cardStyle: { backgroundColor: "transparent" }, // 모달의 배경을 투명하게 설정
+      }}
+    >
+      <Stack.Screen name="Reading" component={BottomSheetScreen} />
+    </Stack.Navigator>
+  );
+}
 
 export default function Main_BottomBar() {
   return (
@@ -124,9 +131,10 @@ export default function Main_BottomBar() {
           }}
         ></Tab.Screen>
         <Tab.Screen
-          name="Read"
-          component={ReadingScreen}
+          name="ReadTab"
+          component={ReadingModal}
           options={{
+            headerShown: false,
             tabBarIconStyle: {
               marginBottom: 36,
               borderBlockColor: Gray_theme.white,

@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { useState, useEffect } from "react";
 import Theme_Colors, { Gray_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
 import * as Font from "expo-font"; // custom font를 사용하기 위해 import
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 // 전역적으로 사용될 정보 import
 import { UserProvider } from "./assets/ServerDatas/Users/UserContext"; //user 정보를 전역적으로 사용하기 위해 import
 import { SearchProvider } from "./assets/ServerDatas/ReuseDatas/SearchContext";
@@ -42,10 +43,12 @@ export default function App() {
     // USerProvider를 최상위 Component로 하여 앱 전역적으로 user의 정보를 사용할 수 있도록 함
     <UserProvider>
       <SearchProvider>
-        <View style={styles.container}>
-          <StatusBar style="auto" />
-          <Main_BottomBar />
-        </View>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <View style={styles.container}>
+            <StatusBar style="auto" />
+            <Main_BottomBar />
+          </View>
+        </GestureHandlerRootView>
       </SearchProvider>
     </UserProvider>
   );
