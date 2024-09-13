@@ -5,7 +5,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // navigation으로 연결할 Screen을 import
 import UserScreen from "./User_Components/UserScreen";
-import ReadingScreen from "./Reading_Components/BottomSheetScreen";
 // assests 사용을 위한 import
 import BarIcons from "../../assets/Icons/BarIcons";
 import { Gray_theme, Main_theme } from "../../assets/styles/Theme_Colors";
@@ -13,28 +12,14 @@ import { Gray_theme, Main_theme } from "../../assets/styles/Theme_Colors";
 import HomeStack from "./Home_Components/HomeStack";
 import DicStack from "./Dic_Components/DicStack";
 import RecStsck from "./Recommend_Components/RecStack";
-import BottomSheetScreen from "./Reading_Components/BottomSheetScreen";
+import Readingtack from "./Reading_Components/ReadingStack";
 
 // navigation Bar를 사용하기 위한 변수
 const Tab = createBottomTabNavigator();
 // Stack을 사용해 모달 관리
 const Stack = createNativeStackNavigator();
 
-function ReadingModal() {
-  return (
-    <Stack.Navigator
-      screenOptions={{
-        presentation: "transparentModal", // 모달을 투명하게 설정
-        headerShown: false,
-        cardStyle: { backgroundColor: "transparent" }, // 모달의 배경을 투명하게 설정
-      }}
-    >
-      <Stack.Screen name="Reading" component={BottomSheetScreen} />
-    </Stack.Navigator>
-  );
-}
-
-export default function Main_BottomBar() {
+export default function Main_BottomBar({ navigation }) {
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -132,7 +117,15 @@ export default function Main_BottomBar() {
         ></Tab.Screen>
         <Tab.Screen
           name="ReadTab"
-          component={ReadingModal}
+          component={Readingtack}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              // 기본 동작 막기
+              e.preventDefault();
+              // BottomSheet 모달을 띄우기 위한 로직 실행
+              navigation.navigate("ReadTab", { screen: "BottomSheet" });
+            },
+          })}
           options={{
             headerShown: false,
             tabBarIconStyle: {
