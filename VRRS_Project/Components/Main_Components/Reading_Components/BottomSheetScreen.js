@@ -21,7 +21,7 @@ export default function BottomSheetScreen({ navigation }) {
   const bottomSheetRef = useRef(null);
 
   // BottomSheet의 스냅 포인트: 위치 설정
-  const snapPoints = useMemo(() => ["35%"], ["34%"]);
+  const snapPoints = useMemo(() => ["35%"], []);
 
   // BottomSheet의 출력 여부를 판단하는 변수
   const [isOpen, setIsOpen] = useState(false);
@@ -66,72 +66,70 @@ export default function BottomSheetScreen({ navigation }) {
         snapPoints={snapPoints}
         onChange={handleSheetChanges}
       >
-        <ScrollView>
-          <View style={styles.contentContainer}>
+        <View style={styles.contentContainer}>
+          <View
+            style={{
+              paddingHorizontal: 24,
+            }}
+          >
             <View
               style={{
-                paddingHorizontal: 24,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                marginTop: 24,
+                marginBottom: 16,
               }}
             >
-              <View
+              <Text
                 style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  marginTop: 24,
-                  marginBottom: 16,
+                  fontFamily: "Pretendard-Bold",
+                  fontSize: 16,
+                  color: Gray_theme.gray_80,
                 }}
               >
-                <Text
-                  style={{
-                    fontFamily: "Pretendard-Bold",
-                    fontSize: 16,
-                    color: Gray_theme.gray_80,
-                  }}
-                >
-                  사진을 등록해주세요
-                </Text>
-                <Octicons
-                  name="x"
-                  size={24}
-                  color={Gray_theme.gray_80}
-                  onPress={() => {
-                    if (bottomSheetRef.current) {
-                      bottomSheetRef.current.close(); // bottomSheet 닫기
-                      navigation.goBack(); // Home 화면으로 돌아가기
-                    }
-                  }}
-                />
-              </View>
-              <TouchableOpacity
-                activeOpacity={0.6}
+                사진을 등록해주세요
+              </Text>
+              <Octicons
+                name="x"
+                size={24}
+                color={Gray_theme.gray_80}
                 onPress={() => {
-                  navigation.navigate("Camera");
+                  if (bottomSheetRef.current) {
+                    bottomSheetRef.current.close(); // bottomSheet 닫기
+                    navigation.goBack(); // Home 화면으로 돌아가기
+                  }
                 }}
-              >
-                <View style={styles.sheetContents}>
-                  <Feather
-                    name="camera"
-                    size={24}
-                    color={Gray_theme.balck}
-                    style={styles.iconC}
-                  />
-                  <Text>카메라로 촬영하기</Text>
-                </View>
-              </TouchableOpacity>
-              <TouchableOpacity activeOpacity={0.6}>
-                <View style={styles.sheetContents}>
-                  <Octicons
-                    name="image"
-                    size={22}
-                    color={Gray_theme.balck}
-                    style={styles.iconC}
-                  />
-                  <Text>앨범에서 선택하기</Text>
-                </View>
-              </TouchableOpacity>
+              />
             </View>
+            <TouchableOpacity
+              activeOpacity={0.6}
+              onPress={() => {
+                navigation.navigate("Camera");
+              }}
+            >
+              <View style={styles.sheetContents}>
+                <Feather
+                  name="camera"
+                  size={24}
+                  color={Gray_theme.balck}
+                  style={styles.iconC}
+                />
+                <Text>카메라로 촬영하기</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.6}>
+              <View style={styles.sheetContents}>
+                <Octicons
+                  name="image"
+                  size={22}
+                  color={Gray_theme.balck}
+                  style={styles.iconC}
+                />
+                <Text>앨범에서 선택하기</Text>
+              </View>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
+        </View>
       </BottomSheetModal>
     </View>
   );

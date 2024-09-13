@@ -16,8 +16,10 @@ const BtnC = ({ children, onPress, style }) => {
 const styles = StyleSheet.create({
   BtnContainer: {
     backgroundColor: Main_theme.main_30,
+    borderWidth: 2,
+    borderColor: Main_theme.main_30,
     paddingVertical: 12,
-    marginHorizontal: 24,
+    paddingHorizontal: 24,
     borderRadius: 10,
   },
   BtnTitle: {

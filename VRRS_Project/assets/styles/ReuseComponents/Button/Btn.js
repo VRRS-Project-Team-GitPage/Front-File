@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: Main_theme.main_30,
     paddingVertical: 12,
-    marginHorizontal: 24,
+    paddingHorizontal: 24,
     borderRadius: 10,
   },
   BtnTitle: {

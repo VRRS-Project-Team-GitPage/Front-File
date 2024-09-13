@@ -58,6 +58,7 @@ export default function DicScreen({ route, navigation }) {
     React.useCallback(() => {
       return () => {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
+        setSearchText("");
         handleOnSubmitEditing("");
       };
     }, [])
