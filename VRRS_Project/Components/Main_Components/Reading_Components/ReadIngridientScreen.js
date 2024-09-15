@@ -47,7 +47,7 @@ export default function IngredientScreen({ route, navigation }) {
   const bottomSheetRef = useRef(null);
 
   // BottomSheet의 스냅 포인트: 위치 설정
-  const snapPoints = useMemo(() => ["80%"], []);
+  const snapPoints = useMemo(() => ["30%", "80%"]);
 
   // BottomSheet의 출력 여부를 판단하는 변수
   const [isOpen, setIsOpen] = useState(false);
@@ -61,7 +61,7 @@ export default function IngredientScreen({ route, navigation }) {
   useFocusEffect(
     useCallback(() => {
       if (bottomSheetRef.current) {
-        bottomSheetRef.current.snapToIndex(0); /// BottomSheet가 열리는 위치로 이동
+        bottomSheetRef.current.snapToIndex(1); /// BottomSheet가 열리는 위치로 이동
       }
       return () => {
         if (bottomSheetRef.current) {
@@ -79,7 +79,7 @@ export default function IngredientScreen({ route, navigation }) {
         <ImageBackground source={{ uri: photoUri }} style={styles.background}>
           <BottomSheetModal
             ref={bottomSheetRef}
-            index={0}
+            index={1}
             snapPoints={snapPoints}
             onChange={handleSheetChanges}
           >
