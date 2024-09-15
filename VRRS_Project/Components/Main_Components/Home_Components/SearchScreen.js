@@ -11,19 +11,14 @@ import {
   TextInput,
   useWindowDimensions,
   ToastAndroid,
-  ScrollView,
   FlatList,
   TouchableOpacity,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import Octicons from "@expo/vector-icons/Octicons";
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext";
-
-// AsyncStorage에서 데이터를 가져올 때 사용할 키
-const STORAGE_KEY = "@Search_List";
 
 function SearchScreen({ navigation }) {
   const textInputRef = useRef();

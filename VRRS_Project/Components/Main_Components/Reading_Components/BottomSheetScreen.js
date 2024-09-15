@@ -54,7 +54,9 @@ export default function BottomSheetScreen({ navigation }) {
           onPress={() => {
             if (bottomSheetRef.current) {
               bottomSheetRef.current.close(); // sheet 바깥을 눌렀을 때 sheet 닫기
-              navigation.navigate("Home");
+              navigation.navigate("HomeTab", {
+                screen: "Home",
+              });
             }
           }}
         />
@@ -117,7 +119,12 @@ export default function BottomSheetScreen({ navigation }) {
                 <Text>카메라로 촬영하기</Text>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.6}>
+            <TouchableOpacity
+              activeOpacity={0.6}
+              onPress={() => {
+                navigation.navigate("Image");
+              }}
+            >
               <View style={styles.sheetContents}>
                 <Octicons
                   name="image"

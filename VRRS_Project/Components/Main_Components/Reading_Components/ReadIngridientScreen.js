@@ -28,7 +28,10 @@ import Feather from "@expo/vector-icons/Feather";
 
 export default function IngredientScreen({ route, navigation }) {
   const { photoUri, triggerSubmit } = route.params || {};
+  const { imgUri, triggerSubmitImg } = route.params || {};
   const [isPhotoLoaded, setIsPhotoLoaded] = useState(false); // 사진 로딩 상태 관리
+  const [isImgLoaded, setIsImgLoaded] = useState(false);
+  const [checkImage, setCheckImage] = useState();
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
@@ -36,26 +39,37 @@ export default function IngredientScreen({ route, navigation }) {
 
   const textInputRef = useRef();
 
+  // 촬영한 사진 로드
   useEffect(() => {
     if (triggerSubmit) {
       setIsPhotoLoaded(true);
+      setIsImgLoaded(false);
       navigation.setParams({ triggerSubmit: false });
     }
   }, [triggerSubmit]);
+
+  // 선택한 사진 로드
+  useEffect(() => {
+    if (triggerSubmitImg) {
+      setIsImgLoaded(true);
+      setIsPhotoLoaded(false);
+      navigation.setParams({ triggerSubmitImg: false });
+    }
+  }, [triggerSubmitImg]);
+
+  useEffect(() => {
+    if (isPhotoLoaded) {
+      setCheckImage(photoUri);
+    } else if (isImgLoaded) {
+      setCheckImage(imgUri);
+    }
+  }, [isPhotoLoaded, isImgLoaded]);
 
   // BottomSheet를 참조하기 위한 ref
   const bottomSheetRef = useRef(null);
 
   // BottomSheet의 스냅 포인트: 위치 설정
   const snapPoints = useMemo(() => ["30%", "80%"]);
-
-  // BottomSheet의 출력 여부를 판단하는 변수
-  const [isOpen, setIsOpen] = useState(false);
-
-  // BottomSheet가 변경될 때 호출되는 콜백 함수
-  const handleSheetChanges = useCallback((index) => {
-    setIsOpen(index !== -1); // BottomSheet가 열려 있으면 true로 설정
-  }, []);
 
   // 화면이 focus될 때마다 BottomSheet가 다시 열리도록 설정
   useFocusEffect(
@@ -75,13 +89,15 @@ export default function IngredientScreen({ route, navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {isPhotoLoaded ? ( // 사진 로딩 상태에 따른 렌더링 제어
-        <ImageBackground source={{ uri: photoUri }} style={styles.background}>
+      {isPhotoLoaded || isImgLoaded ? ( // 사진 로딩 상태에 따른 렌더링 제어
+        <ImageBackground
+          source={isPhotoLoaded ? { uri: photoUri } : { uri: imgUri }}
+          style={styles.background}
+        >
           <BottomSheetModal
             ref={bottomSheetRef}
             index={1}
             snapPoints={snapPoints}
-            onChange={handleSheetChanges}
           >
             <View style={styles.contentContainer}>
               <View
@@ -178,7 +194,7 @@ export default function IngredientScreen({ route, navigation }) {
                   paddingHorizontal: 40,
                 }}
               >
-                다시 촬영하기
+                {isPhotoLoaded ? "다시 촬영하기" : "다시 선택하기"}
               </Btn>
               <BtnC
                 onPress={() => {

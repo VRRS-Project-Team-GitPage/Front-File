@@ -1,87 +1,91 @@
 import { Camera, CameraView, useCameraPermissions } from "expo-camera";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Button,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Animated,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Linking } from "react-native"; // Linking 추가
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
-import HomeScreen from "../Home_Components/HomeScreen";
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
-// Icon 관련 import
 import Feather from "@expo/vector-icons/Feather";
 import Octicons from "@expo/vector-icons/Octicons";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function UseCamera({ navigation }) {
   useTabBarVisibility(false);
-  //const AnimatedCamera = Animated.createAnimatedComponent(CameraView);
-
-  // 카메라 참조
   const cameraRef = useRef(null);
-  // 카메라 위치- default: 후면
   const [facing, setFacing] = useState("back");
-  // 카메라 권한
   const [permission, requestPermission] = useCameraPermissions();
-  // 줌 값 관리 (애니메이션 제거)
-  const [zoom, setZoom] = useState(0.5); // 초기 줌 값
-  // 플래시 모드
+  const [zoom, setZoom] = useState(0.5);
   const [flash, setFalsh] = useState("off");
 
-  // 카메라 권한 로딩 중일 때
-  if (!permission) {
-    return <View />;
-  }
+  // 권한 상태 확인 및 요청 함수
+  const checkPermissions = async () => {
+    if (!permission) return; // 권한 정보가 없으면 리턴
 
-  // 카메라 권한 요청이 없을 때
-  if (!permission.granted) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <Text style={styles.message}>카메라 권한이 필요합니다.</Text>
-        <Button onPress={requestPermission} title="권한 요청" />
-      </SafeAreaView>
-    );
-  }
+    if (permission.status !== "granted") {
+      // 권한이 거부되었을 때
+      if (!permission.canAskAgain) {
+        // 권한을 다시 물어볼 수 없을 때 설정을 엽니다.
+        Alert.alert(
+          "권한 필요",
+          "앱 설정에서 카메라 권한을 변경해주세요.",
+          [
+            { text: "취소", style: "cancel" },
+            {
+              text: "설정 열기",
+              onPress: () => {
+                Linking.openSettings(); // 설정을 여는 기능
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        // 권한을 다시 요청할 수 있을 때
+        requestPermission();
+      }
+    }
+  };
+
+  useEffect(() => {
+    checkPermissions(); // 컴포넌트가 마운트될 때 권한 상태 확인
+  }, [permission]);
 
   // 카메라 전환 함수
   function toggleCameraFacing() {
-    // 카메라 전환 시 줌 값을 기본값으로 설정
     setZoom(0.5);
     setFacing((current) => (current === "back" ? "front" : "back"));
   }
 
   // 사진 촬영 기능
   const takePicture = async () => {
-    // cameraRef가 없으면 해당 함수가 실행되지 않게 가드
-    if (!cameraRef.current) {
-      return;
-    } else {
-      const photo = await cameraRef.current.takePictureAsync(); // 사진 객체를 반환
-      const photoUri = photo.uri; // 반환된 객체에서 uri 속성만 가져오기
-      navigation.navigate("ReadTab", {
-        screen: "IngridientScreen",
-        params: { photoUri: photoUri, triggerSubmit: true },
-      });
-    }
+    if (!cameraRef.current) return;
+
+    const photo = await cameraRef.current.takePictureAsync();
+    const photoUri = photo.uri;
+    navigation.navigate("ReadTab", {
+      screen: "IngridientScreen",
+      params: { photoUri: photoUri, triggerSubmit: true },
+    });
   };
 
-  // 줌 인 기능 (애니메이션 제거)
+  // 줌 기능들
   const handleZoomIn = () => {
-    setZoom((prevZoom) => Math.min(prevZoom + 0.1, 1)); // 최대 줌 값은 1
+    setZoom((prevZoom) => Math.min(prevZoom + 0.1, 1));
   };
 
-  // 줌 아웃 기능 (애니메이션 제거)
   const handleZoomOut = () => {
-    setZoom((prevZoom) => Math.max(prevZoom - 0.1, 0)); // 최소 줌 값은 0
+    setZoom((prevZoom) => Math.max(prevZoom - 0.1, 0));
   };
 
-  // 줌 기본값으로 복구
   const handleZoomReturn = () => {
-    setZoom(0.5); // 기본 줌 값
+    setZoom(0.5);
   };
 
   const handleFlash = () => {
@@ -98,11 +102,7 @@ export default function UseCamera({ navigation }) {
           justifyContent: "center",
         }}
       >
-        <TouchableOpacity
-          onPress={handleFlash}
-          style={{ marginTop: 24 }}
-          activeOpacity={0.8}
-        >
+        <TouchableOpacity onPress={handleFlash} style={{ marginTop: 24 }}>
           {flash === "on" ? (
             <Ionicons name="flash-sharp" size={24} color={Gray_theme.white} />
           ) : (
@@ -120,6 +120,7 @@ export default function UseCamera({ navigation }) {
         ref={cameraRef}
         zoom={zoom}
         animateShutter={true}
+        flash={flash}
       >
         <View
           style={{
@@ -138,9 +139,7 @@ export default function UseCamera({ navigation }) {
             }}
           >
             <View style={styles.zoomContainer}>
-              {/* 줌 아웃 버튼 */}
               <TouchableOpacity
-                activeOpacity={0.8}
                 style={{ marginHorizontal: 4 }}
                 onPress={handleZoomOut}
               >
@@ -148,9 +147,7 @@ export default function UseCamera({ navigation }) {
                   <Octicons name="dash" size={18} color={Gray_theme.white} />
                 </View>
               </TouchableOpacity>
-              {/* 줌 기본 버튼 */}
               <TouchableOpacity
-                activeOpacity={0.8}
                 style={{ marginHorizontal: 4 }}
                 onPress={handleZoomReturn}
               >
@@ -158,9 +155,7 @@ export default function UseCamera({ navigation }) {
                   <Octicons name="circle" size={16} color={Gray_theme.white} />
                 </View>
               </TouchableOpacity>
-              {/* 줌 인 버튼 */}
               <TouchableOpacity
-                activeOpacity={0.8}
                 style={{ marginHorizontal: 4 }}
                 onPress={handleZoomIn}
               >
@@ -188,11 +183,7 @@ export default function UseCamera({ navigation }) {
           ></View>
         </TouchableOpacity>
         <TouchableOpacity
-          activeOpacity={0.8}
-          style={{
-            position: "absolute",
-            right: 40,
-          }}
+          style={{ position: "absolute", right: 40 }}
           onPress={toggleCameraFacing}
         >
           <View
@@ -207,10 +198,7 @@ export default function UseCamera({ navigation }) {
               name="refresh-cw"
               size={24}
               color={Gray_theme.white}
-              style={{
-                marginTop: 16,
-                alignSelf: "center",
-              }}
+              style={{ marginTop: 16, alignSelf: "center" }}
             />
           </View>
         </TouchableOpacity>
