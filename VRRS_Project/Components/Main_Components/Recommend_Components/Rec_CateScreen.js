@@ -168,5 +168,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Pretendard-Bold",
   },
-  bottomContents: { position: "absolute", bottom: 24, right: 0, left: 0 },
+  bottomContents: {
+    position: "absolute",
+    bottom: 24,
+    right: 0,
+    left: 0,
+    paddingHorizontal: 24,
+  },
 });

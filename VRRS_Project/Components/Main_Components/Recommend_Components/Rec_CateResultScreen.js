@@ -51,7 +51,13 @@ const styles = StyleSheet.create({
     right: 24,
   },
 
-  bottomContents: { position: "absolute", bottom: 24, right: 0, left: 0 },
+  bottomContents: {
+    position: "absolute",
+    bottom: 24,
+    right: 0,
+    left: 0,
+    paddingHorizontal: 24,
+  },
   bottomText: {
     textAlign: "center",
     marginBottom: 12,
