@@ -3,6 +3,7 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BottomSheetScreen from "./BottomSheetScreen";
 import UseCamera from "./UseCamera";
+import UseImagePicker from "./UseImagePicker";
 import ReadingIngridientScreen from "./ReadIngridientScreen";
 import ReadingResultScreen from "./ReadingResultScreen";
 
@@ -10,14 +11,16 @@ const Stack = createNativeStackNavigator();
 
 export default function Readingtack() {
   return (
-    <Stack.Navigator
-      screenOptions={{ presentation: "modal", headerShown: false }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen
         name="BottomSheet"
         component={BottomSheetScreen}
+        options={{
+          presentation: "modal",
+        }}
       ></Stack.Screen>
       <Stack.Screen name="Camera" component={UseCamera}></Stack.Screen>
+      <Stack.Screen name="Image" component={UseImagePicker}></Stack.Screen>
       <Stack.Screen
         name="IngridientScreen"
         component={ReadingIngridientScreen}
