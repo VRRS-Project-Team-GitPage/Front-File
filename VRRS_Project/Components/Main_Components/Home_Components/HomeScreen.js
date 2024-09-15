@@ -6,7 +6,9 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import React from "react";
+import { useFocusEffect } from "@react-navigation/native";
 // Server data를 사용하기 위해 저장한 component들을 import(현재는 더미 데이터를 사용)
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 // 클릭 시 적용되는 애니메이션 Component
@@ -56,6 +58,24 @@ export default function HomeScreen({ navigation }) {
     setFilterList(sortedList);
   };
 
+  const scrollViewRef = useRef(null);
+
+  // 스크롤뷰를 처음으로 돌리는 함수
+  const scrollViewReturn = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        // 화면이 포커싱 될 경우 해당 옵션을 default로
+        scrollViewReturn();
+      };
+    }, [])
+  );
+
   if (!user) {
     return (
       <View style={styles.container}>
@@ -104,7 +124,11 @@ export default function HomeScreen({ navigation }) {
           </View>
         </TouchableOpacity>
       </View>
-      <ScrollView bounces={true} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollViewRef}
+        bounces={true}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.topContents}>
           <View style={styles.mainTitle}>
             <View style={{ flexDirection: "row", marginBottom: 4 }}>
