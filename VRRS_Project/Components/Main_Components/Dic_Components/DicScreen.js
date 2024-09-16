@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   Button,
+  ActivityIndicator,
 } from "react-native";
 import {
   View,
@@ -26,7 +27,6 @@ import {
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 // style 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
-import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import Octicons from "@expo/vector-icons/Octicons";
 import MainIcons from "../../../assets/Icons/MainIcons";
 // Data 관련 import
@@ -36,12 +36,6 @@ export default function DicScreen({ route, navigation }) {
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
-
-  // 컴포넌트 마운트 시 데이터 로드
-  useEffect(() => {
-    // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
-    const products = getAllProducts();
-  }, []);
 
   // 화면 포커싱 시 초기 화면으로 돌리기 위한 변수
   const scrollViewRef = useRef(null);
@@ -78,15 +72,19 @@ export default function DicScreen({ route, navigation }) {
   };
 
   const { type, sortOption, autoSearch } = route.params || {};
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (autoSearch) {
-      checkTypeBtn(type);
-      selectOption(sortOption);
-      sortProducts();
-
-      navigation.setParams({ autoSearch: false });
+      setIsLoading(true);
+      if (isLoading) {
+        checkTypeBtn(type);
+        selectOption(sortOption);
+        sortProducts();
+      }
     }
+
+    navigation.setParams({ autoSearch: false });
   }, [autoSearch]);
 
   // [상단 헤더의 검색창 영역에 관한 내용입니다.]

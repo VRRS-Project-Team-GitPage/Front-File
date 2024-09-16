@@ -57,6 +57,7 @@ export default function IngredientScreen({ route, navigation }) {
     }
   }, [triggerSubmitImg]);
 
+  // 이미지 저장
   useEffect(() => {
     if (isPhotoLoaded) {
       setCheckImage(photoUri);
@@ -200,7 +201,10 @@ export default function IngredientScreen({ route, navigation }) {
                 onPress={() => {
                   navigation.navigate("ReadTab", {
                     screen: "Result",
-                    params: { photoUri: photoUri, triggerSubmit: true },
+                    params: {
+                      productUri: isPhotoLoaded ? photoUri : imgUri,
+                      triggerSubmit: true,
+                    },
                   });
                 }}
                 style={{
