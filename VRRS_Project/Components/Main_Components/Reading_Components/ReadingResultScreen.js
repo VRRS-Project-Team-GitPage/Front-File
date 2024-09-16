@@ -7,9 +7,11 @@ import {
   ScrollView,
   TouchableHighlight,
   TouchableOpacity,
+  FlatList,
 } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
-import { useEffect, useCallback, useState } from "react";
+import React from "react";
+import { useEffect, useCallback, useState, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImageManipulator from "expo-image-manipulator";
 // assets 관련
@@ -23,6 +25,10 @@ import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import TouchableScale from "../../../assets/styles/TouchableScale";
 // Data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
+import {
+  getAllProducts,
+  getVegTypeName,
+} from "../../../assets/ServerDatas/Dummy/dummyProducts";
 
 export default function ReadingResultScreen({ navigation, route }) {
   // user의 정보를 불러옴
@@ -101,6 +107,49 @@ export default function ReadingResultScreen({ navigation, route }) {
   // 섭취 가능할 때 제품이 사전에 있는지 여부를 저장
   const [inDictionary, setInDictionary] = useState(true);
 
+  // 제품 정보를 저장하는 state
+  const [productData, setProductData] = useState([]);
+  // 필터된 제품 리스트를 저장하는 변수
+  const [filterList, setFilterList] = useState([]);
+
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
+    const products = getAllProducts();
+    setProductData(products);
+  }, []);
+
+  useEffect(() => {
+    if (productData.length > 0) {
+      filterUserType();
+    }
+  }, [productData]);
+
+  const filterUserType = () => {
+    let sortedList = [...productData].sort(
+      (a, b) => b.rec + b.review - (a.rec + a.review)
+    );
+    setFilterList(sortedList);
+  };
+
+  const scrollViewRef = useRef(null);
+
+  // 스크롤뷰를 처음으로 돌리는 함수
+  const scrollViewReturn = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        // 화면이 포커싱 될 경우 해당 옵션을 default로
+        scrollViewReturn();
+      };
+    }, [])
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <NomalHeader
@@ -175,20 +224,57 @@ export default function ReadingResultScreen({ navigation, route }) {
         </View>
         <View style={styles.otherContents}>
           {inDictionary || !resultPossible ? (
-            <View>
+            <View style={styles.recListContainer}>
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
                 }}
               >
-                <Text style={styles.ocTitle}>이런 제품은 어떠세요?</Text>
+                <Text style={{ ...styles.ocTitle, fontSize: 16 }}>
+                  이런 제품은 어떠세요?
+                </Text>
                 <MaterialIcons
                   name="change-circle"
                   size={24}
                   color={Gray_theme.gray_60}
                   onPress={() => {
                     setInDictionary(false);
+                  }}
+                />
+              </View>
+              <View style={styles.mainDicContainer}>
+                <FlatList
+                  horizontal={true}
+                  showsHorizontalScrollIndicator={false}
+                  data={filterList.slice(0, 50)} // 상태로 관리되는 제품 데이터를 사용
+                  keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
+                  renderItem={({ item }) => {
+                    const itemVegTypeName = getVegTypeName(item.veg_type_id);
+                    if (itemVegTypeName !== vegTypeName) {
+                      return null;
+                    }
+                    // 일치할 경우에만 해당 아이템을 렌더링
+                    return (
+                      <View style={styles.itemContainer}>
+                        <TouchableScale>
+                          <Image
+                            source={{ uri: item.img_path }}
+                            style={styles.image}
+                          />
+
+                          <View style={styles.textContainer}>
+                            {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                            <Text style={styles.name}>{item.name}</Text>
+                            <Text style={styles.category}>{item.category}</Text>
+                            <Text style={styles.vegType}>
+                              {itemVegTypeName}
+                              {/* 아이템의 채식 유형 이름 표시 */}
+                            </Text>
+                          </View>
+                        </TouchableScale>
+                      </View>
+                    );
                   }}
                 />
               </View>
@@ -322,6 +408,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 12,
   },
+  recListContainer: {
+    marginTop: 32,
+  },
   otherContents: {
     marginTop: 32,
   },
@@ -347,5 +436,51 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     top: -46,
+  },
+
+  mainDicContainer: {
+    marginTop: 16,
+    marginBottom: 32,
+  },
+  itemContainer: {
+    marginRight: 8,
+    backgroundColor: Gray_theme.white,
+    borderRadius: 15,
+    padding: 12,
+  },
+
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    borderColor: Gray_theme.gray_20,
+    marginBottom: 4,
+  },
+  textContainer: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  name: {
+    fontSize: 14,
+    color: Gray_theme.balck,
+    fontFamily: "Pretendard-SemiBold",
+  },
+  category: {
+    marginTop: 2,
+    fontSize: 12,
+    color: Gray_theme.gray_60,
+    fontFamily: "Pretendard-Regular",
+  },
+  vegType: {
+    marginTop: 8,
+    fontSize: 10,
+    fontFamily: "Pretendard-Bold",
+    color: Main_theme.main_50,
+    backgroundColor: Main_theme.main_10,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+    alignSelf: "flex-start",
   },
 });
