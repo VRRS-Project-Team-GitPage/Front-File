@@ -9,8 +9,6 @@ import {
 import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { useFocusEffect } from "@react-navigation/native";
-// Server data를 사용하기 위해 저장한 component들을 import(현재는 더미 데이터를 사용)
-import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 // 클릭 시 적용되는 애니메이션 Component
 import TouchableScale from "../../../assets/styles/TouchableScale";
 import { StyleSheet, useWindowDimensions, FlatList } from "react-native";
@@ -22,6 +20,8 @@ import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import MainIcons from "../../../assets/Icons/MainIcons";
 import Octicons from "@expo/vector-icons/Octicons";
 
+// Server data를 사용하기 위해 저장한 component들을 import(현재는 더미 데이터를 사용)
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
   getAllProducts,
   getVegTypeName,
@@ -253,7 +253,7 @@ export default function HomeScreen({ navigation }) {
                 data={filterList.slice(0, 50)} // 상태로 관리되는 제품 데이터를 사용
                 keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
                 renderItem={({ item }) => {
-                  const itemVegTypeName = getVegTypeName(item.pro_type_id);
+                  const itemVegTypeName = getVegTypeName(item.veg_type_id);
                   if (itemVegTypeName !== vegTypeName) {
                     return null;
                   }
@@ -327,7 +327,7 @@ export default function HomeScreen({ navigation }) {
                         <Text style={styles.name}>{item.name}</Text>
                         <Text style={styles.category}>{item.category}</Text>
                         <Text style={styles.vegType}>
-                          {getVegTypeName(item.pro_type_id)}
+                          {getVegTypeName(item.veg_type_id)}
                         </Text>
                       </View>
                     </TouchableScale>

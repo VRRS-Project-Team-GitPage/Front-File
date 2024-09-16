@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   },
   headerIcon: {
     position: "absolute",
-    right: 16,
+    right: 24,
   },
   resultContainer: {
     borderRadius: 15,

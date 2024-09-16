@@ -65,10 +65,10 @@ export default function Rec_KeywordScreen({ navigation }) {
               }}
               style={{
                 width: windowWidth - 32,
-                backgroundColor: searchText ? Gray_theme.gray_20 : null,
+                backgroundColor: searchText ? Gray_theme.gray_30 : null,
                 borderColor: searchText
                   ? Gray_theme.gray_80
-                  : Gray_theme.gray_40,
+                  : Gray_theme.gray_50,
                 borderWidth: 1,
                 ...styles.textInput,
               }}
