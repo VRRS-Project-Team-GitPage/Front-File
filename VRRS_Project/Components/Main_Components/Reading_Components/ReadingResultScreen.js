@@ -206,7 +206,11 @@ export default function ReadingResultScreen({ navigation, route }) {
               원재료명을 확인하고 더 자세한 결과를 알아보세요.
             </Text>
           </View>
-          <TouchableOpacity activeOpacity={0.8} style={styles.checkIng}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.checkIng}
+            onPress={() => {}}
+          >
             <Octicons name="search" size={24} color={Gray_theme.gray_80} />
             <Text
               style={{

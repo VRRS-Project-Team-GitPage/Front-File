@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, Image } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Image,
+  KeyboardAvoidingView,
+} from "react-native";
 import { StyleSheet, useWindowDimensions, ToastAndroid } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
@@ -9,6 +15,7 @@ import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Entypo from "@expo/vector-icons/Entypo";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 // Data 관련 import
 import { categories } from "../../../assets/ServerDatas/Dummy/dummyProductCate";
@@ -17,23 +24,40 @@ import TouchableScale from "../../../assets/styles/TouchableScale";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
 export default function DicUploadScreen({ navigation }) {
-  // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
-  const [proImg, setProImg] = useState();
+  // 최대 6개까지 저장 가능
+  const [productImages, setProductImages] = useState([]);
+
   const pickImage = async () => {
+    if (productImages.length >= 3) {
+      ToastAndroid.showWithGravity(
+        "최대 3개의 이미지만 등록할 수 있습니다.",
+        ToastAndroid.SHORT,
+        ToastAndroid.BOTTOM
+      );
+      return;
+    }
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1], // 정사각형으로 잘라줍니다.
+      allowsEditing: false,
       quality: 1,
     });
 
     if (!result.canceled) {
-      setProImg(result.assets[0].uri);
-      setProductImage(result.assets[0].uri);
+      const newImage = {
+        id: Date.now(), // 현재 시간을 이용한 고유 id 생성
+        uri: result.assets[0].uri,
+      };
+
+      setProductImages([...productImages, newImage]); // 새로운 이미지 추가
     }
+  };
+
+  const removeImage = (id) => {
+    setProductImages(productImages.filter((img) => img.id !== id)); // 선택한 이미지 삭제
   };
 
   const [proName, setProName] = useState("");
@@ -44,7 +68,6 @@ export default function DicUploadScreen({ navigation }) {
     categories.map((item) => ({ label: item.name, value: item.id }))
   ); // 드롭다운 항목들
 
-  // toast message를 띄워주기 위한 함수
   const showToastWithGravity = () => {
     ToastAndroid.showWithGravity(
       "전부 작성해주세요",
@@ -54,16 +77,14 @@ export default function DicUploadScreen({ navigation }) {
   };
 
   const [productName, setProductName] = useState();
-  const [productImage, setProductImage] = useState();
   const [productCategory, setProductCategory] = useState();
 
-  // 확인 버튼 눌렀을 때 호출될 함수
   const handleSubmit = () => {
     console.log(
       "name:",
       productName,
-      "img_path:",
-      productImage,
+      "images:",
+      productImages,
       "pro_type_id:",
       productCategory
     );
@@ -72,15 +93,10 @@ export default function DicUploadScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <NomalHeader
-        onPress={() => {
-          navigation.goBack();
-        }}
-      >
-        제품 등록
-      </NomalHeader>
+      <NomalHeader onPress={() => navigation.goBack()}>제품 등록</NomalHeader>
       <View style={styles.contentsC}>
         <View>
+          {/* 제품명 입력 */}
           <View style={styles.dataContents}>
             <View style={{ flexDirection: "row", ...styles.titleCotainer }}>
               <Text style={styles.cTitle}>제품명</Text>
@@ -108,9 +124,11 @@ export default function DicUploadScreen({ navigation }) {
                 onSubmitEditing={() => {
                   setProductName(proName);
                 }}
-              ></TextInput>
+              />
             </View>
           </View>
+
+          {/* 제품 사진 업로드 */}
           <View style={styles.dataContents}>
             <View style={styles.titleCotainer}>
               <View style={{ flexDirection: "row" }}>
@@ -126,7 +144,7 @@ export default function DicUploadScreen({ navigation }) {
                 제품 사진, 제품 원재료명을 업로드 해주세요.
               </Text>
             </View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               <TouchableScale onPress={pickImage}>
                 <View
                   style={{
@@ -136,17 +154,54 @@ export default function DicUploadScreen({ navigation }) {
                     alignItems: "center",
                   }}
                 >
-                  <Entypo name="camera" size={24} color={Gray_theme.gray_60} />
+                  <Entypo name="camera" size={20} color={Gray_theme.gray_60} />
+                  <View
+                    style={{
+                      marginTop: 2,
+                      flexDirection: "row",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontFamily:
+                          productImages.length === 3
+                            ? "Pretendard-SemiBold"
+                            : "Pretendard-Medium",
+                        fontSize: 10,
+                        color:
+                          productImages.length === 0
+                            ? Gray_theme.gray_80
+                            : productImages.length === 3
+                            ? Main_theme.main_reverse
+                            : Main_theme.main_30,
+                      }}
+                    >
+                      {productImages.length}
+                    </Text>
+                    <MaterialCommunityIcons
+                      name="slash-forward"
+                      size={10}
+                      color={Gray_theme.gray_80}
+                    />
+                    <Text
+                      style={{
+                        fontFamily: "Pretendard-Medium",
+                        fontSize: 10,
+                        color: Gray_theme.gray_80,
+                      }}
+                    >
+                      3
+                    </Text>
+                  </View>
                 </View>
               </TouchableScale>
-              {proImg ? (
-                <View>
+              {productImages.map((image) => (
+                <View key={image.id}>
                   <Image
-                    source={{
-                      uri: proImg,
-                    }}
+                    source={{ uri: image.uri }}
                     style={{ ...styles.pickImg, marginLeft: 12 }}
-                  ></Image>
+                  />
                   <Octicons
                     name="x-circle-fill"
                     size={16}
@@ -158,14 +213,14 @@ export default function DicUploadScreen({ navigation }) {
                       right: -4,
                       top: -4,
                     }}
-                    onPress={() => {
-                      setProImg(null);
-                    }}
+                    onPress={() => removeImage(image.id)} // 이미지 삭제 버튼
                   />
                 </View>
-              ) : null}
+              ))}
             </View>
           </View>
+
+          {/* 제품 유형 선택 */}
           <View style={styles.dataContents}>
             <View style={styles.titleCotainer}>
               <View style={{ flexDirection: "row" }}>
@@ -191,22 +246,22 @@ export default function DicUploadScreen({ navigation }) {
               placeholder="제품 유형을 선택하세요"
               style={{
                 paddingHorizontal: 16,
-                backgroundColor: !open ? Gray_theme.gray_20 : Gray_theme.white, // 드롭다운 버튼의 배경색
-                borderRadius: 10, // 둥근 모서리
-                borderColor: open ? Gray_theme.gray_50 : Gray_theme.gray_80, // 테두리 색상
+                backgroundColor: !open ? Gray_theme.gray_20 : Gray_theme.white,
+                borderRadius: 10,
+                borderColor: open ? Gray_theme.gray_50 : Gray_theme.gray_80,
               }}
               dropDownContainerStyle={{
                 paddingHorizontal: 12,
               }}
               textStyle={{
-                fontSize: 12, // 텍스트 크기
+                fontSize: 12,
                 fontFamily: "Pretendard-Medium",
-                color: Gray_theme.balck, // 텍스트 색상
+                color: Gray_theme.balck,
               }}
               placeholderStyle={{
-                fontSize: 12, // 텍스트 크기
+                fontSize: 12,
                 fontFamily: "Pretendard-Medium",
-                color: Gray_theme.gray_60, // 플레이스홀더 텍스트 색상
+                color: Gray_theme.gray_60,
               }}
               onChangeValue={(selectedValue) => {
                 setProductCategory(selectedValue);
@@ -215,16 +270,19 @@ export default function DicUploadScreen({ navigation }) {
           </View>
         </View>
       </View>
+
+      {/* 하단 등록 완료 버튼 */}
       <View
         style={{
           paddingHorizontal: 16,
           position: "absolute",
           right: 0,
           left: 0,
-          bottom: 24,
+          top: windowHeigh - 48,
+          bottom: 0,
         }}
       >
-        {!productName || !productImage || !productCategory ? (
+        {!productName || productImages.length === 0 || !productCategory ? (
           <Btn onPress={showToastWithGravity}>등록 완료</Btn>
         ) : (
           <BtnC onPress={handleSubmit}>등록 완료</BtnC>
@@ -273,6 +331,7 @@ const styles = StyleSheet.create({
   pickImg: {
     width: 64,
     height: 64,
+    backgroundColor: Gray_theme.white,
     borderRadius: 15,
   },
 });
