@@ -266,7 +266,13 @@ export default function DicUploadScreen({ navigation }) {
         }}
       >
         {!productName || productImages.length === 0 || !productCategory ? (
-          <Btn onPress={showToast("모든 항목을 작성해주세요")}>등록 완료</Btn>
+          <Btn
+            onPress={() => {
+              showToast("모든 항목을 작성해주세요");
+            }}
+          >
+            등록 완료
+          </Btn>
         ) : (
           <BtnC onPress={handleSubmit}>등록 완료</BtnC>
         )}
