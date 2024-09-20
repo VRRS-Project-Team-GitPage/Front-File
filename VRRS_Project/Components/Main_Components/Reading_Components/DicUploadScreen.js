@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, Image } from "react-native";
-import { StyleSheet, useWindowDimensions, ToastAndroid } from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+// 사용자 갤러리 접근 관련 import
 import * as ImagePicker from "expo-image-picker";
 import DropDownPicker from "react-native-dropdown-picker";
 // assets 관련 import
@@ -10,12 +11,13 @@ import Octicons from "@expo/vector-icons/Octicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+// Component 관련
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
+import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 // Data 관련 import
 import { categories } from "../../../assets/ServerDatas/Dummy/dummyProductCate";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
-import TouchableScale from "../../../assets/styles/TouchableScale";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
 export default function DicUploadScreen({ navigation }) {

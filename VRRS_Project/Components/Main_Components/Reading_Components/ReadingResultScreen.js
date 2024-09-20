@@ -23,7 +23,7 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 // Component 관련
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
-import TouchableScale from "../../../assets/styles/TouchableScale";
+import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 
 // Data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";

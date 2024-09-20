@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, Text, Button, Alert, StyleSheet } from "react-native";
+import { Alert, StyleSheet } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Linking } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import { useFocusEffect } from "@react-navigation/native";
+import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
 export default function ImagePickerScreen({ navigation }) {
   // 하단탭 숨기기

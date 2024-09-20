@@ -18,13 +18,12 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BottomSheetModal from "@gorhom/bottom-sheet";
-// Style 관련
-import { Gray_theme } from "../../../assets/styles/Theme_Colors";
+// component 관련
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
-// Icon 관련 import
+// design 관련 import
+import { Gray_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
-import Feather from "@expo/vector-icons/Feather";
 
 export default function IngredientScreen({ route, navigation }) {
   const { photoUri, triggerSubmit } = route.params || {};

@@ -13,7 +13,6 @@ import HomeStack from "./Home_Components/HomeStack";
 import DicStack from "./Dic_Components/DicStack";
 import RecStsck from "./Recommend_Components/RecStack";
 import Readingtack from "./Reading_Components/ReadingStack";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 
 // navigation Bar를 사용하기 위한 변수
 const Tab = createBottomTabNavigator();

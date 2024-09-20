@@ -5,7 +5,6 @@ import {
   StyleSheet,
   ScrollView,
   Button,
-  ActivityIndicator,
 } from "react-native";
 import {
   View,
@@ -14,23 +13,23 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
-  ToastAndroid,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext";
-// 제품 정보 import
-import {
-  getAllProducts,
-  getVegTypeName,
-  products,
-} from "../../../assets/ServerDatas/Dummy/dummyProducts";
-// style 관련 import
+// component 관련
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
+// design 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 import MainIcons from "../../../assets/Icons/MainIcons";
 // Data 관련 import
-import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
+import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 이용자 정보
+import {
+  getAllProducts,
+  getVegTypeName,
+  products,
+} from "../../../assets/ServerDatas/Dummy/dummyProducts"; // 제품 정보
+import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext"; // 검색 정보
 
 export default function DicScreen({ route, navigation }) {
   // 화면 크기를 저장한 변수
@@ -47,6 +46,16 @@ export default function DicScreen({ route, navigation }) {
     }
   };
 
+  // FlatList의 참조
+  const flatListRef = useRef(null);
+
+  // 사전 항목 스크롤을 맨 처음으로 돌리는 함수
+  const scrollToTop = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+    }
+  };
+
   // 화면이 포커싱 될 경우 사용되는 hook
   useFocusEffect(
     React.useCallback(() => {
@@ -54,36 +63,19 @@ export default function DicScreen({ route, navigation }) {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
         setSearchText("");
         handleOnSubmitEditing("");
+        scrollToTop();
       };
     }, [])
   );
 
-  useEffect(() => {
-    sortProducts();
-  }, [useFocusEffect]);
-
-  // toast message를 띄워주기 위한 함수
-  const showToastWithGravity = () => {
-    ToastAndroid.showWithGravity(
-      "검색어를 입력해주세요",
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM
-    );
-  };
-
   const { type, sortOption, autoSearch } = route.params || {};
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (autoSearch) {
-      setIsLoading(true);
-      if (isLoading) {
-        checkTypeBtn(type);
-        selectOption(sortOption);
-        sortProducts();
-      }
+      checkTypeBtn(type);
+      selectOption(sortOption);
+      sortProducts();
     }
-
     navigation.setParams({ autoSearch: false });
   }, [autoSearch]);
 
@@ -270,7 +262,7 @@ export default function DicScreen({ route, navigation }) {
           value={searchText}
           onSubmitEditing={() => {
             if (searchText === "") {
-              showToastWithGravity();
+              showToast("검색어를 입력해주세요");
             }
             handleOnSubmitEditing(searchText);
           }}
@@ -395,7 +387,12 @@ export default function DicScreen({ route, navigation }) {
                   )}
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => selectOption("인기순")}>
+              <TouchableOpacity
+                onPress={() => {
+                  selectOption("인기순");
+                  scrollToTop();
+                }}
+              >
                 <View style={styles.dropdownItemContainer}>
                   <Text
                     style={[
@@ -450,6 +447,7 @@ export default function DicScreen({ route, navigation }) {
           </View>
         ) : (
           <FlatList
+            ref={flatListRef}
             style={{ paddingHorizontal: 8 }}
             showsVerticalScrollIndicator={false}
             data={sortedProducts}
