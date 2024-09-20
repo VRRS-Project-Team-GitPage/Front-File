@@ -5,8 +5,8 @@ import {
   Image,
   ActivityIndicator,
   ScrollView,
-  TouchableWithoutFeedback,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   FlatList,
 } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
@@ -23,8 +23,8 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import TouchableScale from "../../../assets/styles/TouchableScale";
-import BottomSheetModal from "@gorhom/bottom-sheet";
 import BottomSheetBackdrop from "@gorhom/bottom-sheet";
+import BottomSheetModal from "@gorhom/bottom-sheet";
 // Data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
@@ -143,36 +143,31 @@ export default function ReadingResultScreen({ navigation, route }) {
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      return () => {
-        // 화면이 포커싱 될 경우 해당 옵션을 default로
-        scrollViewReturn();
-        bottomSheetRef.current?.close();
-      };
-    }, [])
-  );
-
+  // BottomSheet를 참조하기 위한 ref
   const bottomSheetRef = useRef(null);
-  const snapPoints = useMemo(() => ["35%"]);
-  //add this
-  const renderBackdrop = useCallback(
-    (props) => (
-      <BottomSheetBackdrop
-        disappearsOnIndex={1}
-        appearsOnIndex={2}
-        {...props}
-      />
-    ),
-    []
-  );
+  // BottomSheet의 스냅 포인트: 위치 설정
+  const snapPoints = useMemo(() => ["50%"], []);
+  // bottomSheet의 열림 여부
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOverlayPress = () => {
+    bottomSheetRef.current.close();
+    setIsOpen(false);
+  };
 
   // 바텀시트를 여는 함수
   const openBottomSheet = () => {
-    if (bottomSheetRef.current) {
-      bottomSheetRef.current?.snapPoints(0);
-    }
+    bottomSheetRef.current?.snapToIndex(0);
+    setIsOpen(true);
   };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      scrollViewReturn();
+      bottomSheetRef.current.close();
+      setIsOpen(false);
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -187,6 +182,7 @@ export default function ReadingResultScreen({ navigation, route }) {
       </NomalHeader>
       <ScrollView
         showsVerticalScrollIndicator={false}
+        ref={scrollViewRef}
         style={{
           paddingHorizontal: 16,
         }}
@@ -250,6 +246,7 @@ export default function ReadingResultScreen({ navigation, route }) {
             />
           </TouchableOpacity>
         </View>
+
         <View style={styles.otherContents}>
           {inDictionary || !resultPossible ? (
             <View style={styles.recListContainer}>
@@ -352,6 +349,7 @@ export default function ReadingResultScreen({ navigation, route }) {
           )}
         </View>
       </ScrollView>
+
       <View
         style={{
           paddingHorizontal: 16,
@@ -359,7 +357,7 @@ export default function ReadingResultScreen({ navigation, route }) {
       >
         <BtnC
           onPress={() => {
-            navigation.navigate("BottomSheet");
+            navigation.navigate("ReadTab", { screen: "BottomSheet" });
           }}
         >
           다른 제품 확인하기
@@ -371,24 +369,23 @@ export default function ReadingResultScreen({ navigation, route }) {
         }}
       ></View>
       <>
+        {isOpen && (
+          <TouchableWithoutFeedback onPress={handleOverlayPress}>
+            <View style={styles.overlay} />
+          </TouchableWithoutFeedback>
+        )}
+
         <BottomSheetModal
           ref={bottomSheetRef}
-          index={0}
           snapPoints={snapPoints}
+          index={-1}
           enablePanDownToClose={true}
-          backdropComponent={renderBackdrop}
+          onClose={() => {
+            setIsOpen(false);
+          }}
         >
           <View style={styles.contentContainer}>
-            <Text>바텀시트 내용</Text>
-            <TouchableOpacity
-              onPress={() => {
-                if (bottomSheetRef.current) {
-                  bottomSheetRef.current.close();
-                }
-              }}
-            >
-              <Text style={styles.closeButton}>닫기</Text>
-            </TouchableOpacity>
+            <Text>hi</Text>
           </View>
         </BottomSheetModal>
       </>
@@ -533,10 +530,16 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: "flex-start",
   },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
   contentContainer: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
   },
   closeButton: {
     marginTop: 20,

@@ -199,6 +199,7 @@ export default function IngredientScreen({ route, navigation }) {
               </Btn>
               <BtnC
                 onPress={() => {
+                  bottomSheetRef.current.close();
                   navigation.navigate("ReadTab", {
                     screen: "Result",
                     params: {
