@@ -5,13 +5,13 @@ import {
   Image,
   ActivityIndicator,
   ScrollView,
-  TouchableHighlight,
+  TouchableWithoutFeedback,
   TouchableOpacity,
   FlatList,
 } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import React from "react";
-import { useEffect, useCallback, useState, useRef } from "react";
+import { useEffect, useCallback, useMemo, useState, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImageManipulator from "expo-image-manipulator";
 // assets 관련
@@ -23,6 +23,8 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import TouchableScale from "../../../assets/styles/TouchableScale";
+import BottomSheetModal from "@gorhom/bottom-sheet";
+import BottomSheetBackdrop from "@gorhom/bottom-sheet";
 // Data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
@@ -137,7 +139,7 @@ export default function ReadingResultScreen({ navigation, route }) {
   // 스크롤뷰를 처음으로 돌리는 함수
   const scrollViewReturn = () => {
     if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({ y: 0, animated: true });
+      scrollViewRef.current.scrollTo({ x: 0, animated: true });
     }
   };
 
@@ -146,9 +148,31 @@ export default function ReadingResultScreen({ navigation, route }) {
       return () => {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
         scrollViewReturn();
+        bottomSheetRef.current?.close();
       };
     }, [])
   );
+
+  const bottomSheetRef = useRef(null);
+  const snapPoints = useMemo(() => ["35%"]);
+  //add this
+  const renderBackdrop = useCallback(
+    (props) => (
+      <BottomSheetBackdrop
+        disappearsOnIndex={1}
+        appearsOnIndex={2}
+        {...props}
+      />
+    ),
+    []
+  );
+
+  // 바텀시트를 여는 함수
+  const openBottomSheet = () => {
+    if (bottomSheetRef.current) {
+      bottomSheetRef.current?.snapPoints(0);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -209,7 +233,7 @@ export default function ReadingResultScreen({ navigation, route }) {
           <TouchableOpacity
             activeOpacity={0.8}
             style={styles.checkIng}
-            onPress={() => {}}
+            onPress={openBottomSheet}
           >
             <Octicons name="search" size={24} color={Gray_theme.gray_80} />
             <Text
@@ -346,6 +370,28 @@ export default function ReadingResultScreen({ navigation, route }) {
           height: 24,
         }}
       ></View>
+      <>
+        <BottomSheetModal
+          ref={bottomSheetRef}
+          index={0}
+          snapPoints={snapPoints}
+          enablePanDownToClose={true}
+          backdropComponent={renderBackdrop}
+        >
+          <View style={styles.contentContainer}>
+            <Text>바텀시트 내용</Text>
+            <TouchableOpacity
+              onPress={() => {
+                if (bottomSheetRef.current) {
+                  bottomSheetRef.current.close();
+                }
+              }}
+            >
+              <Text style={styles.closeButton}>닫기</Text>
+            </TouchableOpacity>
+          </View>
+        </BottomSheetModal>
+      </>
     </SafeAreaView>
   );
 }
@@ -486,5 +532,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 20,
     alignSelf: "flex-start",
+  },
+  contentContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeButton: {
+    marginTop: 20,
+    color: "blue",
   },
 });

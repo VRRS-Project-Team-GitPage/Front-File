@@ -1,14 +1,6 @@
-import { Camera, CameraView, useCameraPermissions } from "expo-camera";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import { useState, useRef, useEffect } from "react";
-import {
-  Button,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-  Alert,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { StyleSheet, TouchableOpacity, View, Alert } from "react-native";
 import { Linking } from "react-native"; // Linking 추가
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
@@ -18,12 +10,15 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function UseCamera({ navigation }) {
   useTabBarVisibility(false);
+
+  // 카메라의 기능을 위한 변수
   const cameraRef = useRef(null);
   const [facing, setFacing] = useState("back");
-  const [permission, requestPermission] = useCameraPermissions();
   const [zoom, setZoom] = useState(0.5);
   const [flash, setFalsh] = useState("off");
 
+  // 권한 여부를 위한 변수
+  const [permission, requestPermission] = useCameraPermissions();
   // 권한 상태 확인 및 요청 함수
   const checkPermissions = async () => {
     if (!permission) return; // 권한 정보가 없으면 리턴

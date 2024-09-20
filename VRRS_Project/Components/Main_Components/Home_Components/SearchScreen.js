@@ -59,6 +59,7 @@ function SearchScreen({ navigation }) {
       params: { text: searchText, triggerSubmit: true },
     });
   };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: Gray_theme.white }}>
       <View

@@ -1,14 +1,6 @@
 import React, { useState, useCallback, useMemo, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Animated,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import BottomSheetModal from "@gorhom/bottom-sheet";
 import HomeScreen from "../Home_Components/HomeScreen";
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
@@ -35,13 +27,8 @@ export default function BottomSheetScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       if (bottomSheetRef.current) {
-        bottomSheetRef.current.snapToIndex(0); /// BottomSheet가 열리는 위치로 이동
+        bottomSheetRef.current.snapToIndex(0); // BottomSheet가 열리는 위치로 이동
       }
-      return () => {
-        if (bottomSheetRef.current) {
-          bottomSheetRef.current.close(); // 포커스 되지 않았을 때
-        }
-      };
     }, [])
   );
 
@@ -66,7 +53,13 @@ export default function BottomSheetScreen({ navigation }) {
         ref={bottomSheetRef}
         index={0}
         snapPoints={snapPoints}
+        enablePanDownToClose={true}
         onChange={handleSheetChanges}
+        onClose={() => {
+          navigation.navigate("HomeTab", {
+            screen: "Home",
+          });
+        }}
       >
         <View style={styles.contentContainer}>
           <View

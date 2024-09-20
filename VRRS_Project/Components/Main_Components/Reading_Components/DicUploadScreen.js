@@ -1,11 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Image,
-  KeyboardAvoidingView,
-} from "react-native";
+import { View, Text, TextInput, Image } from "react-native";
 import { StyleSheet, useWindowDimensions, ToastAndroid } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
