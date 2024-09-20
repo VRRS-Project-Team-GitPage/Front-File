@@ -7,6 +7,7 @@ import UseImagePicker from "./UseImagePicker";
 import ReadingIngridientScreen from "./ReadIngridientScreen";
 import ReadingResultScreen from "./ReadingResultScreen";
 import DicUploadScreen from "./DicUploadScreen";
+import ReportScreen from "./ReportScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ export default function Readingtack() {
         component={ReadingResultScreen}
       ></Stack.Screen>
       <Stack.Screen name="Upload" component={DicUploadScreen}></Stack.Screen>
+      <Stack.Screen name="Report" component={ReportScreen}></Stack.Screen>
     </Stack.Navigator>
   );
 }

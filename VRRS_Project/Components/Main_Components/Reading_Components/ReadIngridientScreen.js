@@ -86,7 +86,9 @@ export default function IngredientScreen({ route, navigation }) {
     }, [])
   );
 
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(
+    "추후 원재료명이 작성될 공간입니다."
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -149,7 +151,6 @@ export default function IngredientScreen({ route, navigation }) {
                       fontFamily: "Pretendard-Medium",
                       fontSize: 12,
                     }}
-                    placeholder="추후 원재료명이 작성될 예정입니다."
                     onChangeText={(text) => setSearchText(text)}
                     value={searchText}
                   ></TextInput>
@@ -204,6 +205,7 @@ export default function IngredientScreen({ route, navigation }) {
                     screen: "Result",
                     params: {
                       productUri: isPhotoLoaded ? photoUri : imgUri,
+                      ingredientText: searchText,
                       triggerSubmit: true,
                     },
                   });

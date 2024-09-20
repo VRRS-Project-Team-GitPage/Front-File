@@ -14,6 +14,7 @@ import React from "react";
 import { useEffect, useCallback, useMemo, useState, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImageManipulator from "expo-image-manipulator";
+import BottomSheetModal from "@gorhom/bottom-sheet";
 // assets 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
@@ -23,8 +24,7 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import TouchableScale from "../../../assets/styles/TouchableScale";
-import BottomSheetBackdrop from "@gorhom/bottom-sheet";
-import BottomSheetModal from "@gorhom/bottom-sheet";
+
 // Data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
@@ -40,15 +40,14 @@ export default function ReadingResultScreen({ navigation, route }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
-  const { productUri, triggerSubmit } = route.params || {};
-  const [isUriLoaded, setIsUriLoaded] = useState(false);
+  const { productUri, ingredientText, triggerSubmit } = route.params || {};
+  const [isLoaded, setIsLoaded] = useState(false);
   const [checkImage, setCheckImage] = useState();
 
   // 넘어온 사진 로드
   useEffect(() => {
     if (triggerSubmit) {
-      console.log(productUri);
-      setIsUriLoaded(true);
+      setIsLoaded(true);
       navigation.setParams({ triggerSubmit: false });
     }
   }, [triggerSubmit]);
@@ -97,12 +96,12 @@ export default function ReadingResultScreen({ navigation, route }) {
 
   // 이미지가 로드되었을 때, 비율을 유지한 채로 리사이즈
   useEffect(() => {
-    if (isUriLoaded) {
+    if (isLoaded) {
       resizeImage(productUri).then((resizedUri) => {
         setCheckImage(resizedUri);
       });
     }
-  }, [isUriLoaded]);
+  }, [isLoaded]);
 
   // 판독 결과 가능 여부를 저장
   const [resultPossible, setResultPossible] = useState(true);
@@ -159,6 +158,7 @@ export default function ReadingResultScreen({ navigation, route }) {
   const openBottomSheet = () => {
     bottomSheetRef.current?.snapToIndex(0);
     setIsOpen(true);
+    setIngredientPossible(true);
   };
 
   useFocusEffect(
@@ -168,6 +168,18 @@ export default function ReadingResultScreen({ navigation, route }) {
       setIsOpen(false);
     }, [])
   );
+
+  // 이전 화면에서 받아온 원재료명
+  const [ingredientList, setIngredientList] = useState("");
+  useEffect(() => {
+    if (isLoaded) {
+      setIngredientList(ingredientText);
+    }
+  }, [isLoaded]);
+
+  // bottomSheet에 상황에 맞는 원재료명을 출력하는 변수
+  const [ingredientPossible, setIngredientPossible] = useState(true);
+  const indredientFilter = () => {};
 
   return (
     <SafeAreaView style={styles.container}>
@@ -189,7 +201,7 @@ export default function ReadingResultScreen({ navigation, route }) {
       >
         <View style={styles.resultContainer}>
           <View style={styles.imgContainer}>
-            {isUriLoaded ? (
+            {isLoaded ? (
               <Image
                 source={{ uri: checkImage }}
                 style={styles.resultImg}
@@ -237,7 +249,7 @@ export default function ReadingResultScreen({ navigation, route }) {
                 fontFamily: "Pretendard-Medium",
               }}
             >
-              원재료명 확인하러 가기
+              원재료명 확인하기
             </Text>
             <Octicons
               name="chevron-right"
@@ -357,7 +369,7 @@ export default function ReadingResultScreen({ navigation, route }) {
       >
         <BtnC
           onPress={() => {
-            navigation.navigate("ReadTab", { screen: "BottomSheet" });
+            navigation.navigate("BottomSheet");
           }}
         >
           다른 제품 확인하기
@@ -385,7 +397,100 @@ export default function ReadingResultScreen({ navigation, route }) {
           }}
         >
           <View style={styles.contentContainer}>
-            <Text>hi</Text>
+            <View style={styles.bottomHeader}>
+              <TouchableWithoutFeedback
+                onPress={() => {
+                  bottomSheetRef.current.close();
+                  setIsOpen(false);
+                }}
+              >
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  <Octicons
+                    name="chevron-left"
+                    size={24}
+                    color={Gray_theme.gray_90}
+                  />
+                  <Text style={styles.bheaderMainT}>원재료명</Text>
+                </View>
+              </TouchableWithoutFeedback>
+              <Text
+                style={styles.bheaderSubT}
+                onPress={() => {
+                  navigation.navigate("Report");
+                }}
+              >
+                오류 제보하기
+              </Text>
+            </View>
+            <View style={styles.bContent}>
+              <View style={styles.bContentHeader}>
+                <TouchableOpacity
+                  style={{ flex: 1 }}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setIngredientPossible(true);
+                  }}
+                >
+                  <View
+                    style={{
+                      ...styles.bContentHTContainer,
+                      borderBottomWidth: ingredientPossible ? 5 : null,
+                      borderColor: ingredientPossible
+                        ? Main_theme.main_30
+                        : null,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        ...styles.bContentHeaderText,
+                        color: ingredientPossible
+                          ? Gray_theme.balck
+                          : Gray_theme.gray_40,
+                      }}
+                    >
+                      섭취 가능
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ flex: 1 }}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    setIngredientPossible(false);
+                  }}
+                >
+                  <View
+                    style={{
+                      ...styles.bContentHTContainer,
+                      borderBottomWidth: !ingredientPossible ? 5 : null,
+                      borderColor: !ingredientPossible
+                        ? Main_theme.main_reverse
+                        : null,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        ...styles.bContentHeaderText,
+                        color: !ingredientPossible
+                          ? Gray_theme.balck
+                          : Gray_theme.gray_40,
+                      }}
+                    >
+                      섭취 불가능
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.bContentMain}>
+                <Text style={styles.bContentMainUserType}>{vegTypeName}</Text>
+                <Text style={styles.bContentMaintInfo}>
+                  {ingredientPossible
+                    ? "해당 유형이 섭취할 수 있는 재료예요"
+                    : "해당 유형이 섭취할 수 없는 재료예요"}
+                </Text>
+                <Text style={styles.bContentIngredient}>{ingredientList}</Text>
+              </View>
+            </View>
           </View>
         </BottomSheetModal>
       </>
@@ -541,8 +646,61 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
   },
-  closeButton: {
-    marginTop: 20,
-    color: "blue",
+  bottomHeader: {
+    height: 60,
+    paddingHorizontal: 24,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  bheaderMainT: {
+    fontFamily: "Pretendard-Medium",
+    fontSize: 16,
+    color: Gray_theme.balck,
+    marginLeft: 16,
+  },
+  bheaderSubT: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 12,
+    color: Gray_theme.gray_40,
+  },
+  bContent: {
+    flex: 1,
+  },
+  bContentHeader: {
+    height: 60,
+    flexDirection: "row",
+    alignContent: "center",
+    justifyContent: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: Gray_theme.gray_20,
+  },
+  bContentHTContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  bContentHeaderText: {
+    fontFamily: "Pretendard-SemiBold",
+  },
+  bContentMain: {
+    flex: 1,
+    padding: 24,
+  },
+  bContentMainUserType: {
+    fontFamily: "Pretendard-Bold",
+    fontSize: 20,
+    color: Main_theme.main_50,
+  },
+  bContentMaintInfo: {
+    fontFamily: "Pretendard-Medium",
+    fontSize: 14,
+    color: Gray_theme.gray_80,
+  },
+  bContentIngredient: {
+    marginTop: 24,
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
+    color: Gray_theme.gray_60,
   },
 });

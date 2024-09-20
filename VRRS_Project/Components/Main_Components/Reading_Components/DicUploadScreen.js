@@ -11,6 +11,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // Data 관련 import
 import { categories } from "../../../assets/ServerDatas/Dummy/dummyProductCate";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
@@ -26,11 +27,7 @@ export default function DicUploadScreen({ navigation }) {
 
   const pickImage = async () => {
     if (productImages.length >= 3) {
-      ToastAndroid.showWithGravity(
-        "최대 3개의 이미지만 등록할 수 있습니다.",
-        ToastAndroid.SHORT,
-        ToastAndroid.BOTTOM
-      );
+      showToast("최대 3개의 이미지만 등록할 수 있습니다.");
       return;
     }
 
@@ -61,14 +58,6 @@ export default function DicUploadScreen({ navigation }) {
   const [items, setItems] = useState(
     categories.map((item) => ({ label: item.name, value: item.id }))
   ); // 드롭다운 항목들
-
-  const showToastWithGravity = () => {
-    ToastAndroid.showWithGravity(
-      "전부 작성해주세요",
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM
-    );
-  };
 
   const [productName, setProductName] = useState();
   const [productCategory, setProductCategory] = useState();
@@ -277,7 +266,7 @@ export default function DicUploadScreen({ navigation }) {
         }}
       >
         {!productName || productImages.length === 0 || !productCategory ? (
-          <Btn onPress={showToastWithGravity}>등록 완료</Btn>
+          <Btn onPress={showToast("모든 항목을 작성해주세요")}>등록 완료</Btn>
         ) : (
           <BtnC onPress={handleSubmit}>등록 완료</BtnC>
         )}

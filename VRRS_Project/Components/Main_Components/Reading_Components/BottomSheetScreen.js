@@ -67,14 +67,7 @@ export default function BottomSheetScreen({ navigation }) {
               paddingHorizontal: 24,
             }}
           >
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                marginTop: 24,
-                marginBottom: 16,
-              }}
-            >
+            <View style={styles.contentHeader}>
               <Text
                 style={{
                   fontFamily: "Pretendard-Bold",
@@ -141,6 +134,12 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     flex: 1,
+  },
+  contentHeader: {
+    height: 60,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   overlay: {
     position: "absolute",
