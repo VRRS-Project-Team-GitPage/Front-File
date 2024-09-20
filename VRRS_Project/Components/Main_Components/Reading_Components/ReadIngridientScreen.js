@@ -57,6 +57,7 @@ export default function IngredientScreen({ route, navigation }) {
     }
   }, [triggerSubmitImg]);
 
+  // 이미지 저장
   useEffect(() => {
     if (isPhotoLoaded) {
       setCheckImage(photoUri);
@@ -85,7 +86,9 @@ export default function IngredientScreen({ route, navigation }) {
     }, [])
   );
 
-  const [searchText, setSearchText] = useState("");
+  const [searchText, setSearchText] = useState(
+    "추후 원재료명이 작성될 공간입니다."
+  );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -148,7 +151,6 @@ export default function IngredientScreen({ route, navigation }) {
                       fontFamily: "Pretendard-Medium",
                       fontSize: 12,
                     }}
-                    placeholder="추후 원재료명이 작성될 예정입니다."
                     onChangeText={(text) => setSearchText(text)}
                     value={searchText}
                   ></TextInput>
@@ -198,9 +200,14 @@ export default function IngredientScreen({ route, navigation }) {
               </Btn>
               <BtnC
                 onPress={() => {
+                  bottomSheetRef.current.close();
                   navigation.navigate("ReadTab", {
                     screen: "Result",
-                    params: { photoUri: photoUri, triggerSubmit: true },
+                    params: {
+                      productUri: isPhotoLoaded ? photoUri : imgUri,
+                      ingredientText: searchText,
+                      triggerSubmit: true,
+                    },
                   });
                 }}
                 style={{

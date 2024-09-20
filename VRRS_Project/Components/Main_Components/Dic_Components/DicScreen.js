@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   Button,
+  ActivityIndicator,
 } from "react-native";
 import {
   View,
@@ -26,7 +27,6 @@ import {
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 // style 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
-import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import Octicons from "@expo/vector-icons/Octicons";
 import MainIcons from "../../../assets/Icons/MainIcons";
 // Data 관련 import
@@ -36,12 +36,6 @@ export default function DicScreen({ route, navigation }) {
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
-
-  // 컴포넌트 마운트 시 데이터 로드
-  useEffect(() => {
-    // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
-    const products = getAllProducts();
-  }, []);
 
   // 화면 포커싱 시 초기 화면으로 돌리기 위한 변수
   const scrollViewRef = useRef(null);
@@ -78,15 +72,19 @@ export default function DicScreen({ route, navigation }) {
   };
 
   const { type, sortOption, autoSearch } = route.params || {};
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (autoSearch) {
-      checkTypeBtn(type);
-      selectOption(sortOption);
-      sortProducts();
-
-      navigation.setParams({ autoSearch: false });
+      setIsLoading(true);
+      if (isLoading) {
+        checkTypeBtn(type);
+        selectOption(sortOption);
+        sortProducts();
+      }
     }
+
+    navigation.setParams({ autoSearch: false });
   }, [autoSearch]);
 
   // [상단 헤더의 검색창 영역에 관한 내용입니다.]
@@ -122,7 +120,7 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
-          getVegTypeName(product.pro_type_id)
+          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -179,7 +177,7 @@ export default function DicScreen({ route, navigation }) {
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
     } else if (selectedOption === "인기순") {
-      sortedList.sort((a, b) => b.rec + b.rec - (a.rec + a.review));
+      sortedList.sort((a, b) => b.rec + b.review - (a.rec + a.review));
     }
 
     if (filterText !== "") {
@@ -191,7 +189,7 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
-          getVegTypeName(product.pro_type_id)
+          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -218,7 +216,7 @@ export default function DicScreen({ route, navigation }) {
 
     if (btnType !== "전체") {
       filteredList = filteredList.filter(
-        (product) => getVegTypeName(product.pro_type_id) === btnType
+        (product) => getVegTypeName(product.veg_type_id) === btnType
       );
     }
 
@@ -231,7 +229,7 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
-          getVegTypeName(product.pro_type_id)
+          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -458,7 +456,7 @@ export default function DicScreen({ route, navigation }) {
             keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
             renderItem={({ item }) => {
               // 제품의 유형을 저장하는 변수
-              const itemVegTypeName = getVegTypeName(item.pro_type_id);
+              const itemVegTypeName = getVegTypeName(item.veg_type_id);
               // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
               return (
                 <View style={styles.itemContainer}>

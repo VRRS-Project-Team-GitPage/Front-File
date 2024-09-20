@@ -53,7 +53,6 @@ export default function ImagePickerScreen({ navigation }) {
 
       if (!result.canceled) {
         const imgUri = result.assets[0].uri;
-        console.log(imgUri);
         navigation.navigate("ReadTab", {
           screen: "IngridientScreen",
           params: { imgUri: imgUri, triggerSubmitImg: true },

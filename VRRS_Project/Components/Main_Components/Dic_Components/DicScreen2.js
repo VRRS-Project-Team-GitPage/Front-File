@@ -121,7 +121,7 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
-          getVegTypeName(product.pro_type_id)
+          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(query.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -190,7 +190,7 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
-          getVegTypeName(product.pro_type_id)
+          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -217,7 +217,7 @@ export default function DicScreen({ route, navigation }) {
 
     if (btnType !== "전체") {
       filteredList = filteredList.filter(
-        (product) => getVegTypeName(product.pro_type_id) === btnType
+        (product) => getVegTypeName(product.veg_type_id) === btnType
       );
     }
 
@@ -230,7 +230,7 @@ export default function DicScreen({ route, navigation }) {
           product.category
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
-          getVegTypeName(product.pro_type_id)
+          getVegTypeName(product.veg_type_id)
             .toLocaleLowerCase()
             .includes(filterText.toLocaleLowerCase()) ||
           product.ingredients.some((ingredient) =>
@@ -418,7 +418,7 @@ export default function DicScreen({ route, navigation }) {
           keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
           renderItem={({ item }) => {
             // 제품의 유형을 저장하는 변수
-            const itemVegTypeName = getVegTypeName(item.pro_type_id);
+            const itemVegTypeName = getVegTypeName(item.veg_type_id);
             // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
             return (
               <View style={styles.itemContainer}>

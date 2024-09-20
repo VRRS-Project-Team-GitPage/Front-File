@@ -4,7 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import TouchableScale from "../../../assets/styles/TouchableScale";
 import MainIcons from "../../../assets/Icons/MainIcons";
-import Octicons from "@expo/vector-icons/Octicons";
+import Xheader from "../../../assets/styles/ReuseComponents/Header/xheader";
 
 export default function RecommendScreen({ navigation }) {
   // 화면 크기를 저장한 변수
@@ -12,17 +12,11 @@ export default function RecommendScreen({ navigation }) {
   const windowHeigh = useWindowDimensions().height;
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Octicons
-          name="x"
-          size={24}
-          color={Gray_theme.gray_90}
-          style={styles.headerX}
-          onPress={() => {
-            navigation.navigate("Home");
-          }}
-        />
-      </View>
+      <Xheader
+        onPress={() => {
+          navigation.navigate("Home");
+        }}
+      ></Xheader>
       <View style={styles.contents}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>추천 방식을</Text>
@@ -104,14 +98,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Gray_theme.white,
-  },
-  header: {
-    height: 60,
-    justifyContent: "center",
-  },
-  headerX: {
-    position: "absolute",
-    right: 24,
   },
   contents: {
     flex: 1,

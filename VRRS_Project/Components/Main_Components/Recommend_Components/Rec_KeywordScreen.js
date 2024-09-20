@@ -4,6 +4,7 @@ import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
+import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 
 export default function Rec_KeywordScreen({ navigation }) {
   // 화면 크기를 저장한 변수
@@ -23,28 +24,13 @@ export default function Rec_KeywordScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Octicons
-          name="arrow-left"
-          size={24}
-          color={Gray_theme.gray_90}
-          style={{
-            position: "absolute",
-            left: 24,
-          }}
-          onPress={() => {
-            navigation.goBack();
-          }}
-        />
-        <Text
-          style={{
-            textAlign: "center",
-            fontFamily: "Pretendard-Bold",
-          }}
-        >
-          키워드로 추천받기
-        </Text>
-      </View>
+      <BackHeader
+        onPress={() => {
+          navigation.goBack();
+        }}
+      >
+        키워드로 추천받기
+      </BackHeader>
       <View>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>먹고 싶은</Text>
@@ -79,10 +65,10 @@ export default function Rec_KeywordScreen({ navigation }) {
               }}
               style={{
                 width: windowWidth - 32,
-                backgroundColor: searchText ? Gray_theme.gray_20 : null,
+                backgroundColor: searchText ? Gray_theme.gray_30 : null,
                 borderColor: searchText
                   ? Gray_theme.gray_80
-                  : Gray_theme.gray_40,
+                  : Gray_theme.gray_50,
                 borderWidth: 1,
                 ...styles.textInput,
               }}
@@ -111,13 +97,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Gray_theme.white,
-  },
-  header: {
-    height: 60,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 24,
   },
   titleContainer: {
     marginVertical: 32,
