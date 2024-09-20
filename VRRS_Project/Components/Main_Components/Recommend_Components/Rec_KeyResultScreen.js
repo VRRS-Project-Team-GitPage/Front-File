@@ -1,11 +1,13 @@
-import { View, Text, Button } from "react-native";
+import { useEffect, useState } from "react";
+import { View, Text } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+// component 관련
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
-import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
+// design 관련
+import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
-import { useEffect, useState } from "react";
 
 export default function Rec_keyResultScreen({ navigation, route }) {
   // 화면 크기를 저장한 변수
@@ -59,13 +61,15 @@ export default function Rec_keyResultScreen({ navigation, route }) {
       </View>
       <View style={styles.bottomContents}>
         <Text style={styles.bottomText}>다른 제품을 알아보고 싶다면?</Text>
-        <BtnC
-          onPress={() => {
-            navigation.navigate("Rec_Main");
-          }}
-        >
-          재추천받기
-        </BtnC>
+        <View style={styles.bottomBtn}>
+          <BtnC
+            onPress={() => {
+              navigation.navigate("Rec_Main");
+            }}
+          >
+            재추천받기
+          </BtnC>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -99,5 +103,8 @@ const styles = StyleSheet.create({
     color: Main_theme.main_50,
     fontSize: 12,
     fontFamily: "Pretendard-SemiBold",
+  },
+  bottomBtn: {
+    paddingHorizontal: 16,
   },
 });

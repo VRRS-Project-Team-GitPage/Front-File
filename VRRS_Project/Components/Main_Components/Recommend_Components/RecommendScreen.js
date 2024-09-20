@@ -1,10 +1,12 @@
 import { View, Text, Image } from "react-native";
 import { useWindowDimensions, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+// design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
-import TouchableScale from "../../../assets/styles/TouchableScale";
 import MainIcons from "../../../assets/Icons/MainIcons";
+// component 관련
 import Xheader from "../../../assets/styles/ReuseComponents/Header/xheader";
+import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 
 export default function RecommendScreen({ navigation }) {
   // 화면 크기를 저장한 변수

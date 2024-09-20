@@ -1,10 +1,13 @@
 import { View, Text, TextInput } from "react-native";
-import { StyleSheet, useWindowDimensions, ToastAndroid } from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+// design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
+// component 관련
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 
 export default function Rec_KeywordScreen({ navigation }) {
   // 화면 크기를 저장한 변수
@@ -12,15 +15,6 @@ export default function Rec_KeywordScreen({ navigation }) {
   const windowHeigh = useWindowDimensions().height;
 
   const [searchText, setSearchText] = useState("");
-
-  // toast message를 띄워주기 위한 함수
-  const showToastWithGravity = () => {
-    ToastAndroid.showWithGravity(
-      "검색어를 입력해주세요",
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM
-    );
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -55,7 +49,7 @@ export default function Rec_KeywordScreen({ navigation }) {
               value={searchText}
               onSubmitEditing={() => {
                 if (searchText === "") {
-                  showToastWithGravity();
+                  showToast("키워드가 입력되지 않았습니다");
                 } else {
                   navigation.navigate("Key_Result", {
                     text: searchText,

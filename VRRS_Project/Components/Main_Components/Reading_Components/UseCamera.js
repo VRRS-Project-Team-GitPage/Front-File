@@ -2,7 +2,9 @@ import { CameraView, useCameraPermissions } from "expo-camera";
 import { useState, useRef, useEffect } from "react";
 import { StyleSheet, TouchableOpacity, View, Alert } from "react-native";
 import { Linking } from "react-native"; // Linking 추가
+// compnent 관련
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
+// design rhksfus
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
 import Feather from "@expo/vector-icons/Feather";
 import Octicons from "@expo/vector-icons/Octicons";

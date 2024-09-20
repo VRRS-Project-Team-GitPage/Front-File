@@ -10,7 +10,7 @@ import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { useFocusEffect } from "@react-navigation/native";
 // 클릭 시 적용되는 애니메이션 Component
-import TouchableScale from "../../../assets/styles/TouchableScale";
+import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 import { StyleSheet, useWindowDimensions, FlatList } from "react-native";
 // StatusBar 영역을 확보하기 위해 import
 import { SafeAreaView } from "react-native-safe-area-context";

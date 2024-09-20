@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { View, Text, Image, ScrollView, TouchableOpacity } from "react-native";
-import { StyleSheet, useWindowDimensions, ToastAndroid } from "react-native";
+import { View, Text, Image, TouchableOpacity } from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import TouchableScale from "../../../assets/styles/TouchableScale";
+// component 관련
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
+import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
+// design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
-import Octicons from "@expo/vector-icons/Octicons";
 import Cate_Icons from "../../../assets/Icons/CateIcons";
 
 export default function Rec_CateScreen({ navigation }) {
@@ -37,39 +39,15 @@ export default function Rec_CateScreen({ navigation }) {
     navigation.navigate("Cate_Result", { selectedCategories });
   };
 
-  // toast message를 띄워주기 위한 함수
-  const showToastWithGravity = () => {
-    ToastAndroid.showWithGravity(
-      "하나 이상 선택해주세요",
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM
-    );
-  };
-
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Octicons
-          name="arrow-left"
-          size={24}
-          color={Gray_theme.gray_90}
-          style={{
-            position: "absolute",
-            left: 24,
-          }}
-          onPress={() => {
-            navigation.goBack();
-          }}
-        />
-        <Text
-          style={{
-            textAlign: "center",
-            fontFamily: "Pretendard-Bold",
-          }}
-        >
-          유형으로 추천받기
-        </Text>
-      </View>
+      <BackHeader
+        onPress={() => {
+          navigation.goBack();
+        }}
+      >
+        유형으로 추천받기
+      </BackHeader>
       <View style={{ flex: 1 }}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>먹고 싶은</Text>
@@ -117,7 +95,13 @@ export default function Rec_CateScreen({ navigation }) {
         </View>
         <View style={styles.bottomContents}>
           {selectedCategories.length === 0 ? (
-            <Btn onPress={showToastWithGravity}>확인</Btn>
+            <Btn
+              onPress={() => {
+                showToast("하나 이상 선택해주세요");
+              }}
+            >
+              확인
+            </Btn>
           ) : (
             <BtnC onPress={handleConfirm}>확인</BtnC>
           )}
@@ -173,6 +157,6 @@ const styles = StyleSheet.create({
     bottom: 24,
     right: 0,
     left: 0,
-    paddingHorizontal: 24,
+    paddingHorizontal: 16,
   },
 });

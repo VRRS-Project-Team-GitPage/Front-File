@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useRef,
-  useEffect,
-  useLayoutEffect,
-  useContext,
-} from "react";
+import React, { useRef, useContext } from "react";
 import {
   View,
   Text,
@@ -15,9 +9,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
+// component 관련
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
+// design 관련
+import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
+// Data 관련
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext";
 
 function SearchScreen({ navigation }) {
@@ -33,6 +30,7 @@ function SearchScreen({ navigation }) {
     saveSearchText,
   } = useContext(SearchContext);
 
+  // 하단탭 숨김
   useTabBarVisibility(false);
 
   // toast message를 띄워주기 위한 함수

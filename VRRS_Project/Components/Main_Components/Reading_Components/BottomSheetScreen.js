@@ -3,8 +3,8 @@ import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import BottomSheetModal from "@gorhom/bottom-sheet";
 import HomeScreen from "../Home_Components/HomeScreen";
+// design 관련
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
-// Icon 관련 import
 import Octicons from "@expo/vector-icons/Octicons";
 import Feather from "@expo/vector-icons/Feather";
 

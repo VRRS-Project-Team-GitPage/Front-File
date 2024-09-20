@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { View, Text, TextInput } from "react-native";
-import { StyleSheet, ToastAndroid, useWindowDimensions } from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // Component 관련
 import Xheader from "../../../assets/styles/ReuseComponents/Header/xheader";
