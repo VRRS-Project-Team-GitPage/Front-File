@@ -13,6 +13,7 @@ import {
   FlatList,
   Image,
   TouchableOpacity,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -457,51 +458,63 @@ export default function DicScreen({ route, navigation }) {
               const itemVegTypeName = getVegTypeName(item.veg_type_id);
               // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
               return (
-                <View style={styles.itemContainer}>
-                  <Image source={{ uri: item.img_path }} style={styles.image} />
+                <TouchableWithoutFeedback
+                  onPress={() => {
+                    const productID = item.id;
+                    navigation.navigate("ProductInfo", {
+                      id: productID,
+                    });
+                  }}
+                >
+                  <View style={styles.itemContainer}>
+                    <Image
+                      source={{ uri: item.img_path }}
+                      style={styles.image}
+                    />
 
-                  <View style={styles.textContainer}>
-                    {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
-                    <View>
-                      <Text style={styles.name}>{item.name}</Text>
-                      <Text style={styles.category}>{item.category}</Text>
-                    </View>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                      }}
-                    >
-                      <Text style={styles.vegType}>
-                        {itemVegTypeName}
-                        {/* 아이템의 채식 유형 이름 표시 */}
-                      </Text>
-                    </View>
-                  </View>
-                  <View style={styles.itemInfo}>
-                    <View style={styles.infoContents}>
-                      <Octicons
-                        name="thumbsup"
-                        size={16}
-                        color={Gray_theme.gray_40}
+                    <View style={styles.textContainer}>
+                      {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                      <View>
+                        <Text style={styles.name}>{item.name}</Text>
+                        <Text style={styles.category}>{item.category}</Text>
+                      </View>
+                      <View
                         style={{
-                          marginRight: 4,
-                          marginBottom: 2,
+                          flexDirection: "row",
+                          justifyContent: "space-between",
                         }}
-                      />
-                      <Text style={styles.infoText}>{item.rec}</Text>
+                      >
+                        <Text style={styles.vegType}>
+                          {itemVegTypeName}
+                          {/* 아이템의 채식 유형 이름 표시 */}
+                        </Text>
+                      </View>
                     </View>
-                    <View style={styles.infoContents}>
-                      <Octicons
-                        name="comment"
-                        size={16}
-                        color={Gray_theme.gray_40}
-                        style={{ marginRight: 4 }}
-                      />
-                      <Text style={styles.infoText}>{item.review}</Text>
+                    <View style={styles.itemInfo}>
+                      <View style={styles.infoContents}>
+                        <Octicons
+                          name="thumbsup"
+                          size={16}
+                          color={Gray_theme.gray_40}
+                          style={{
+                            marginRight: 4,
+                            marginBottom: 2,
+                          }}
+                        />
+                        <Text style={styles.infoText}>{item.rec}</Text>
+                      </View>
+                      <View style={styles.infoContents}>
+                        <Octicons
+                          name="comment"
+                          size={16}
+                          color={Gray_theme.gray_40}
+                          style={{ marginRight: 4 }}
+                        />
+                        <Text style={styles.infoText}>{item.review}</Text>
+                      </View>
                     </View>
                   </View>
-                </View>
+                </TouchableWithoutFeedback>
               );
             }}
           />
