@@ -1,6 +1,11 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { StyleSheet } from "react-native";
+import {
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+} from "react-native";
 import { View, Text, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // design 관련
@@ -11,6 +16,7 @@ import BarIcons from "../../../assets/Icons/BarIcons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 // component 관련
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
+import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 // Date 관련
 import {
   getAllProducts,
@@ -26,6 +32,9 @@ export default function DicProductScreen({ navigation, route }) {
   const findProductById = (id) => {
     return products.find((product) => product.id === id);
   };
+
+  // 하단탭 숨김
+  useTabBarVisibility(false);
 
   // id를 통해 찾은 제품을 저장할 state
   const [product, setProduct] = useState([]);
@@ -180,11 +189,83 @@ export default function DicProductScreen({ navigation, route }) {
                   </View>
                 </View>
               </View>
+              <View style={styles.proInfo_D}>
+                <View>
+                  <Text style={styles.proTypeTitle}>섭취 유형</Text>
+                  <View
+                    style={{
+                      ...styles.textBadge,
+                      backgroundColor: Main_theme.main_30,
+                    }}
+                  >
+                    <Text style={{ ...styles.text, color: Gray_theme.white }}>
+                      {getVegTypeName(product.veg_type_id)}
+                    </Text>
+                  </View>
+                </View>
+                <View>
+                  <Text style={styles.proTypeTitle}>원재료</Text>
+
+                  <ScrollView
+                    contentContainerStyle={{
+                      flexDirection: "row", // 가로로 나열
+                      flexWrap: "wrap", // 줄 바꿈
+                    }}
+                  >
+                    {product.ingredients && product.ingredients.length > 0 ? (
+                      product.ingredients.map((item, index) => (
+                        <View key={index} style={styles.textBadge}>
+                          <Text style={styles.text}>{item}</Text>
+                        </View>
+                      ))
+                    ) : (
+                      <Text>원재료 정보가 없습니다.</Text> // 데이터가 없을 때 표시
+                    )}
+                  </ScrollView>
+                </View>
+              </View>
               <View>
-                <Text>와</Text>
+                <View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      navigation.navigate("ProductReview");
+                    }}
+                    activeOpacity={0.8}
+                  >
+                    <View style={styles.reviewHeader}>
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <Text style={styles.reviewTitle}>리뷰</Text>
+                        <Text style={styles.reviewTotal}>
+                          ({product.review})
+                        </Text>
+                      </View>
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <Text
+                          style={{
+                            ...styles.reviewTotal,
+                            color: Gray_theme.balck,
+                          }}
+                        >
+                          전체 보기
+                        </Text>
+                        <Octicons
+                          name="chevron-right"
+                          size={24}
+                          color={Gray_theme.gray_90}
+                          style={{ marginLeft: 16 }}
+                        />
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                </View>
               </View>
             </View>
           </View>
+          <View style={{ height: 60 }}></View>
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -263,7 +344,7 @@ const styles = StyleSheet.create({
   },
   infoReview: {
     fontFamily: "Pretendard-Bold",
-    fontSize: 16,
+    fontSize: 18,
     color: Gray_theme.gray_80,
   },
   infonGoodLine: {
@@ -288,8 +369,8 @@ const styles = StyleSheet.create({
   },
   infoPer: {
     marginLeft: 4,
-    fontFamily: "Pretendard-Bold",
-    fontSize: 18,
+    fontFamily: "Pretendard-ExtraBold",
+    fontSize: 16,
     marginRight: 2,
   },
   infoPerText: {
@@ -312,5 +393,53 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignItems: "flex-end",
     justifyContent: "center",
+  },
+  proInfo_D: {
+    marginVertical: 36,
+    paddingHorizontal: 24,
+  },
+  proTypeTitle: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 16,
+    color: Gray_theme.balck,
+    marginBottom: 12,
+    marginTop: 12,
+  },
+  textBadge: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    fontSize: 12,
+    fontFamily: "Pretendard-Bold",
+    color: Main_theme.main_30,
+    borderWidth: 1.5,
+    borderColor: Main_theme.main_30,
+    borderRadius: 15,
+    justifyContent: "center",
+    alignSelf: "flex-start",
+    marginBottom: 12,
+    marginRight: 12,
+  },
+  text: {
+    fontSize: 12,
+    fontFamily: "Pretendard-Bold",
+    color: Main_theme.main_30,
+  },
+  reviewHeader: {
+    height: 60,
+    paddingHorizontal: 24,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  reviewTitle: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 16,
+    color: Gray_theme.balck,
+    marginRight: 6,
+  },
+  reviewTotal: {
+    fontFamily: "Pretendard-SemiBold",
+    fontSize: 12,
+    color: Gray_theme.gray_50,
   },
 });
