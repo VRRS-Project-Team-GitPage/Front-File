@@ -39,7 +39,36 @@ export const users = [
   {
     id: 8,
     name: "이영희",
-    veg_type_id: 1, //비건
+    veg_type_id: 1,
+  },
+
+  {
+    id: 9,
+    name: " 통통이",
+    veg_type_id: 2,
+  },
+
+  {
+    id: 10,
+    name: "이영구",
+    veg_type_id: 3,
+  },
+
+  {
+    id: 11,
+    name: "김대영",
+    veg_type_id: 4,
+  },
+
+  {
+    id: 12,
+    name: "니차 욘따라락",
+    veg_type_id: 5,
+  },
+  {
+    id: 13,
+    name: "이종도",
+    veg_type_id: 6,
   },
 ];
 

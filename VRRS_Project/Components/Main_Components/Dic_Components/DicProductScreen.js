@@ -10,10 +10,11 @@ import { View, Text, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
-import Octicons from "@expo/vector-icons/Octicons";
 import MainIcons from "../../../assets/Icons/MainIcons";
+import Line from "../../../assets/styles/ReuseComponents/LineComponent";
+import Octicons from "@expo/vector-icons/Octicons";
 import BarIcons from "../../../assets/Icons/BarIcons";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Entypo from "@expo/vector-icons/Entypo";
 // component 관련
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
@@ -24,6 +25,11 @@ import {
   getVegTypeName,
   getProTypeNAme,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
+import {
+  getReviewsByProduct,
+  getReviewsWithUserInfo,
+  sortReviewsByDate,
+} from "../../../assets/ServerDatas/Dummy/dummyReviews";
 
 export default function DicProductScreen({ navigation, route }) {
   const { id } = route.params || {};
@@ -55,6 +61,20 @@ export default function DicProductScreen({ navigation, route }) {
   // 제품 북마크 여부를 저장
   const [bookMark, setBookmark] = useState(false);
 
+  // 리뷰 관련
+  // 1. 제품 ID에 맞는 리뷰를 가져오고 최신순으로 정렬
+  const productReviews = getReviewsByProduct(product.id);
+  const sortedReviews = sortReviewsByDate(productReviews);
+
+  // 2. 리뷰에 유저 정보를 연동
+  const productReviewsWithUserInfo = getReviewsWithUserInfo(sortedReviews);
+
+  // 3. 첫 번째 리뷰만 가져오기
+  const firstReview =
+    productReviewsWithUserInfo.length > 0 ? productReviewsWithUserInfo[0] : [];
+
+  const reviewLength = product.review;
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={{ flex: 1 }}>
@@ -70,7 +90,7 @@ export default function DicProductScreen({ navigation, route }) {
           <Text style={styles.headerText}>{product.name}</Text>
           <Image source={MainIcons.error} style={styles.headerIcon}></Image>
         </View>
-        <ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false}>
           <View>
             <View style={styles.imageContain}>
               <Image
@@ -224,11 +244,15 @@ export default function DicProductScreen({ navigation, route }) {
                   </ScrollView>
                 </View>
               </View>
+              <Line />
               <View>
                 <View>
                   <TouchableOpacity
                     onPress={() => {
-                      navigation.navigate("ProductReview");
+                      navigation.navigate("ProductReview", {
+                        reviewLength: reviewLength,
+                        reviewList: productReviewsWithUserInfo,
+                      });
                     }}
                     activeOpacity={0.8}
                   >
@@ -262,10 +286,91 @@ export default function DicProductScreen({ navigation, route }) {
                     </View>
                   </TouchableOpacity>
                 </View>
+
+                <View>
+                  {firstReview.length !== 0 ? (
+                    <View style={styles.reviewContainer}>
+                      <View style={styles.userReviewContainer}>
+                        <Image
+                          source={MainIcons.allUser_profile}
+                          style={styles.userProfile}
+                        ></Image>
+                        <View style={styles.userInfo}>
+                          <View
+                            style={{ flexDirection: "row", marginBottom: 6 }}
+                          >
+                            <Text style={styles.userName}>
+                              {firstReview.user_name}
+                            </Text>
+                            <Text style={styles.vegType}>
+                              {firstReview.user_veg_type}
+                            </Text>
+                          </View>
+                          <View style={{ flexDirection: "row" }}>
+                            <Text style={styles.writeDate}>
+                              {new Date(
+                                firstReview.created_at
+                              ).toLocaleDateString()}
+                            </Text>
+
+                            <Entypo
+                              name="dot-single"
+                              size={20}
+                              color={Gray_theme.gray_50}
+                              style={styles.dot}
+                            />
+                            {firstReview.is_rec ? (
+                              <Image
+                                source={MainIcons.good}
+                                style={styles.userRec}
+                              ></Image>
+                            ) : (
+                              <Image
+                                source={MainIcons.bad}
+                                style={{ ...styles.userRec, marginTop: 4 }}
+                              ></Image>
+                            )}
+                          </View>
+                        </View>
+                      </View>
+                      <Text style={styles.content}>{firstReview.content}</Text>
+                      <View style={styles.moreContainer}>
+                        <TouchableOpacity
+                          activeOpacity={0.8}
+                          style={{
+                            flexDirection: "row",
+                          }}
+                          onPress={() => {
+                            navigation.navigate("ProductReview", {
+                              reviewLength: reviewLength,
+                              reviewList: productReviewsWithUserInfo,
+                            });
+                          }}
+                        >
+                          <Text style={styles.userName}>더보기</Text>
+                          <Octicons
+                            name="chevron-down"
+                            size={24}
+                            color={Gray_theme.gray_80}
+                            style={{
+                              marginLeft: 6,
+                            }}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  ) : (
+                    <View style={styles.noRevieContainer}>
+                      <Text style={styles.proType}>작성된 리뷰가 없습니다</Text>
+                      <Text style={styles.proType}>
+                        첫 번째 리뷰를 남겨주세요!
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </View>
             </View>
           </View>
-          <View style={{ height: 60 }}></View>
         </ScrollView>
       </View>
     </SafeAreaView>
@@ -424,6 +529,7 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-Bold",
     color: Main_theme.main_30,
   },
+  // 리뷰 관련 스타일
   reviewHeader: {
     height: 60,
     paddingHorizontal: 24,
@@ -441,5 +547,64 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-SemiBold",
     fontSize: 12,
     color: Gray_theme.gray_50,
+  },
+  // 맨 처음 리뷰 스타일
+  reviewContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderColor: Gray_theme.gray_20,
+  },
+  userProfile: {
+    width: 52,
+    height: 52,
+    marginRight: 16,
+  },
+  userReviewContainer: {
+    flexDirection: "row",
+    paddingVertical: 16,
+  },
+  userInfo: {
+    justifyContent: "center",
+  },
+  userName: {
+    fontFamily: "Pretendard-SemiBold",
+    color: Gray_theme.balck,
+  },
+  vegType: {
+    marginLeft: 6,
+    fontSize: 10,
+    fontFamily: "Pretendard-Bold",
+    color: Main_theme.main_50,
+    backgroundColor: Main_theme.main_10,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 20,
+  },
+  userRec: {
+    width: 16,
+    height: 16,
+    marginRight: 6,
+  },
+  writeDate: {
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
+    color: Gray_theme.gray_60,
+  },
+  content: {
+    paddingVertical: 16,
+    marginLeft: 68,
+    color: Gray_theme.balck,
+    fontFamily: "Pretendard-Medium",
+  },
+  // 리뷰가 없는 경우
+  noRevieContainer: {
+    marginTop: 56,
+    alignItems: "center",
+  },
+  moreContainer: {
+    height: 120,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

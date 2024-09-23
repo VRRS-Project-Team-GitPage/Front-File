@@ -1,5 +1,6 @@
 import { vegTypes } from "./dummyVegTypes";
 import { categories } from "./dummyProductCate";
+import { reviews } from "./dummyReviews";
 
 // 더미 제품 데이터 생성
 export const products = [
@@ -383,6 +384,32 @@ export const getProTypeNAme = (proTypeId) => {
   const proType = categories.find((type) => type.id === proTypeId);
   return proType ? proType.name : "미정";
 };
+
+// 리뷰 수를 업데이트하는 함수
+export const updateReviewCount = (reviews) => {
+  products.forEach((product) => {
+    // 각 제품의 id에 맞는 리뷰를 필터링하여 총 리뷰 수를 업데이트
+    const productReviews = reviews.filter(
+      (review) => review.pro_id === product.id
+    );
+    product.review = productReviews.length;
+  });
+};
+
+// 추천 수를 업데이트하는 함수
+export const updateRecCount = (reviews) => {
+  products.forEach((product) => {
+    // 각 제품의 id에 맞는 추천 리뷰(is_rec: true)의 수를 업데이트
+    const productRec = reviews.filter(
+      (review) => review.pro_id === product.id && review.is_rec
+    );
+    product.rec = productRec.length;
+  });
+};
+
+// 초기 실행 시 제품 데이터를 업데이트
+updateReviewCount(reviews);
+updateRecCount(reviews);
 
 // 전체 제품 데이터를 가져오는 함수
 export const getAllProducts = () => {
