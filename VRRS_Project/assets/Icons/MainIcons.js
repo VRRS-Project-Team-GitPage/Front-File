@@ -7,4 +7,9 @@ export default mainIcons = {
   fail: require("./Main_Icons/fail.png"),
   keyword: require("./Main_Icons/keyword.png"),
   dictionary: require("./Main_Icons/dictionary.png"),
+  error: require("./Main_Icons/error.png"),
+  user_profile: require("./Main_Icons/user_profile.png"),
+  allUser_profile: require("./Main_Icons/allUser_profile.png"),
+  good: require("./Bar_Icons/recommend-click.png"),
+  bad: require("./Main_Icons/bad.png"),
 };

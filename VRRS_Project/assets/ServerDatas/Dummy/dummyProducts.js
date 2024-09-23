@@ -1,5 +1,6 @@
 import { vegTypes } from "./dummyVegTypes";
 import { categories } from "./dummyProductCate";
+import { reviews } from "./dummyReviews";
 
 // 더미 제품 데이터 생성
 export const products = [
@@ -127,7 +128,14 @@ export const products = [
     id: 11,
     name: "제품 11",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 11,
     veg_type_id: 6,
@@ -139,7 +147,14 @@ export const products = [
     id: 12,
     name: "제품 12",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 12,
     veg_type_id: 6,
@@ -151,7 +166,14 @@ export const products = [
     id: 13,
     name: "제품 13",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 13,
     veg_type_id: 1,
@@ -163,7 +185,14 @@ export const products = [
     id: 14,
     name: "제품 14",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 14,
     veg_type_id: 2,
@@ -175,7 +204,14 @@ export const products = [
     id: 15,
     name: "제품 15",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 15,
     veg_type_id: 3,
@@ -187,7 +223,14 @@ export const products = [
     id: 16,
     name: "제품 16",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 16,
     veg_type_id: 4,
@@ -199,7 +242,14 @@ export const products = [
     id: 17,
     name: "제품 17",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 17,
     veg_type_id: 5,
@@ -211,7 +261,14 @@ export const products = [
     id: 18,
     name: "제품 18",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 18,
     veg_type_id: 6,
@@ -223,7 +280,14 @@ export const products = [
     id: 19,
     name: "제품 19",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 19,
     veg_type_id: 1,
@@ -235,7 +299,14 @@ export const products = [
     id: 20,
     name: "제품 20",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 20,
     veg_type_id: 2,
@@ -247,7 +318,14 @@ export const products = [
     id: 21,
     name: "제품 21",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 21,
     veg_type_id: 3,
@@ -259,7 +337,14 @@ export const products = [
     id: 22,
     name: "제품 22",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 22,
     veg_type_id: 4,
@@ -271,7 +356,14 @@ export const products = [
     id: 23,
     name: "제품 23",
     category: "카테고리",
-    ingredients: ["원재료명 1", "원재료명 2", "원재료명 3"],
+    ingredients: [
+      "원재료명 1",
+      "원재료명 2",
+      "원재료명 3",
+      "원재료명 4",
+      "원재료명 5",
+      "원재료명 6",
+    ],
     img_path: "https://via.placeholder.com/150",
     pro_type_id: 23,
     veg_type_id: 5,
@@ -292,6 +384,32 @@ export const getProTypeNAme = (proTypeId) => {
   const proType = categories.find((type) => type.id === proTypeId);
   return proType ? proType.name : "미정";
 };
+
+// 리뷰 수를 업데이트하는 함수
+export const updateReviewCount = (reviews) => {
+  products.forEach((product) => {
+    // 각 제품의 id에 맞는 리뷰를 필터링하여 총 리뷰 수를 업데이트
+    const productReviews = reviews.filter(
+      (review) => review.pro_id === product.id
+    );
+    product.review = productReviews.length;
+  });
+};
+
+// 추천 수를 업데이트하는 함수
+export const updateRecCount = (reviews) => {
+  products.forEach((product) => {
+    // 각 제품의 id에 맞는 추천 리뷰(is_rec: true)의 수를 업데이트
+    const productRec = reviews.filter(
+      (review) => review.pro_id === product.id && review.is_rec
+    );
+    product.rec = productRec.length;
+  });
+};
+
+// 초기 실행 시 제품 데이터를 업데이트
+updateReviewCount(reviews);
+updateRecCount(reviews);
 
 // 전체 제품 데이터를 가져오는 함수
 export const getAllProducts = () => {

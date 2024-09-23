@@ -22,4 +22,5 @@ export const Main_theme = {
   main_40: "#50B498",
   main_50: "#468585",
   main_reverse: "#FF1400",
+  main_Medium: "#FFD060",
 };
