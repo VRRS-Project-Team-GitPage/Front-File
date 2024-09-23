@@ -1,17 +1,24 @@
 import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
 import { StyleSheet } from "react-native";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // component 관련
 import Line from "../../../assets/styles/ReuseComponents/LineComponent";
+import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
+import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import MainIcons from "../../../assets/Icons/MainIcons";
 import Octicons from "@expo/vector-icons/Octicons";
 import Entypo from "@expo/vector-icons/Entypo";
+// data 관련
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 
 export default function DicProductReviewScreen({ route, navigation }) {
+  // user의 정보를 불러옴
+  const { user, username, vegTypeName } = useUser();
+  // 이전 화면에서 넘어온 정보
   const { reviewLength, reviewList } = route.params || {};
 
   useFocusEffect(
@@ -19,6 +26,10 @@ export default function DicProductReviewScreen({ route, navigation }) {
       //console.log(reviewList);
     }, [])
   );
+
+  // 리뷰 작성 여부
+  const [userReview, setUserReview] = useState(false);
+
   return (
     <SafeAreaView style={styles.container}>
       <View>
@@ -38,6 +49,42 @@ export default function DicProductReviewScreen({ route, navigation }) {
           <Text style={styles.headerText}>리뷰</Text>
           <Text style={styles.reviewTotal}>({reviewLength})</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.mainUserReviewC}>
+        <View style={styles.mainUserReviewContainer}>
+          <Image
+            source={MainIcons.user_profile}
+            style={styles.mainUserProfile}
+          ></Image>
+          <View style={styles.userInfo}>
+            <View style={styles.userInfoContainer}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  marginBottom: 8,
+                }}
+              >
+                <Text style={styles.userName}>{username}</Text>
+                <Text style={styles.vegType}>{vegTypeName}</Text>
+              </View>
+            </View>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={styles.writeDate}>현재</Text>
+              <Entypo
+                name="dot-single"
+                size={20}
+                color={Gray_theme.gray_50}
+                style={styles.dot}
+              />
+            </View>
+          </View>
+        </View>
+        <View style={styles.mainContent}>
+          <Text style={styles.mainCText}>작성된 리뷰가 없습니다.</Text>
+        </View>
+      </View>
+      <View style={styles.btnC}>
+        <BtnC onPress={() => {}}>리뷰 쓰기</BtnC>
       </View>
       <Line />
       <View style={{ marginBottom: 64 }}>
@@ -146,11 +193,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderColor: Gray_theme.gray_20,
+    marginBottom: 60,
   },
   userProfile: {
     width: 52,
     height: 52,
-    marginRight: 16,
+    marginRight: 12,
   },
   userReviewContainer: {
     flexDirection: "row",
@@ -200,5 +248,30 @@ const styles = StyleSheet.create({
     marginLeft: 68,
     color: Gray_theme.balck,
     fontFamily: "Pretendard-Medium",
+  },
+  mainUserReviewC: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+  },
+  mainUserReviewContainer: {
+    flexDirection: "row",
+    paddingVertical: 16,
+  },
+  mainUserProfile: {
+    width: 60,
+    height: 60,
+    marginRight: 12,
+  },
+  mainContent: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+  },
+  mainCText: {
+    color: Gray_theme.balck,
+    fontFamily: "Pretendard-Medium",
+  },
+  btnC: {
+    paddingHorizontal: 24,
+    marginVertical: 24,
   },
 });
