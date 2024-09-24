@@ -250,8 +250,9 @@ export default function DicProductScreen({ navigation, route }) {
                   <TouchableOpacity
                     onPress={() => {
                       navigation.navigate("ProductReview", {
-                        reviewLength: reviewLength,
-                        reviewList: productReviewsWithUserInfo,
+                        productID: product.id,
+                        reviewLength: reviewLength, // 리뷰의 총 개슈
+                        reviewList: productReviewsWithUserInfo, // 리뷰 리스트
                       });
                     }}
                     activeOpacity={0.8}
@@ -339,23 +340,32 @@ export default function DicProductScreen({ navigation, route }) {
                           activeOpacity={0.8}
                           style={{
                             flexDirection: "row",
+                            alignItems: "center",
                           }}
                           onPress={() => {
                             navigation.navigate("ProductReview", {
+                              productID: product.id,
                               reviewLength: reviewLength,
                               reviewList: productReviewsWithUserInfo,
                             });
                           }}
                         >
-                          <Text style={styles.userName}>더보기</Text>
                           <Octicons
                             name="chevron-down"
                             size={24}
-                            color={Gray_theme.gray_80}
+                            color={Gray_theme.gray_60}
                             style={{
-                              marginLeft: 6,
+                              marginRight: 8,
                             }}
                           />
+                          <Text
+                            style={{
+                              ...styles.userName,
+                              color: Gray_theme.gray_60,
+                            }}
+                          >
+                            더보기
+                          </Text>
                         </TouchableOpacity>
                       </View>
                     </View>

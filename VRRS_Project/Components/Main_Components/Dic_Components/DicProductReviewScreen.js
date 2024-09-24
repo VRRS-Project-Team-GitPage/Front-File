@@ -10,11 +10,13 @@ import { StyleSheet, Modal, useWindowDimensions } from "react-native";
 import { useCallback, useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // component 관련
 import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
+import QuestionModal from "../../../assets/styles/ReuseComponents/Modal/QuestionModal";
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import MainIcons from "../../../assets/Icons/MainIcons";
@@ -23,14 +25,18 @@ import Entypo from "@expo/vector-icons/Entypo";
 // data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 
+// 키 값을 통해 로컬 저장소에 접근
+// 추후 내 정보에 사용 시 동일한 시 선언 후 파일 저장
+const REVIEW_KEY = "userReview";
+
 export default function DicProductReviewScreen({ route, navigation }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
   // user의 정보를 불러옴
-  const { user, username, vegTypeName } = useUser();
+  const { user, id, name, vegTypeName } = useUser();
   // 이전 화면에서 넘어온 정보
-  const { reviewLength, reviewList } = route.params || {};
+  const { productID, reviewLength, reviewList } = route.params || {};
 
   useFocusEffect(
     useCallback(() => {
@@ -40,6 +46,9 @@ export default function DicProductReviewScreen({ route, navigation }) {
 
   // 리뷰 작성 모달창 관리
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+
+  // 삭제 모달창 관리
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
   // 추천 버튼 관리
   const [isRec, setIsRec] = useState(false);
@@ -55,24 +64,138 @@ export default function DicProductReviewScreen({ route, navigation }) {
     setIsNotRec(true); // 비추천을 누르면 추천은 해제
   };
 
-  // 리뷰 작성 탭
+  // 리뷰 작성 TaxtInput
   const [reviewText, setReviewText] = useState("");
-
+  // 리뷰 작성 시간
+  const [reviewTime, setReviewTime] = useState("");
   // 서버 업로드 여부
   const [upLoadReview, setUpLoadReview] = useState(false);
+  // 사용자가 작성한 리뷰 저장
+  const [mainUserReview, setMainUserReview] = useState("");
 
-  // 서버 업로드 함수
-  handleUpLoad = () => {
-    setUpLoadReview(true);
-    setReviewModalOpen(false);
+  // [로컬에서 리뷰 관리하기]
+  // 추후 이 함수를 사용하여 리뷰 수정하기를 구현하시면 됩니다.
+
+  // 리뷰 저장 함수
+  const saveReview = async () => {
+    try {
+      const currentTime = new Date().toISOString(); // 현재 시간을 저장
+      setReviewTime(currentTime); // 상태에도 저장
+
+      const review = {
+        pro_id: productID, // 해당 productID와 연결
+        user_id: id,
+        is_rec: isRec,
+        content: reviewText,
+        created_at: currentTime, // 작성 시간 저장
+        upLoadReview: upLoadReview,
+      };
+
+      // 기존 리뷰 객체 불러오기
+      const storedReviews = await AsyncStorage.getItem(REVIEW_KEY);
+      const reviewsObject =
+        storedReviews != null ? JSON.parse(storedReviews) : {};
+
+      // 새로운 productID 리뷰 추가 또는 업데이트
+      reviewsObject[productID] = review;
+
+      // 업데이트된 리뷰 객체를 다시 AsyncStorage에 저장
+      await AsyncStorage.setItem(REVIEW_KEY, JSON.stringify(reviewsObject));
+
+      // 상태에 저장
+      setMainUserReview(review);
+    } catch (e) {
+      console.log("리뷰 저장 중 오류가 발생하였습니다. :", e);
+    }
   };
 
-  // 추후 서버와 연동할 함수
+  // 리뷰 불러오기 함수
+
+  const loadReview = async () => {
+    try {
+      // 모든 리뷰 객체를 불러옴
+      const storedReviews = await AsyncStorage.getItem(REVIEW_KEY);
+      const reviewsObject =
+        storedReviews != null ? JSON.parse(storedReviews) : {};
+
+      // 현재 productID에 해당하는 리뷰를 불러옴
+      const loadedReview = reviewsObject[productID];
+
+      // 리뷰 데이터를 불러오면 각 상태에 나눠서 저장
+      if (loadedReview && loadedReview.pro_id === productID) {
+        // productID를 비교
+        setMainUserReview(loadedReview);
+        setReviewTime(loadedReview.created_at); // 작성 시간 복원
+        setUpLoadReview(loadedReview.upLoadReview); // 서버 업로드 여부 복원
+        setReviewText(loadedReview.content); // 저장된 텍스트 복원
+        setIsRec(loadedReview.is_rec); // 추천 여부 복원
+        setIsNotRec(!loadedReview.is_rec); // 비추천 여부 복원
+      } else {
+        // 해당 productID에 맞는 리뷰가 없을 때 초기화
+        setMainUserReview(null);
+        setReviewText("");
+        setIsRec(false);
+        setIsNotRec(false);
+        setReviewTime(null);
+        setUpLoadReview(false);
+      }
+    } catch (e) {
+      console.log("리뷰 불러오기 중 오류 발생:", e);
+    }
+  };
+
+  // 앱 실행 시 리뷰 데이터를 불러옴
   useEffect(() => {
-    return () => {
-      console.log("rec:", isRec, "review", reviewText);
-    };
-  }, [handleUpLoad]);
+    loadReview(); // 컴포넌트가 마운트될 때 데이터를 불러옴
+  }, [productID]); // productID가 변경될 때마다 다시 불러옴
+
+  // 작성 완료
+  const handleUpLoad = () => {
+    // 서버 업로드 상태를 true로 변경
+    setUpLoadReview(true);
+    // 모달 닫기
+    setReviewModalOpen(false);
+    // 리뷰 저장
+    saveReview();
+    // 로그 출력
+    console.log(
+      "pro_id:",
+      productID,
+      "user_id:",
+      id,
+      "is_rec:",
+      isRec,
+      "content:",
+      reviewText,
+      "created_at:",
+      reviewTime, // 작성 시간 저장
+      "upLoadReview:",
+      upLoadReview
+    );
+    // 완료 메시지 표시
+    showToast("리뷰 작성이 완료되었습니다.");
+  };
+
+  // 리뷰 삭제 함수
+  const deleteReview = async () => {
+    try {
+      // AsyncStorage에서 리뷰 데이터를 삭제
+      await AsyncStorage.removeItem(REVIEW_KEY);
+
+      // 모든 상태를 초기화
+      setMainUserReview(null);
+      setReviewText(""); // 리뷰 텍스트 초기화
+      setIsRec(false); // 추천 상태 초기화
+      setIsNotRec(false); // 비추천 상태 초기화
+      setUpLoadReview(false); // 서버 업로드 여부 초기화
+      setDeleteModalOpen(false);
+
+      // 삭제 완료 메시지 표시
+      showToast("리뷰가 삭제되었습니다.");
+    } catch (e) {
+      console.log("리뷰 삭제 중 오류 발생:", e);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -81,12 +204,24 @@ export default function DicProductReviewScreen({ route, navigation }) {
         visible={reviewModalOpen} //모달이 보이는 여부
         transparent={true} // 모달 배경 투명 여부
         onRequestClose={() => {
+          if (!upLoadReview) {
+            setReviewText("");
+            setIsRec(false);
+            setIsNotRec(false);
+          }
           setReviewModalOpen(false);
         }} // 뒤로가기를 눌렀을 때
       >
         <View
           style={styles.modalBgc}
-          onTouchEnd={() => setReviewModalOpen(false)}
+          onTouchEnd={() => {
+            if (!upLoadReview) {
+              setReviewText("");
+              setIsRec(false);
+              setIsNotRec(false);
+            }
+            setReviewModalOpen(false);
+          }}
         >
           <View
             style={styles.modalContainer}
@@ -99,7 +234,14 @@ export default function DicProductReviewScreen({ route, navigation }) {
                 size={24}
                 color={Gray_theme.gray_90}
                 style={styles.modalHeaderX}
-                onPress={() => setReviewModalOpen(false)}
+                onPress={() => {
+                  if (!upLoadReview) {
+                    setReviewText("");
+                    setIsRec(false);
+                    setIsNotRec(false);
+                  }
+                  setReviewModalOpen(false);
+                }}
               />
             </View>
             <View style={styles.modalContent}>
@@ -168,7 +310,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
                 }}
               >
                 <TextInput
-                  placeholder="제품 이름을 입력해주세요."
+                  placeholder="리뷰 내용을 입력해주세요."
                   value={reviewText}
                   onChangeText={(text) => setReviewText(text)}
                   multiline={true} // 여러 줄 여부
@@ -183,7 +325,6 @@ export default function DicProductReviewScreen({ route, navigation }) {
                     borderWidth: 1,
                     ...styles.textInput,
                   }}
-                  onSubmitEditing={() => {}}
                 />
                 <View style={styles.inputLength}>
                   <Text
@@ -208,7 +349,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
                 </View>
               </View>
               <View style={{ ...styles.btnC, width: "100%" }}>
-                {(isRec || isNotRec) && reviewText === "" ? (
+                {!(isRec || isNotRec) || reviewText === "" ? (
                   <Btn
                     onPress={() => {
                       showToast("리뷰가 작성되지 않았습니다.");
@@ -217,13 +358,32 @@ export default function DicProductReviewScreen({ route, navigation }) {
                     작성 완료
                   </Btn>
                 ) : (
-                  <BtnC onPress={handleUpLoad}>작성 완료</BtnC>
+                  <BtnC
+                    onPress={() => {
+                      setUpLoadReview(true);
+                      handleUpLoad();
+                    }}
+                  >
+                    작성 완료
+                  </BtnC>
                 )}
               </View>
             </View>
           </View>
         </View>
       </Modal>
+      <QuestionModal
+        visible={deleteModalOpen}
+        onRequestClose={() => {
+          setDeleteModalOpen(false);
+        }}
+        onTouchEnd={() => {
+          setDeleteModalOpen(false);
+        }}
+        onPress={deleteReview}
+      >
+        이 후기를 삭제할까요?
+      </QuestionModal>
       <View>
         <TouchableOpacity
           activeOpacity={0.8}
@@ -256,36 +416,88 @@ export default function DicProductReviewScreen({ route, navigation }) {
                   marginBottom: 8,
                 }}
               >
-                <Text style={styles.userName}>{username}</Text>
+                <Text style={styles.userName}>{name}</Text>
                 <Text style={styles.vegType}>{vegTypeName}</Text>
               </View>
             </View>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Text style={styles.writeDate}>현재</Text>
-              <Entypo
-                name="dot-single"
-                size={20}
-                color={Gray_theme.gray_50}
-                style={styles.dot}
-              />
-            </View>
+            {mainUserReview ? (
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={styles.writeDate}>
+                  {new Date(reviewTime).toLocaleDateString()}
+                </Text>
+                <Entypo
+                  name="dot-single"
+                  size={20}
+                  color={Gray_theme.gray_50}
+                  style={styles.dot}
+                />
+                {isRec ? (
+                  <Image
+                    source={MainIcons.good}
+                    style={{ ...styles.userRec, marginBottom: 2 }}
+                  ></Image>
+                ) : (
+                  <Image
+                    source={MainIcons.bad}
+                    style={{ ...styles.userRec, marginTop: 4 }}
+                  ></Image>
+                )}
+              </View>
+            ) : null}
           </View>
         </View>
         <View style={styles.mainContent}>
-          <Text style={{ ...styles.mainCText, textAlign: "center" }}>
-            작성된 리뷰가 없습니다.
-          </Text>
+          {!mainUserReview ? (
+            <Text style={{ ...styles.mainCText, textAlign: "center" }}>
+              작성된 리뷰가 없습니다.
+            </Text>
+          ) : (
+            <Text style={{ ...styles.mainCText }}>{reviewText}</Text>
+          )}
         </View>
       </View>
-      <View style={styles.btnC}>
-        <BtnC
-          onPress={() => {
-            setReviewModalOpen(!reviewModalOpen);
+      {!mainUserReview ? (
+        <View style={styles.btnC}>
+          <BtnC
+            onPress={() => {
+              setReviewModalOpen(!reviewModalOpen);
+            }}
+          >
+            리뷰 쓰기
+          </BtnC>
+        </View>
+      ) : (
+        <View
+          style={{
+            ...styles.btnC,
+            flexDirection: "row",
           }}
         >
-          리뷰 쓰기
-        </BtnC>
-      </View>
+          <BtnC
+            style={{
+              flex: 2,
+              marginRight: 4,
+            }}
+            onPress={() => {
+              setReviewModalOpen(true);
+            }}
+          >
+            수정하기
+          </BtnC>
+          <BtnC
+            style={{
+              flex: 1,
+              marginLeft: 4,
+              backgroundColor: Gray_theme.gray_40,
+              borderColor: Gray_theme.gray_40,
+            }}
+            onPress={() => [setDeleteModalOpen(true)]}
+          >
+            삭제
+          </BtnC>
+        </View>
+      )}
+
       <Line />
       <View style={{ flex: 1, marginTop: 24 }}>
         <FlatList

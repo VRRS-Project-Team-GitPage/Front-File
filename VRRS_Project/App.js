@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useState, useEffect } from "react";
-import Theme_Colors, { Gray_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
+import { Gray_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
 import * as Font from "expo-font"; // custom font를 사용하기 위해 import
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 // 전역적으로 사용될 정보 import

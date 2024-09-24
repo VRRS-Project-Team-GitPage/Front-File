@@ -29,7 +29,7 @@ import {
 
 export default function HomeScreen({ navigation }) {
   // user의 정보를 불러옴
-  const { user, username, vegTypeName } = useUser();
+  const { user, id, name, vegTypeName } = useUser();
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
@@ -40,6 +40,7 @@ export default function HomeScreen({ navigation }) {
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
+    console.log(user);
     // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
     const products = getAllProducts();
     setProductData(products);
@@ -148,7 +149,7 @@ export default function HomeScreen({ navigation }) {
                   color: Main_theme.main_50,
                 }}
               >
-                {username}님!
+                {name || "이름이 없습니다."}님!
               </Text>
             </View>
             <Text
