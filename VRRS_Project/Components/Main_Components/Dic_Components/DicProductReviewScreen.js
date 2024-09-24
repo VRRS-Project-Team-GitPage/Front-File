@@ -1,13 +1,20 @@
-import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
-import { StyleSheet, Modal } from "react-native";
-import { useCallback, useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  FlatList,
+  Image,
+} from "react-native";
+import { StyleSheet, Modal, useWindowDimensions } from "react-native";
+import { useCallback, useState, useEffect } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // component 관련
 import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
-
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import MainIcons from "../../../assets/Icons/MainIcons";
@@ -17,6 +24,9 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 
 export default function DicProductReviewScreen({ route, navigation }) {
+  const windowWidth = useWindowDimensions().width;
+  const windowHeigh = useWindowDimensions().height;
+
   // user의 정보를 불러옴
   const { user, username, vegTypeName } = useUser();
   // 이전 화면에서 넘어온 정보
@@ -24,25 +34,64 @@ export default function DicProductReviewScreen({ route, navigation }) {
 
   useFocusEffect(
     useCallback(() => {
-      //console.log(reviewList);
+      setReviewModalOpen(false);
     }, [])
   );
 
-  // 리뷰 작성 여부
-  const [userReview, setUserReview] = useState(false);
+  // 리뷰 작성 모달창 관리
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+
+  // 추천 버튼 관리
+  const [isRec, setIsRec] = useState(false);
+  // 비추천 버튼 관리
+  const [isNotRec, setIsNotRec] = useState(false);
+  const handleIsRec = () => {
+    setIsRec(true);
+    setIsNotRec(false); // 추천을 누르면 비추천은 해제
+  };
+
+  const handleIsNotRec = () => {
+    setIsRec(false);
+    setIsNotRec(true); // 비추천을 누르면 추천은 해제
+  };
+
+  // 리뷰 작성 탭
+  const [reviewText, setReviewText] = useState("");
+
+  // 서버 업로드 여부
+  const [upLoadReview, setUpLoadReview] = useState(false);
+
+  // 서버 업로드 함수
+  handleUpLoad = () => {
+    setUpLoadReview(true);
+    setReviewModalOpen(false);
+  };
+
+  // 추후 서버와 연동할 함수
+  useEffect(() => {
+    return () => {
+      console.log("rec:", isRec, "review", reviewText);
+    };
+  }, [handleUpLoad]);
 
   return (
     <SafeAreaView style={styles.container}>
       <Modal
         animationType="fade" //모달이 나타나는 방식
-        visible={userReview} //모달이 보이는 여부
+        visible={reviewModalOpen} //모달이 보이는 여부
         transparent={true} // 모달 배경 투명 여부
         onRequestClose={() => {
-          setUserReview(false);
+          setReviewModalOpen(false);
         }} // 뒤로가기를 눌렀을 때
       >
-        <View style={styles.modalBgc} onTouchEnd={() => setUserReview(false)}>
-          <View style={styles.modalContainer}>
+        <View
+          style={styles.modalBgc}
+          onTouchEnd={() => setReviewModalOpen(false)}
+        >
+          <View
+            style={styles.modalContainer}
+            onTouchEnd={(e) => e.stopPropagation()} //메서드는 캡처 Event 및 버블링 단계에서 현재 이벤트의 추가 전파를 방지합니다.
+          >
             <View style={styles.modalHeader}>
               <Text style={styles.modalHeaderText}>리뷰 쓰기</Text>
               <Octicons
@@ -50,23 +99,127 @@ export default function DicProductReviewScreen({ route, navigation }) {
                 size={24}
                 color={Gray_theme.gray_90}
                 style={styles.modalHeaderX}
-                onPress={() => setUserReview(false)}
+                onPress={() => setReviewModalOpen(false)}
               />
             </View>
             <View style={styles.modalContent}>
               <View
                 style={{
                   flexDirection: "row",
+                  marginTop: 8,
+                  marginBottom: 24,
                 }}
               >
-                <View style={styles.recCircle}>
-                  <Image></Image>
-                </View>
-                <View style={styles.recCircle}>
-                  <Image></Image>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={{
+                    ...styles.recCircle,
+                    backgroundColor: isRec
+                      ? Gray_theme.white
+                      : Gray_theme.gray_30,
+
+                    borderWidth: 2,
+                    borderColor: isRec
+                      ? Main_theme.main_30
+                      : Gray_theme.gray_30,
+                  }}
+                  onPress={handleIsRec}
+                >
+                  <Image
+                    source={MainIcons.good}
+                    style={{
+                      ...styles.recIcon,
+                      tintColor: isRec
+                        ? Main_theme.main_30
+                        : Gray_theme.gray_40,
+                    }}
+                  ></Image>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={{
+                    ...styles.recCircle,
+                    backgroundColor: isNotRec
+                      ? Gray_theme.white
+                      : Gray_theme.gray_30,
+
+                    borderWidth: 2,
+                    borderColor: isNotRec
+                      ? Main_theme.main_30
+                      : Gray_theme.gray_30,
+                  }}
+                  onPress={handleIsNotRec}
+                >
+                  <Image
+                    source={MainIcons.bad}
+                    style={{
+                      ...styles.recIcon,
+                      tintColor: isNotRec
+                        ? Main_theme.main_30
+                        : Gray_theme.gray_40,
+                    }}
+                  ></Image>
+                </TouchableOpacity>
+              </View>
+              <View
+                style={{
+                  width: "100%",
+                  paddingHorizontal: 24,
+                }}
+              >
+                <TextInput
+                  placeholder="제품 이름을 입력해주세요."
+                  value={reviewText}
+                  onChangeText={(text) => setReviewText(text)}
+                  multiline={true} // 여러 줄 여부
+                  maxLength={150}
+                  style={{
+                    width: "100%",
+
+                    backgroundColor: reviewText ? Gray_theme.gray_20 : null,
+                    borderColor: reviewText
+                      ? Gray_theme.gray_80
+                      : Gray_theme.gray_50,
+                    borderWidth: 1,
+                    ...styles.textInput,
+                  }}
+                  onSubmitEditing={() => {}}
+                />
+                <View style={styles.inputLength}>
+                  <Text
+                    style={{
+                      ...styles.inputLengthText,
+                      color:
+                        reviewText.length !== 150
+                          ? Gray_theme.gray_60
+                          : Main_theme.main_reverse,
+                    }}
+                  >
+                    {reviewText.length}
+                  </Text>
+                  <Text
+                    style={{
+                      ...styles.inputLengthText,
+                      color: Gray_theme.gray_60,
+                    }}
+                  >
+                    /150
+                  </Text>
                 </View>
               </View>
-              <Text>와</Text>
+              <View style={{ ...styles.btnC, width: "100%" }}>
+                {(isRec || isNotRec) && reviewText === "" ? (
+                  <Btn
+                    onPress={() => {
+                      showToast("리뷰가 작성되지 않았습니다.");
+                    }}
+                  >
+                    작성 완료
+                  </Btn>
+                ) : (
+                  <BtnC onPress={handleUpLoad}>작성 완료</BtnC>
+                )}
+              </View>
             </View>
           </View>
         </View>
@@ -127,7 +280,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
       <View style={styles.btnC}>
         <BtnC
           onPress={() => {
-            setUserReview(!userReview);
+            setReviewModalOpen(!reviewModalOpen);
           }}
         >
           리뷰 쓰기
@@ -329,7 +482,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: Gray_theme.white,
     width: "100%",
-    height: 360,
+    paddingVertical: 16,
     borderRadius: 20,
     elevation: 3,
   },
@@ -349,9 +502,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   recCircle: {
+    marginHorizontal: 16,
     width: 36,
     height: 36,
     borderRadius: 50,
-    backgroundColor: Gray_theme.gray_30,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  recIcon: {
+    width: 20,
+    height: 20,
+  },
+
+  textInput: {
+    height: 170,
+    borderRadius: 10,
+    padding: 16,
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
+    alignItems: "flex-start",
+  },
+  inputLength: {
+    flexDirection: "row",
+    marginTop: 4,
+    alignSelf: "flex-end",
+    marginRight: 4,
+  },
+  inputLengthText: {
+    fontFamily: "Pretendard-Medium",
+    fontSize: 10,
   },
 });
