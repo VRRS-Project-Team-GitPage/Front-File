@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
-import { StyleSheet } from "react-native";
+import { StyleSheet, Modal } from "react-native";
 import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Line from "../../../assets/styles/ReuseComponents/LineComponent";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
+
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import MainIcons from "../../../assets/Icons/MainIcons";
@@ -32,6 +33,44 @@ export default function DicProductReviewScreen({ route, navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <Modal
+        animationType="fade" //모달이 나타나는 방식
+        visible={userReview} //모달이 보이는 여부
+        transparent={true} // 모달 배경 투명 여부
+        onRequestClose={() => {
+          setUserReview(false);
+        }} // 뒤로가기를 눌렀을 때
+      >
+        <View style={styles.modalBgc} onTouchEnd={() => setUserReview(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalHeaderText}>리뷰 쓰기</Text>
+              <Octicons
+                name="x"
+                size={24}
+                color={Gray_theme.gray_90}
+                style={styles.modalHeaderX}
+                onPress={() => setUserReview(false)}
+              />
+            </View>
+            <View style={styles.modalContent}>
+              <View
+                style={{
+                  flexDirection: "row",
+                }}
+              >
+                <View style={styles.recCircle}>
+                  <Image></Image>
+                </View>
+                <View style={styles.recCircle}>
+                  <Image></Image>
+                </View>
+              </View>
+              <Text>와</Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
       <View>
         <TouchableOpacity
           activeOpacity={0.8}
@@ -80,14 +119,22 @@ export default function DicProductReviewScreen({ route, navigation }) {
           </View>
         </View>
         <View style={styles.mainContent}>
-          <Text style={styles.mainCText}>작성된 리뷰가 없습니다.</Text>
+          <Text style={{ ...styles.mainCText, textAlign: "center" }}>
+            작성된 리뷰가 없습니다.
+          </Text>
         </View>
       </View>
       <View style={styles.btnC}>
-        <BtnC onPress={() => {}}>리뷰 쓰기</BtnC>
+        <BtnC
+          onPress={() => {
+            setUserReview(!userReview);
+          }}
+        >
+          리뷰 쓰기
+        </BtnC>
       </View>
       <Line />
-      <View style={{ marginBottom: 64 }}>
+      <View style={{ flex: 1, marginTop: 24 }}>
         <FlatList
           showsVerticalScrollIndicator={false}
           data={reviewList}
@@ -153,11 +200,6 @@ export default function DicProductReviewScreen({ route, navigation }) {
             );
           }}
         />
-        <View
-          style={{
-            marginBottom: 60,
-          }}
-        ></View>
       </View>
     </SafeAreaView>
   );
@@ -193,7 +235,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderColor: Gray_theme.gray_20,
-    marginBottom: 60,
   },
   userProfile: {
     width: 52,
@@ -273,5 +314,44 @@ const styles = StyleSheet.create({
   btnC: {
     paddingHorizontal: 24,
     marginVertical: 24,
+  },
+  modalBgc: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // 뒷 배경 흐리게
+    paddingHorizontal: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  modalContainer: {
+    backgroundColor: Gray_theme.white,
+    width: "100%",
+    height: 360,
+    borderRadius: 20,
+    elevation: 3,
+  },
+  modalHeader: {
+    height: 60,
+    justifyContent: "center",
+  },
+  modalHeaderX: {
+    position: "absolute",
+    right: 24,
+  },
+  modalHeaderText: {
+    textAlign: "center",
+    fontFamily: "Pretendard-Bold",
+  },
+  modalContent: {
+    alignItems: "center",
+  },
+  recCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 50,
+    backgroundColor: Gray_theme.gray_30,
   },
 });
