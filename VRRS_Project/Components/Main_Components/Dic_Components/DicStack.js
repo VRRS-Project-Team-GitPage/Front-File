@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import DicScreen from "./DicScreen";
 import DicScreen2 from "./DicScreen2";
 import ProducInfotScreen from "./DicProductScreen";
+import ReportProScreen from "./ReportProScreen";
 import DicProductReviewScreen from "./DicProductReviewScreen";
 
 const Stack = createNativeStackNavigator();
@@ -24,6 +25,11 @@ export default function DicStack() {
       <Stack.Screen
         name="ProductInfo"
         component={ProducInfotScreen}
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="reportPro"
+        component={ReportProScreen}
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen

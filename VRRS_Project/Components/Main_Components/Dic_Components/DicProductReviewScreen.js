@@ -523,16 +523,6 @@ export default function DicProductReviewScreen({ route, navigation }) {
                         <Text style={styles.userName}>{item.user_name}</Text>
                         <Text style={styles.vegType}>{item.user_veg_type}</Text>
                       </View>
-                      <TouchableOpacity
-                        onPress={() => {
-                          navigation.goBack();
-                        }}
-                      >
-                        <Image
-                          source={MainIcons.error}
-                          style={styles.reportIcon}
-                        ></Image>
-                      </TouchableOpacity>
                     </View>
                     <View
                       style={{ flexDirection: "row", alignItems: "center" }}

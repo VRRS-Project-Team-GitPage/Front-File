@@ -88,7 +88,14 @@ export default function DicProductScreen({ navigation, route }) {
             }}
           />
           <Text style={styles.headerText}>{product.name}</Text>
-          <Image source={MainIcons.error} style={styles.headerIcon}></Image>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              navigation.navigate("reportPro");
+            }}
+          >
+            <Image source={MainIcons.error} style={styles.headerIcon}></Image>
+          </TouchableOpacity>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View>
@@ -239,7 +246,9 @@ export default function DicProductScreen({ navigation, route }) {
                         </View>
                       ))
                     ) : (
-                      <Text>원재료 정보가 없습니다.</Text> // 데이터가 없을 때 표시
+                      <Text style={styles.userName}>
+                        원재료 정보가 없습니다.
+                      </Text> // 데이터가 없을 때 표시
                     )}
                   </ScrollView>
                 </View>

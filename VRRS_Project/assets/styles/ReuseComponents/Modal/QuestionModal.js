@@ -1,5 +1,5 @@
 import { StyleSheet } from "react-native";
-import { Text, View, Modal, TouchableOpacity } from "react-native";
+import { Text, View, Modal } from "react-native";
 import { Gray_theme, Main_theme } from "../../Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 import BtnC from "../Button/BtnC";
@@ -19,12 +19,16 @@ const QuestionModal = ({
       transparent={true} // 모달 배경 투명 여부
       onRequestClose={onRequestClose} // 뒤로가기를 눌렀을 때
     >
-      <View style={styles.modalBgc} onTouchEnd={onTouchEnd}>
+      <View
+        style={styles.modalBgc}
+        onTouchEnd={onTouchEnd} // 모달창의 배경을 눌렀을 때
+      >
         <View
           style={styles.modalContainer}
           onTouchEnd={(e) => e.stopPropagation()}
         >
           <View style={styles.modalHeader}>
+            {/* 모달 창의 제목이 되는 텍스트 입니다. */}
             <Text style={styles.modalHeaderText}>{children}</Text>
             <Octicons
               name="x"
@@ -35,7 +39,9 @@ const QuestionModal = ({
             />
           </View>
           <View style={styles.modalBtn}>
-            <BtnC onPress={onPress}>확인</BtnC>
+            <BtnC style={style} onPress={onPress}>
+              확인
+            </BtnC>
           </View>
         </View>
       </View>
