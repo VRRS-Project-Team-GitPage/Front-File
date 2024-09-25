@@ -1,6 +1,7 @@
 // Dictionary Screen과 관련된 하위 페이지를 구현한 Component 입니다.
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import DicScreen from "./DicScreen";
 import DicScreen2 from "./DicScreen2";
 import ProducInfotScreen from "./DicProductScreen";

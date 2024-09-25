@@ -362,7 +362,7 @@ export default function DicProductScreen({ navigation, route }) {
                           <Octicons
                             name="chevron-down"
                             size={24}
-                            color={Gray_theme.gray_60}
+                            color={Gray_theme.gray_40}
                             style={{
                               marginRight: 8,
                             }}
@@ -370,7 +370,7 @@ export default function DicProductScreen({ navigation, route }) {
                           <Text
                             style={{
                               ...styles.userName,
-                              color: Gray_theme.gray_60,
+                              color: Gray_theme.gray_40,
                             }}
                           >
                             더보기
@@ -618,7 +618,7 @@ const styles = StyleSheet.create({
   },
   // 리뷰가 없는 경우
   noRevieContainer: {
-    marginTop: 56,
+    marginVertical: 120,
     alignItems: "center",
   },
   moreContainer: {

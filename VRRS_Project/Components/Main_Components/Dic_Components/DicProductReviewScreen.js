@@ -317,7 +317,6 @@ export default function DicProductReviewScreen({ route, navigation }) {
                   maxLength={150}
                   style={{
                     width: "100%",
-
                     backgroundColor: reviewText ? Gray_theme.gray_20 : null,
                     borderColor: reviewText
                       ? Gray_theme.gray_80
@@ -414,10 +413,13 @@ export default function DicProductReviewScreen({ route, navigation }) {
                 style={{
                   flexDirection: "row",
                   marginBottom: 8,
+                  alignItems: "center",
                 }}
               >
-                <Text style={styles.userName}>{name}</Text>
-                <Text style={styles.vegType}>{vegTypeName}</Text>
+                <Text style={{ ...styles.userName, fontSize: 16 }}>{name}</Text>
+                <Text style={{ ...styles.vegType, fontSize: 12 }}>
+                  {vegTypeName}
+                </Text>
               </View>
             </View>
             {mainUserReview ? (
@@ -498,63 +500,72 @@ export default function DicProductReviewScreen({ route, navigation }) {
         </View>
       )}
 
-      <Line />
       <View style={{ flex: 1, marginTop: 24 }}>
-        <FlatList
-          showsVerticalScrollIndicator={false}
-          data={reviewList}
-          keyExtractor={(item, index) => index.toString()} // 인덱스를 key로 사용
-          renderItem={({ item }) => {
-            return (
-              <View style={styles.reviewContainer}>
-                <View style={styles.userReviewContainer}>
-                  <Image
-                    source={MainIcons.allUser_profile}
-                    style={styles.userProfile}
-                  ></Image>
-                  <View style={styles.userInfo}>
-                    <View style={styles.userInfoContainer}>
+        <Line />
+        {reviewLength !== 0 ? (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={reviewList}
+            keyExtractor={(item, index) => index.toString()} // 인덱스를 key로 사용
+            renderItem={({ item }) => {
+              return (
+                <View style={styles.reviewContainer}>
+                  <View style={styles.userReviewContainer}>
+                    <Image
+                      source={MainIcons.allUser_profile}
+                      style={styles.userProfile}
+                    ></Image>
+                    <View style={styles.userInfo}>
+                      <View style={styles.userInfoContainer}>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            marginBottom: 8,
+                          }}
+                        >
+                          <Text style={styles.userName}>{item.user_name}</Text>
+                          <Text style={styles.vegType}>
+                            {item.user_veg_type}
+                          </Text>
+                        </View>
+                      </View>
                       <View
-                        style={{
-                          flexDirection: "row",
-                          marginBottom: 8,
-                        }}
+                        style={{ flexDirection: "row", alignItems: "center" }}
                       >
-                        <Text style={styles.userName}>{item.user_name}</Text>
-                        <Text style={styles.vegType}>{item.user_veg_type}</Text>
+                        <Text style={styles.writeDate}>
+                          {new Date(item.created_at).toLocaleDateString()}
+                        </Text>
+                        <Entypo
+                          name="dot-single"
+                          size={20}
+                          color={Gray_theme.gray_50}
+                          style={styles.dot}
+                        />
+                        {item.is_rec ? (
+                          <Image
+                            source={MainIcons.good}
+                            style={{ ...styles.userRec, marginBottom: 2 }}
+                          ></Image>
+                        ) : (
+                          <Image
+                            source={MainIcons.bad}
+                            style={{ ...styles.userRec, marginTop: 4 }}
+                          ></Image>
+                        )}
                       </View>
                     </View>
-                    <View
-                      style={{ flexDirection: "row", alignItems: "center" }}
-                    >
-                      <Text style={styles.writeDate}>
-                        {new Date(item.created_at).toLocaleDateString()}
-                      </Text>
-                      <Entypo
-                        name="dot-single"
-                        size={20}
-                        color={Gray_theme.gray_50}
-                        style={styles.dot}
-                      />
-                      {item.is_rec ? (
-                        <Image
-                          source={MainIcons.good}
-                          style={{ ...styles.userRec, marginBottom: 2 }}
-                        ></Image>
-                      ) : (
-                        <Image
-                          source={MainIcons.bad}
-                          style={{ ...styles.userRec, marginTop: 4 }}
-                        ></Image>
-                      )}
-                    </View>
                   </View>
+                  <Text style={styles.content}>{item.content}</Text>
                 </View>
-                <Text style={styles.content}>{item.content}</Text>
-              </View>
-            );
-          }}
-        />
+              );
+            }}
+          />
+        ) : (
+          <View style={styles.noRevieContainer}>
+            <Text style={styles.noRevieText}>작성된 리뷰가 없습니다</Text>
+            <Text style={styles.noRevieText}>첫 번째 리뷰를 남겨주세요!</Text>
+          </View>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -668,7 +679,7 @@ const styles = StyleSheet.create({
   },
   btnC: {
     paddingHorizontal: 24,
-    marginVertical: 24,
+    marginTop: 24,
   },
   modalBgc: {
     position: "absolute",
@@ -733,5 +744,15 @@ const styles = StyleSheet.create({
   inputLengthText: {
     fontFamily: "Pretendard-Medium",
     fontSize: 10,
+  },
+  // 리뷰가 없는 경우
+  noRevieContainer: {
+    marginVertical: 120,
+    alignItems: "center",
+  },
+
+  noRevieText: {
+    fontFamily: "Pretendard-Medium",
+    color: Gray_theme.gray_80,
   },
 });
