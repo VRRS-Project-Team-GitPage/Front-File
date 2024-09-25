@@ -88,7 +88,14 @@ export default function DicProductScreen({ navigation, route }) {
             }}
           />
           <Text style={styles.headerText}>{product.name}</Text>
-          <Image source={MainIcons.error} style={styles.headerIcon}></Image>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            onPress={() => {
+              navigation.navigate("reportPro");
+            }}
+          >
+            <Image source={MainIcons.error} style={styles.headerIcon}></Image>
+          </TouchableOpacity>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
           <View>
@@ -239,7 +246,9 @@ export default function DicProductScreen({ navigation, route }) {
                         </View>
                       ))
                     ) : (
-                      <Text>원재료 정보가 없습니다.</Text> // 데이터가 없을 때 표시
+                      <Text style={styles.userName}>
+                        원재료 정보가 없습니다.
+                      </Text> // 데이터가 없을 때 표시
                     )}
                   </ScrollView>
                 </View>
@@ -250,8 +259,9 @@ export default function DicProductScreen({ navigation, route }) {
                   <TouchableOpacity
                     onPress={() => {
                       navigation.navigate("ProductReview", {
-                        reviewLength: reviewLength,
-                        reviewList: productReviewsWithUserInfo,
+                        productID: product.id,
+                        reviewLength: reviewLength, // 리뷰의 총 개슈
+                        reviewList: productReviewsWithUserInfo, // 리뷰 리스트
                       });
                     }}
                     activeOpacity={0.8}
@@ -339,23 +349,32 @@ export default function DicProductScreen({ navigation, route }) {
                           activeOpacity={0.8}
                           style={{
                             flexDirection: "row",
+                            alignItems: "center",
                           }}
                           onPress={() => {
                             navigation.navigate("ProductReview", {
+                              productID: product.id,
                               reviewLength: reviewLength,
                               reviewList: productReviewsWithUserInfo,
                             });
                           }}
                         >
-                          <Text style={styles.userName}>더보기</Text>
                           <Octicons
                             name="chevron-down"
                             size={24}
-                            color={Gray_theme.gray_80}
+                            color={Gray_theme.gray_40}
                             style={{
-                              marginLeft: 6,
+                              marginRight: 8,
                             }}
                           />
+                          <Text
+                            style={{
+                              ...styles.userName,
+                              color: Gray_theme.gray_40,
+                            }}
+                          >
+                            더보기
+                          </Text>
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -599,7 +618,7 @@ const styles = StyleSheet.create({
   },
   // 리뷰가 없는 경우
   noRevieContainer: {
-    marginTop: 56,
+    marginVertical: 120,
     alignItems: "center",
   },
   moreContainer: {

@@ -29,7 +29,7 @@ import {
 
 export default function HomeScreen({ navigation }) {
   // user의 정보를 불러옴
-  const { user, username, vegTypeName } = useUser();
+  const { user, id, name, vegTypeName } = useUser();
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
@@ -40,6 +40,7 @@ export default function HomeScreen({ navigation }) {
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
+    console.log(user);
     // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
     const products = getAllProducts();
     setProductData(products);
@@ -59,6 +60,7 @@ export default function HomeScreen({ navigation }) {
   };
 
   const scrollViewRef = useRef(null);
+  const flatListRef = useRef(null);
 
   // 스크롤뷰를 처음으로 돌리는 함수
   const scrollViewReturn = () => {
@@ -67,11 +69,18 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
+  const subScrollViewReturn = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+    }
+  };
+
   useFocusEffect(
     React.useCallback(() => {
       return () => {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
         scrollViewReturn();
+        subScrollViewReturn();
       };
     }, [])
   );
@@ -148,7 +157,7 @@ export default function HomeScreen({ navigation }) {
                   color: Main_theme.main_50,
                 }}
               >
-                {username}님!
+                {name || "이름이 없습니다."}님!
               </Text>
             </View>
             <Text
@@ -248,6 +257,7 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
             <View style={styles.mainDicContainer}>
               <FlatList
+                ref={flatListRef}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
                 data={filterList.slice(0, 50)} // 상태로 관리되는 제품 데이터를 사용
@@ -260,7 +270,15 @@ export default function HomeScreen({ navigation }) {
                   // 일치할 경우에만 해당 아이템을 렌더링
                   return (
                     <View style={styles.itemContainer}>
-                      <TouchableScale>
+                      <TouchableScale
+                        onPress={() => {
+                          const productID = item.id;
+                          navigation.navigate("DicTab", {
+                            screen: "ProductInfo",
+                            params: { id: productID },
+                          });
+                        }}
+                      >
                         <Image
                           source={{ uri: item.img_path }}
                           style={styles.image}
@@ -310,13 +328,22 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
             <View style={styles.mainDicContainer}>
               <FlatList
+                ref={flatListRef}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
                 data={filterList.slice(0, 10)} // 상태로 관리되는 제품 데이터를 사용
                 keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
                 renderItem={({ item }) => (
                   <View style={styles.itemContainer}>
-                    <TouchableScale>
+                    <TouchableScale
+                      onPress={() => {
+                        const productID = item.id;
+                        navigation.navigate("DicTab", {
+                          screen: "ProductInfo",
+                          params: { id: productID },
+                        });
+                      }}
+                    >
                       <Image
                         source={{ uri: item.img_path }}
                         style={styles.image}

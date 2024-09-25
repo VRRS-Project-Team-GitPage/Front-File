@@ -5,8 +5,8 @@ import { Gray_theme, Main_theme } from "../../Theme_Colors";
 
 const BtnC = ({ children, onPress, style }) => {
   return (
-    <View style={styles.BtnContainer}>
-      <Text style={[styles.BtnTitle, style]} onPress={onPress}>
+    <View style={[styles.BtnContainer, style]}>
+      <Text style={styles.BtnTitle} onPress={onPress}>
         {children}
       </Text>
     </View>

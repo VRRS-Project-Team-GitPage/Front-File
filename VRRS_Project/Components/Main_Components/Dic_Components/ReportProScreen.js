@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { View, Text, TextInput } from "react-native";
+import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // Component 관련
@@ -11,7 +11,7 @@ import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // assets 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 
-export default function ReportScreen({ navigation }) {
+export default function ReportProScreen({ navigation }) {
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
@@ -19,8 +19,21 @@ export default function ReportScreen({ navigation }) {
   const [reportText, setReportText] = useState("");
 
   const reportError = () => {
-    console.log("report", reportText);
+    console.log("report", reportText, "type", duplication);
     navigation.goBack();
+  };
+
+  const [duplication, setDuplication] = useState(false);
+  const [incorrect, setIncorrect] = useState(false);
+
+  handleDupli = () => {
+    setDuplication(true);
+    setIncorrect(false);
+  };
+
+  handleInCorrect = () => {
+    setDuplication(false);
+    setIncorrect(true);
   };
 
   return (
@@ -32,13 +45,53 @@ export default function ReportScreen({ navigation }) {
       ></Xheader>
       <View style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>어떤 점이 잘못되었나요?</Text>
-          <Text style={styles.headerSubText}>
-            잘못 작성된 내용이 있나요? 피드백을 남겨주세요.
-          </Text>
-          <Text style={styles.headerSubText}>
-            더 나은 서비스를 제공하는 데 도움이 됩니다 :{")"}
-          </Text>
+          <Text style={styles.headerText}>오류 제보하기</Text>
+          <View style={styles.typeBtnContainer}>
+            <TouchableOpacity
+              style={{
+                ...styles.typeBtn,
+                borderColor: duplication
+                  ? Main_theme.main_30
+                  : Gray_theme.gray_20,
+                backgroundColor: duplication
+                  ? Gray_theme.white
+                  : Gray_theme.gray_20,
+              }}
+              activeOpacity={0.8}
+              onPress={handleDupli}
+            >
+              <Text
+                style={{
+                  ...styles.typeBtnText,
+                  color: duplication ? Main_theme.main_30 : Gray_theme.gray_40,
+                }}
+              >
+                중복된 제품
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                ...styles.typeBtn,
+                borderColor: incorrect
+                  ? Main_theme.main_30
+                  : Gray_theme.gray_20,
+                backgroundColor: incorrect
+                  ? Gray_theme.white
+                  : Gray_theme.gray_20,
+              }}
+              activeOpacity={0.8}
+              onPress={handleInCorrect}
+            >
+              <Text
+                style={{
+                  ...styles.typeBtnText,
+                  color: incorrect ? Main_theme.main_30 : Gray_theme.gray_40,
+                }}
+              >
+                잘못된 제품
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
         <View
           style={{
@@ -47,7 +100,7 @@ export default function ReportScreen({ navigation }) {
           }}
         >
           <TextInput
-            placeholder="잘못 작성된 내용을 알려주세요"
+            placeholder="오류에 대한 상세 정보를 작성해주세요."
             onChangeText={(text) => setReportText(text)}
             value={reportText}
             multiline={true}
@@ -81,7 +134,7 @@ export default function ReportScreen({ navigation }) {
         </View>
       </View>
       <View style={{ ...styles.btnC, top: windowHeigh - 48 }}>
-        {reportText === "" ? (
+        {!(duplication || incorrect) || reportText === "" ? (
           <Btn
             onPress={() => {
               showToast("작성 후 완료를 눌러주세요");
@@ -109,6 +162,22 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: Gray_theme.balck,
     marginBottom: 16,
+  },
+  typeBtnContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  typeBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    borderWidth: 2,
+    borderRadius: 25,
+    marginRight: 12,
+  },
+  typeBtnText: {
+    textAlign: "center",
+    fontFamily: "Pretendard-Bold",
+    fontSize: 12,
   },
   headerSubText: {
     fontFamily: "Pretendard-Medium",

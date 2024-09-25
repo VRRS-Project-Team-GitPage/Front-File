@@ -257,16 +257,7 @@ export default function DicUploadScreen({ navigation }) {
       </View>
 
       {/* 하단 등록 완료 버튼 */}
-      <View
-        style={{
-          paddingHorizontal: 16,
-          position: "absolute",
-          right: 0,
-          left: 0,
-          top: windowHeigh - 48,
-          bottom: 0,
-        }}
-      >
+      <View style={{ ...styles.btnC, top: windowHeigh - 48 }}>
         {!productName || productImages.length === 0 || !productCategory ? (
           <Btn
             onPress={() => {
@@ -324,5 +315,12 @@ const styles = StyleSheet.create({
     height: 64,
     backgroundColor: Gray_theme.white,
     borderRadius: 15,
+  },
+  btnC: {
+    paddingHorizontal: 16,
+    position: "absolute",
+    right: 0,
+    left: 0,
+    bottom: 0,
   },
 });

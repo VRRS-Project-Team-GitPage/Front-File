@@ -3,9 +3,9 @@ import { View, Text } from "react-native";
 import { StyleSheet } from "react-native";
 import { Gray_theme, Main_theme } from "../../Theme_Colors";
 
-const Btn = ({ children, onPress }) => {
+const Btn = ({ children, onPress, style }) => {
   return (
-    <View style={styles.BtnContainer}>
+    <View style={[styles.BtnContainer, style]}>
       <Text style={styles.BtnTitle} onPress={onPress}>
         {children}
       </Text>

@@ -37,6 +37,19 @@ export default function DicScreen({ route, navigation }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
+  // 화면이 포케싱 될 때 하단바 유지
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      tabBarStyle: {
+        display: "flex", // 탭바가 다시 나타나도록 설정
+        height: 60,
+        borderTopStartRadius: 20,
+        borderTopEndRadius: 20,
+        position: "absolute",
+      },
+    });
+  }, [navigation]);
+
   // 화면 포커싱 시 초기 화면으로 돌리기 위한 변수
   const scrollViewRef = useRef(null);
 

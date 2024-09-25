@@ -11,5 +11,7 @@ export default mainIcons = {
   user_profile: require("./Main_Icons/user_profile.png"),
   allUser_profile: require("./Main_Icons/allUser_profile.png"),
   good: require("./Bar_Icons/recommend-click.png"),
+  good_line: require("./Main_Icons/good-line.png"),
   bad: require("./Main_Icons/bad.png"),
+  bad_line: require("./Main_Icons/bad-line.png"),
 };
