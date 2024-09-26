@@ -50,14 +50,6 @@ const QuestionModal = ({
 };
 
 const styles = StyleSheet.create({
-  BtnContainer: {
-    backgroundColor: Main_theme.main_30,
-    borderWidth: 2,
-    borderColor: Main_theme.main_30,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 10,
-  },
   modalBgc: {
     position: "absolute",
     top: 0,

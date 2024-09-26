@@ -28,8 +28,8 @@ export default function DicUploadScreen({ navigation }) {
   const [productImages, setProductImages] = useState([]);
 
   const pickImage = async () => {
-    if (productImages.length >= 3) {
-      showToast("최대 3개의 이미지만 등록할 수 있습니다.");
+    if (productImages.length >= 1) {
+      showToast("최대 1개의 이미지만 등록할 수 있습니다.");
       return;
     }
 
@@ -125,9 +125,7 @@ export default function DicUploadScreen({ navigation }) {
                   style={styles.cPoint}
                 />
               </View>
-              <Text style={styles.cTitleM}>
-                제품 사진, 제품 원재료명을 업로드 해주세요.
-              </Text>
+              <Text style={styles.cTitleM}>제품 사진을 업로드 해주세요.</Text>
             </View>
             <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
               <TouchableScale onPress={pickImage}>
@@ -139,46 +137,7 @@ export default function DicUploadScreen({ navigation }) {
                     alignItems: "center",
                   }}
                 >
-                  <Entypo name="camera" size={20} color={Gray_theme.gray_60} />
-                  <View
-                    style={{
-                      marginTop: 2,
-                      flexDirection: "row",
-                      alignItems: "center",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontFamily:
-                          productImages.length === 3
-                            ? "Pretendard-SemiBold"
-                            : "Pretendard-Medium",
-                        fontSize: 10,
-                        color:
-                          productImages.length === 0
-                            ? Gray_theme.gray_80
-                            : productImages.length === 3
-                            ? Main_theme.main_reverse
-                            : Main_theme.main_30,
-                      }}
-                    >
-                      {productImages.length}
-                    </Text>
-                    <MaterialCommunityIcons
-                      name="slash-forward"
-                      size={10}
-                      color={Gray_theme.gray_80}
-                    />
-                    <Text
-                      style={{
-                        fontFamily: "Pretendard-Medium",
-                        fontSize: 10,
-                        color: Gray_theme.gray_80,
-                      }}
-                    >
-                      3
-                    </Text>
-                  </View>
+                  <Entypo name="camera" size={24} color={Gray_theme.gray_60} />
                 </View>
               </TouchableScale>
               {productImages.map((image) => (

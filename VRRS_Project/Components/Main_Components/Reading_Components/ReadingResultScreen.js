@@ -14,7 +14,6 @@ import React from "react";
 import { useEffect, useCallback, useMemo, useState, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImageManipulator from "expo-image-manipulator";
-import BottomSheetModal from "@gorhom/bottom-sheet";
 // assets 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
@@ -24,7 +23,7 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
-
+import IngredientModal from "./IngredientModal/IngredientModal";
 // Data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
@@ -142,47 +141,22 @@ export default function ReadingResultScreen({ navigation, route }) {
     }
   };
 
-  // BottomSheet를 참조하기 위한 ref
-  const bottomSheetRef = useRef(null);
-  // BottomSheet의 스냅 포인트: 위치 설정
-  const snapPoints = useMemo(() => ["50%"], []);
-  // bottomSheet의 열림 여부
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleOverlayPress = () => {
-    bottomSheetRef.current.close();
-    setIsOpen(false);
+  const [visible, setVisible] = useState(false);
+  const handleVisible = () => {
+    setVisible(!visible);
   };
-
-  // 바텀시트를 여는 함수
-  const openBottomSheet = () => {
-    bottomSheetRef.current?.snapToIndex(0);
-    setIsOpen(true);
-    setIngredientPossible(true);
-  };
-
-  useFocusEffect(
-    React.useCallback(() => {
-      scrollViewReturn();
-      bottomSheetRef.current.close();
-      setIsOpen(false);
-    }, [])
-  );
-
-  // 이전 화면에서 받아온 원재료명
-  const [ingredientList, setIngredientList] = useState("");
-  useEffect(() => {
-    if (isLoaded) {
-      setIngredientList(ingredientText);
-    }
-  }, [isLoaded]);
-
-  // bottomSheet에 상황에 맞는 원재료명을 출력하는 변수
-  const [ingredientPossible, setIngredientPossible] = useState(true);
-  const indredientFilter = () => {};
 
   return (
     <SafeAreaView style={styles.container}>
+      <IngredientModal
+        visible={visible}
+        onRequestClose={handleVisible}
+        onPress={() => {
+          navigation.navigate("Report");
+          handleVisible();
+        }}
+        ingredientText={ingredientText}
+      />
       <NomalHeader
         onPress={() => {
           navigation.navigate("HomeTab", {
@@ -241,7 +215,9 @@ export default function ReadingResultScreen({ navigation, route }) {
           <TouchableOpacity
             activeOpacity={0.8}
             style={styles.checkIng}
-            onPress={openBottomSheet}
+            onPress={() => {
+              setVisible(true);
+            }}
           >
             <Octicons name="search" size={24} color={Gray_theme.gray_80} />
             <Text
@@ -380,120 +356,6 @@ export default function ReadingResultScreen({ navigation, route }) {
           height: 24,
         }}
       ></View>
-      <>
-        {isOpen && (
-          <TouchableWithoutFeedback onPress={handleOverlayPress}>
-            <View style={styles.overlay} />
-          </TouchableWithoutFeedback>
-        )}
-
-        <BottomSheetModal
-          ref={bottomSheetRef}
-          snapPoints={snapPoints}
-          index={-1}
-          enablePanDownToClose={true}
-          onClose={() => {
-            setIsOpen(false);
-          }}
-        >
-          <View style={styles.contentContainer}>
-            <View style={styles.bottomHeader}>
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  bottomSheetRef.current.close();
-                  setIsOpen(false);
-                }}
-              >
-                <View style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Octicons
-                    name="chevron-left"
-                    size={24}
-                    color={Gray_theme.gray_90}
-                  />
-                  <Text style={styles.bheaderMainT}>원재료명</Text>
-                </View>
-              </TouchableWithoutFeedback>
-              <Text
-                style={styles.bheaderSubT}
-                onPress={() => {
-                  navigation.navigate("Report");
-                }}
-              >
-                오류 제보하기
-              </Text>
-            </View>
-            <View style={styles.bContent}>
-              <View style={styles.bContentHeader}>
-                <TouchableOpacity
-                  style={{ flex: 1 }}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    setIngredientPossible(true);
-                  }}
-                >
-                  <View
-                    style={{
-                      ...styles.bContentHTContainer,
-                      borderBottomWidth: ingredientPossible ? 5 : null,
-                      borderColor: ingredientPossible
-                        ? Main_theme.main_30
-                        : null,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        ...styles.bContentHeaderText,
-                        color: ingredientPossible
-                          ? Gray_theme.balck
-                          : Gray_theme.gray_40,
-                      }}
-                    >
-                      섭취 가능
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ flex: 1 }}
-                  activeOpacity={0.8}
-                  onPress={() => {
-                    setIngredientPossible(false);
-                  }}
-                >
-                  <View
-                    style={{
-                      ...styles.bContentHTContainer,
-                      borderBottomWidth: !ingredientPossible ? 5 : null,
-                      borderColor: !ingredientPossible
-                        ? Main_theme.main_reverse
-                        : null,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        ...styles.bContentHeaderText,
-                        color: !ingredientPossible
-                          ? Gray_theme.balck
-                          : Gray_theme.gray_40,
-                      }}
-                    >
-                      섭취 불가능
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.bContentMain}>
-                <Text style={styles.bContentMainUserType}>{vegTypeName}</Text>
-                <Text style={styles.bContentMaintInfo}>
-                  {ingredientPossible
-                    ? "해당 유형이 섭취할 수 있는 재료예요"
-                    : "해당 유형이 섭취할 수 없는 재료예요"}
-                </Text>
-                <Text style={styles.bContentIngredient}>{ingredientList}</Text>
-              </View>
-            </View>
-          </View>
-        </BottomSheetModal>
-      </>
     </SafeAreaView>
   );
 }
