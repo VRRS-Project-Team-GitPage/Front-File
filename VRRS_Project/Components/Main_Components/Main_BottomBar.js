@@ -1,4 +1,5 @@
 import { Image, StyleSheet } from "react-native";
+import { useEffect } from "react";
 // navigation 사용을 위한 Props import
 import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -19,7 +20,7 @@ const Tab = createBottomTabNavigator();
 // Stack을 사용해 모달 관리
 const Stack = createNativeStackNavigator();
 
-export default function Main_BottomBar({ navigation }) {
+export default function Main_BottomBar() {
   return (
     <NavigationContainer>
       <Tab.Navigator
@@ -53,7 +54,7 @@ export default function Main_BottomBar({ navigation }) {
               e.preventDefault();
 
               // Do something with the `navigation` object
-              navigation.navigate("Home");
+              navigation.navigate("HomeTab", { screen: "Home" });
               //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
             },
           })}
@@ -84,12 +85,9 @@ export default function Main_BottomBar({ navigation }) {
           name="DicTab"
           component={DicStack}
           listeners={({ navigation }) => ({
-            tabPress: (e) => {
-              // Prevent default action
-              e.preventDefault();
-              // Do something with the `navigation` object
-              navigation.navigate("DicTab", {
-                screen: "DicList",
+            tabPress: () => {
+              navigation.reset({
+                routes: [{ name: "DicTab", params: { screen: "DicList" } }], // DicStack의 DicList 스크린으로 리셋
               });
               //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
             },

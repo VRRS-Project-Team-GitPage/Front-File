@@ -12,7 +12,7 @@ const Stack = createNativeStackNavigator();
 
 export default function DicStack() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator initialRouteName="DicList">
       <Stack.Screen
         name="DicList"
         component={DicScreen}

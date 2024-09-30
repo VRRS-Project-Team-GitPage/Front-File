@@ -12,17 +12,19 @@ import {
   StyleSheet,
   Text,
   ActivityIndicator,
-  TouchableOpacity,
   useWindowDimensions,
   TextInput,
+  TouchableOpacity,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import BottomSheetModal from "@gorhom/bottom-sheet";
+import { useToast } from "react-native-toast-notifications";
 // component 관련
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
+import QuestionModal from "../../../assets/styles/ReuseComponents/Modal/QuestionModal";
 // design 관련 import
-import { Gray_theme } from "../../../assets/styles/Theme_Colors";
+import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 
 export default function IngredientScreen({ route, navigation }) {
@@ -85,12 +87,52 @@ export default function IngredientScreen({ route, navigation }) {
     }, [])
   );
 
+  const toast = useToast();
+  const handleToast = () => {
+    toast.show(
+      "실제 내용과 인식된 내용이 다를 경우 수정할 수 있어요. 정확한 결과를 위해 실제 원재료명과 다른 내용이 있다면 해당 부분을 눌러 수정해주세요.",
+      {
+        type: "custom",
+        duration: 3000,
+        position: "top",
+        style: styles.toastStyle,
+        textStyle: styles.toastFont,
+        animationType: "slide-in",
+      }
+    );
+  };
+
   const [searchText, setSearchText] = useState(
     "추후 원재료명이 작성될 공간입니다."
   );
 
+  const [confirmModal, setConfirmModal] = useState(false);
+  const handleConfirmModal = () => {
+    setConfirmModal(false);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
+      <QuestionModal
+        visible={confirmModal}
+        onRequestClose={handleConfirmModal}
+        onPress={() => {
+          setConfirmModal(false);
+          bottomSheetRef.current.close();
+          navigation.navigate("ReadTab", {
+            screen: "Result",
+            params: {
+              productUri: isPhotoLoaded ? photoUri : imgUri,
+              ingredientText: searchText,
+              triggerSubmit: true,
+            },
+          });
+        }}
+        style_cancle={styles.style_cancle}
+        style_ok={styles.style_ok}
+      >
+        원재료명이 정확히 작성되었나요?
+      </QuestionModal>
       {isPhotoLoaded || isImgLoaded ? ( // 사진 로딩 상태에 따른 렌더링 제어
         <ImageBackground
           source={isPhotoLoaded ? { uri: photoUri } : { uri: imgUri }}
@@ -156,26 +198,34 @@ export default function IngredientScreen({ route, navigation }) {
                 </View>
                 <View
                   style={{
-                    flexDirection: "row",
-                    alignItems: "center",
                     marginTop: 8,
                   }}
                 >
-                  <Octicons
-                    name="question"
-                    size={10}
-                    color={Gray_theme.gray_60}
-                  />
-                  <Text
+                  <TouchableOpacity
+                    activeOpacity={0.8}
                     style={{
-                      marginLeft: 4,
-                      fontSize: 10,
-                      fontFamily: "Pretendard-Medium",
-                      color: Gray_theme.gray_60,
+                      flexDirection: "row",
+                      alignItems: "center",
                     }}
+                    onPress={handleToast}
                   >
-                    실제 내용과 다르다면?
-                  </Text>
+                    <Octicons
+                      name="question"
+                      size={10}
+                      color={Gray_theme.gray_60}
+                    />
+
+                    <Text
+                      style={{
+                        marginLeft: 4,
+                        fontSize: 10,
+                        fontFamily: "Pretendard-Medium",
+                        color: Gray_theme.gray_60,
+                      }}
+                    >
+                      실제 내용과 다르다면?
+                    </Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             </View>
@@ -199,15 +249,7 @@ export default function IngredientScreen({ route, navigation }) {
               </Btn>
               <BtnC
                 onPress={() => {
-                  bottomSheetRef.current.close();
-                  navigation.navigate("ReadTab", {
-                    screen: "Result",
-                    params: {
-                      productUri: isPhotoLoaded ? photoUri : imgUri,
-                      ingredientText: searchText,
-                      triggerSubmit: true,
-                    },
-                  });
+                  setConfirmModal(true);
                 }}
                 style={{
                   paddingHorizontal: 40,
@@ -259,5 +301,27 @@ const styles = StyleSheet.create({
   textC: {
     fontFamily: "Pretendard-SemiBold",
     color: Gray_theme.balck,
+  },
+  toastStyle: {
+    backgroundColor: Gray_theme.gray_20,
+    borderWidth: 1,
+    borderColor: Gray_theme.gray_30,
+    borderRadius: 12,
+  },
+  toastFont: {
+    color: Gray_theme.gray_60,
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
+  },
+  style_cancle: {
+    flex: 1,
+    backgroundColor: Gray_theme.gray_40,
+    borderColor: Gray_theme.gray_40,
+    marginRight: 4,
+  },
+  style_ok: {
+    flex: 1,
+    backgroundColor: Main_theme.main_30,
+    marginLeft: 4,
   },
 });
