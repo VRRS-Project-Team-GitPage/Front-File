@@ -50,6 +50,11 @@ export default function DicProductReviewScreen({ route, navigation }) {
   // 삭제 모달창 관리
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
+  // 삭제 모덜청 닫기 함수
+  const handleDeleteModal = () => {
+    setDeleteModalOpen(false);
+  };
+
   // 추천 버튼 관리
   const [isRec, setIsRec] = useState(false);
   // 비추천 버튼 관리
@@ -376,10 +381,9 @@ export default function DicProductReviewScreen({ route, navigation }) {
         onRequestClose={() => {
           setDeleteModalOpen(false);
         }}
-        onTouchEnd={() => {
-          setDeleteModalOpen(false);
-        }}
         onPress={deleteReview}
+        style_cancle={styles.style_cancle}
+        style_ok={styles.style_ok}
       >
         이 후기를 삭제할까요?
       </QuestionModal>
@@ -754,5 +758,17 @@ const styles = StyleSheet.create({
   noRevieText: {
     fontFamily: "Pretendard-Medium",
     color: Gray_theme.gray_80,
+  },
+  // 삭제 모달
+  style_cancle: {
+    flex: 1,
+    backgroundColor: Gray_theme.gray_40,
+    borderColor: Gray_theme.gray_40,
+    marginRight: 4,
+  },
+  style_ok: {
+    flex: 1,
+    backgroundColor: Main_theme.main_30,
+    marginLeft: 4,
   },
 });

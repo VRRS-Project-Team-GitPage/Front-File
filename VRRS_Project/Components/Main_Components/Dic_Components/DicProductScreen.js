@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
+  BackHandler,
 } from "react-native";
 import { View, Text, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -34,13 +35,13 @@ import {
 export default function DicProductScreen({ navigation, route }) {
   const { id } = route.params || {};
 
+  // 하단탭 숨김
+  useTabBarVisibility(false);
+
   // 특정 id를 통해 제품을 찾는 함수
   const findProductById = (id) => {
     return products.find((product) => product.id === id);
   };
-
-  // 하단탭 숨김
-  useTabBarVisibility(false);
 
   // id를 통해 찾은 제품을 저장할 state
   const [product, setProduct] = useState([]);

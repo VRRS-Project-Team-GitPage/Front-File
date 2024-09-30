@@ -6,11 +6,11 @@ import BtnC from "../Button/BtnC";
 
 const QuestionModal = ({
   children,
-  onPress,
-  style,
   visible,
   onRequestClose,
-  onTouchEnd,
+  onPress,
+  style_cancle,
+  style_ok,
 }) => {
   return (
     <Modal
@@ -21,7 +21,7 @@ const QuestionModal = ({
     >
       <View
         style={styles.modalBgc}
-        onTouchEnd={onTouchEnd} // 모달창의 배경을 눌렀을 때
+        onTouchEnd={onRequestClose} // 모달창의 배경을 눌렀을 때
       >
         <View
           style={styles.modalContainer}
@@ -39,7 +39,10 @@ const QuestionModal = ({
             />
           </View>
           <View style={styles.modalBtn}>
-            <BtnC style={style} onPress={onPress}>
+            <BtnC style={style_cancle} onPress={onRequestClose}>
+              취소
+            </BtnC>
+            <BtnC style={style_ok} onPress={onPress}>
               확인
             </BtnC>
           </View>
@@ -80,9 +83,10 @@ const styles = StyleSheet.create({
   },
   modalHeaderText: {
     textAlign: "center",
-    fontFamily: "Pretendard-Bold",
+    fontFamily: "Pretendard-SemiBold",
   },
   modalBtn: {
+    flexDirection: "row",
     marginTop: 32,
     paddingHorizontal: 24,
   },

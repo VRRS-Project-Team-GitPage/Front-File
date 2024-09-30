@@ -33,7 +33,7 @@ import {
 
 export default function ReadingResultScreen({ navigation, route }) {
   // user의 정보를 불러옴
-  const { user, username, vegTypeName } = useUser();
+  const { user, id, name, vegTypeName } = useUser();
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
@@ -206,7 +206,7 @@ export default function ReadingResultScreen({ navigation, route }) {
               <Text style={styles.userTypebg}>{vegTypeName}</Text>
             </View>
             <Text style={styles.infoText}>
-              {username}님의 유형으로 제품을 판독한 결과입니다.
+              {name}님의 유형으로 제품을 판독한 결과입니다.
             </Text>
             <Text style={styles.infoText}>
               원재료명을 확인하고 더 자세한 결과를 알아보세요.
@@ -496,73 +496,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 20,
     alignSelf: "flex-start",
-  },
-  overlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-  },
-  contentContainer: {
-    flex: 1,
-  },
-  bottomHeader: {
-    height: 60,
-    paddingHorizontal: 24,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  bheaderMainT: {
-    fontFamily: "Pretendard-Medium",
-    fontSize: 16,
-    color: Gray_theme.balck,
-    marginLeft: 16,
-  },
-  bheaderSubT: {
-    fontFamily: "Pretendard-SemiBold",
-    fontSize: 12,
-    color: Gray_theme.gray_40,
-  },
-  bContent: {
-    flex: 1,
-  },
-  bContentHeader: {
-    height: 60,
-    flexDirection: "row",
-    alignContent: "center",
-    justifyContent: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: Gray_theme.gray_20,
-  },
-  bContentHTContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  bContentHeaderText: {
-    fontFamily: "Pretendard-SemiBold",
-  },
-  bContentMain: {
-    flex: 1,
-    padding: 24,
-  },
-  bContentMainUserType: {
-    fontFamily: "Pretendard-Bold",
-    fontSize: 20,
-    color: Main_theme.main_50,
-  },
-  bContentMaintInfo: {
-    fontFamily: "Pretendard-Medium",
-    fontSize: 14,
-    color: Gray_theme.gray_80,
-  },
-  bContentIngredient: {
-    marginTop: 24,
-    fontFamily: "Pretendard-Medium",
-    fontSize: 12,
-    color: Gray_theme.gray_60,
   },
 });

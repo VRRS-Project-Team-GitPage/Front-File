@@ -144,7 +144,7 @@ export default function HomeScreen({ navigation }) {
               <Text
                 style={{
                   fontFamily: "Pretendard-Bold",
-                  fontSize: 20,
+                  fontSize: 24,
                   color: Gray_theme.balck,
                 }}
               >
@@ -153,8 +153,8 @@ export default function HomeScreen({ navigation }) {
               <Text
                 style={{
                   fontFamily: "Pretendard-Bold",
-                  fontSize: 20,
-                  color: Main_theme.main_50,
+                  fontSize: 24,
+                  color: Gray_theme.white,
                 }}
               >
                 {name || "이름이 없습니다."}님!
@@ -162,7 +162,8 @@ export default function HomeScreen({ navigation }) {
             </View>
             <Text
               style={{
-                fontFamily: "Pretendard-Regular",
+                marginTop: 4,
+                fontFamily: "Pretendard-Medium",
                 color: Gray_theme.balck,
               }}
             >
@@ -373,7 +374,7 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   homeContainer: {
     flex: 1,
-    backgroundColor: Main_theme.main_20,
+    backgroundColor: Main_theme.main_30,
     flexDirection: "column",
   },
   topContents: {},
