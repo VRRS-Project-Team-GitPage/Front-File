@@ -37,7 +37,7 @@ export default function DicScreen({ route, navigation }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
-  // 화면이 포케싱 될 때 하단바 유지
+  // 화면이 포커싱 될 때 하단바 유지
   useLayoutEffect(() => {
     navigation.setOptions({
       tabBarStyle: {

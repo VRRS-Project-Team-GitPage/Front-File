@@ -54,7 +54,7 @@ export default function Main_BottomBar() {
               e.preventDefault();
 
               // Do something with the `navigation` object
-              navigation.navigate("Home");
+              navigation.navigate("HomeTab", { screen: "Home" });
               //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
             },
           })}

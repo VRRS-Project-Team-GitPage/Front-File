@@ -292,7 +292,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
 
                     borderWidth: 2,
                     borderColor: isNotRec
-                      ? Main_theme.main_30
+                      ? Main_theme.main_reverse
                       : Gray_theme.gray_30,
                   }}
                   onPress={handleIsNotRec}
@@ -302,7 +302,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
                     style={{
                       ...styles.recIcon,
                       tintColor: isNotRec
-                        ? Main_theme.main_30
+                        ? Main_theme.main_reverse
                         : Gray_theme.gray_40,
                     }}
                   ></Image>
