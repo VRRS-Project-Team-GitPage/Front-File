@@ -28,6 +28,7 @@ import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // �
 import {
   getAllProducts,
   getVegTypeName,
+  getProTypeName,
   products,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts"; // 제품 정보
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext"; // 검색 정보
@@ -469,6 +470,7 @@ export default function DicScreen({ route, navigation }) {
             renderItem={({ item }) => {
               // 제품의 유형을 저장하는 변수
               const itemVegTypeName = getVegTypeName(item.veg_type_id);
+              const itemProTypeName = getProTypeName(item.pro_type_id);
               // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
               return (
                 <TouchableWithoutFeedback
@@ -489,7 +491,7 @@ export default function DicScreen({ route, navigation }) {
                       {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
                       <View>
                         <Text style={styles.name}>{item.name}</Text>
-                        <Text style={styles.category}>{item.category}</Text>
+                        <Text style={styles.category}>{itemProTypeName}</Text>
                       </View>
                       <View
                         style={{

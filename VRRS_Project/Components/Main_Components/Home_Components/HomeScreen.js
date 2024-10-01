@@ -25,6 +25,7 @@ import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
   getAllProducts,
   getVegTypeName,
+  getProTypeName,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 
 export default function HomeScreen({ navigation }) {
@@ -172,7 +173,7 @@ export default function HomeScreen({ navigation }) {
           </View>
           <TouchableScale
             activeOpacity={0.8}
-            style={{ justifyContent: "center" }}
+            style={{ justifyContent: "center", marginVertical: 8 }}
             onPress={() =>
               navigation.navigate("RecoTab", {
                 screen: "Rec_Main",
@@ -194,14 +195,13 @@ export default function HomeScreen({ navigation }) {
               <View
                 style={{
                   marginHorizontal: 24,
-                  marginVertical: 24,
+                  marginVertical: 32,
                   justifyContent: "center",
                 }}
               >
                 <Text
                   style={{
                     fontFamily: "Pretendard-Medium",
-                    fontSize: 12,
                     color: Gray_theme.gray_70,
                   }}
                 >
@@ -210,7 +210,7 @@ export default function HomeScreen({ navigation }) {
                 <Text
                   style={{
                     fontFamily: "Pretendard-Bold",
-                    fontSize: 16,
+                    fontSize: 20,
                     color: Gray_theme.balck,
                   }}
                 >
@@ -220,11 +220,11 @@ export default function HomeScreen({ navigation }) {
               <Image
                 source={MainIcons.paper}
                 style={{
-                  width: 120,
-                  height: 120,
+                  width: 150,
+                  height: 150,
                   position: "absolute",
-                  bottom: 4,
-                  right: 16,
+                  bottom: 8,
+                  right: 0,
                 }}
               ></Image>
             </View>
@@ -265,6 +265,7 @@ export default function HomeScreen({ navigation }) {
                 keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
                 renderItem={({ item }) => {
                   const itemVegTypeName = getVegTypeName(item.veg_type_id);
+                  const itemProTypeName = getProTypeName(item.pro_type_id);
                   if (itemVegTypeName !== vegTypeName) {
                     return null;
                   }
@@ -288,7 +289,7 @@ export default function HomeScreen({ navigation }) {
                         <View style={styles.textContainer}>
                           {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
                           <Text style={styles.name}>{item.name}</Text>
-                          <Text style={styles.category}>{item.category}</Text>
+                          <Text style={styles.category}>{itemProTypeName}</Text>
                           <Text style={styles.vegType}>
                             {itemVegTypeName}
                             {/* 아이템의 채식 유형 이름 표시 */}
@@ -339,6 +340,7 @@ export default function HomeScreen({ navigation }) {
                     <TouchableScale
                       onPress={() => {
                         const productID = item.id;
+
                         navigation.navigate("DicTab", {
                           screen: "ProductInfo",
                           params: { id: productID },
@@ -353,7 +355,9 @@ export default function HomeScreen({ navigation }) {
                       <View style={styles.textContainer}>
                         {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
                         <Text style={styles.name}>{item.name}</Text>
-                        <Text style={styles.category}>{item.category}</Text>
+                        <Text style={styles.category}>
+                          {getProTypeName(item.pro_type_id)}
+                        </Text>
                         <Text style={styles.vegType}>
                           {getVegTypeName(item.veg_type_id)}
                         </Text>
