@@ -11,6 +11,8 @@ import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Cate_Icons from "../../../assets/Icons/CateIcons";
+// data 관련
+import { getProTypeName } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 
 export default function Rec_CateScreen({ navigation }) {
   // 화면 크기를 저장한 변수
@@ -21,16 +23,16 @@ export default function Rec_CateScreen({ navigation }) {
   useTabBarVisibility(false);
 
   // 선택된 카테고리를 관리하는 상태
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState(null);
 
   // 카테고리를 선택/해제하는 함수
   const toggleCategory = (category) => {
-    if (selectedCategories.includes(category)) {
+    if (selectedCategories === category) {
       // 이미 선택된 경우 선택 해제
-      setSelectedCategories((prev) => prev.filter((item) => item !== category));
+      setSelectedCategories(null);
     } else {
       // 선택되지 않은 경우 선택
-      setSelectedCategories((prev) => [...prev, category]);
+      setSelectedCategories(category);
     }
   };
 
@@ -61,43 +63,40 @@ export default function Rec_CateScreen({ navigation }) {
         </View>
         <View style={styles.mainContainer}>
           {[
-            { id: "meal", name: "식사류", icon: Cate_Icons.burrito },
-            { id: "snack", name: "간식", icon: Cate_Icons.pop },
-            { id: "bakery", name: "베이커리", icon: Cate_Icons.bread },
-            { id: "beverage", name: "음료", icon: Cate_Icons.cup },
+            { id: 1, icon: Cate_Icons.sandwich },
+            { id: 2, icon: Cate_Icons.pop },
+            { id: 3, icon: Cate_Icons.cup },
+            { id: 4, icon: Cate_Icons.salt },
           ].map((category) => (
             <TouchableOpacity
               key={category.id}
               onPress={() => toggleCategory(category.id)}
-              activeOpacity={0.8}
+              activeOpacity={1}
               style={{
                 ...styles.cateBtn,
-                backgroundColor: selectedCategories.includes(category.id)
-                  ? Main_theme.main_30
-                  : Gray_theme.white,
+
+                backgroundColor:
+                  selectedCategories === category.id
+                    ? Main_theme.main_10
+                    : Gray_theme.white,
+                borderColor:
+                  selectedCategories === category.id
+                    ? Main_theme.main_20
+                    : Gray_theme.white,
                 width: windowWidth / 2 - 36,
                 height: windowWidth / 2 - 36,
               }}
             >
               <Image source={category.icon} style={{ width: 92, height: 92 }} />
-              <Text
-                style={{
-                  ...styles.btnText,
-                  color: selectedCategories.includes(category.id)
-                    ? Gray_theme.white
-                    : Gray_theme.gray_90,
-                }}
-              >
-                {category.name}
-              </Text>
+              <Text style={styles.btnText}>{getProTypeName(category.id)}</Text>
             </TouchableOpacity>
           ))}
         </View>
         <View style={styles.bottomContents}>
-          {selectedCategories.length === 0 ? (
+          {!selectedCategories ? (
             <Btn
               onPress={() => {
-                showToast("하나 이상 선택해주세요");
+                showToast("한 가지 유형을 선택해주세요");
               }}
             >
               확인
@@ -143,7 +142,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginRight: 24,
     marginBottom: 24,
-    backgroundColor: Gray_theme.white,
+    borderWidth: 2,
     paddingVertical: 24,
     justifyContent: "space-between",
     alignItems: "center",
@@ -151,6 +150,7 @@ const styles = StyleSheet.create({
   btnText: {
     fontSize: 16,
     fontFamily: "Pretendard-Bold",
+    color: Gray_theme.gray_80,
   },
   bottomContents: {
     position: "absolute",

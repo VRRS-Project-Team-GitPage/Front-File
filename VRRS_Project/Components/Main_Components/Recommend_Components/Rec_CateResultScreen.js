@@ -8,7 +8,9 @@ import Octicons from "@expo/vector-icons/Octicons";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import Xheader from "../../../assets/styles/ReuseComponents/Header/xheader";
 
-export default function Rec_CateResultScreen({ navigation }) {
+export default function Rec_CateResultScreen({ navigation, route }) {
+  const { selectedCategories } = route.params || {};
+  console.log(selectedCategories);
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;

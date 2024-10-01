@@ -24,7 +24,7 @@ import {
   getAllProducts,
   products,
   getVegTypeName,
-  getProTypeNAme,
+  getProTypeName,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 import {
   getReviewsByProduct,
@@ -125,7 +125,7 @@ export default function DicProductScreen({ navigation, route }) {
             <View>
               <View style={styles.proInfo_N}>
                 <Text style={styles.proType}>
-                  {getProTypeNAme(product.pro_type_id)}
+                  {getProTypeName(product.pro_type_id)}
                 </Text>
                 <Text style={styles.proName}>{product.name}</Text>
               </View>
