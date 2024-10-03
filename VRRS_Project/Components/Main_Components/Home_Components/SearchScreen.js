@@ -1,4 +1,4 @@
-import React, { useRef, useContext } from "react";
+import React, { useRef, useContext, useState } from "react";
 import {
   View,
   Text,
@@ -50,12 +50,27 @@ function SearchScreen({ navigation }) {
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
+  const [isFirstClick, setIsFirstClick] = useState(true); // 최초 클릭 여부 추적
 
   const handleSearch = () => {
-    navigation.navigate("DicTab", {
-      screen: "DicList",
-      params: { text: searchText, triggerSubmit: true },
-    });
+    if (isFirstClick) {
+      navigation.navigate("DicTab", {
+        screen: "DicList", // DicList로 먼저 이동
+      });
+
+      setTimeout(() => {
+        navigation.navigate("DicTab", {
+          screen: "DicList",
+          params: { text: searchText, triggerSubmit: true },
+        }); // DicList에서 DicList 이동
+      }, 0);
+      setIsFirstClick(false);
+    } else {
+      navigation.navigate("DicTab", {
+        screen: "DicList",
+        params: { text: searchText, triggerSubmit: true },
+      });
+    }
   };
 
   return (

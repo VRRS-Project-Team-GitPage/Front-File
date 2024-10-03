@@ -4,20 +4,15 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import FirstTab from "./FirstTab";
 import SecondTab from "./SecondTab";
 import { Gray_theme, Main_theme } from "../../../../assets/styles/Theme_Colors";
-import { Colors } from "react-native/Libraries/NewAppScreen";
 
 const Tab = createMaterialTopTabNavigator();
 
 export default function IngredientTab({ ingredientText }) {
   return (
     <Tab.Navigator
-      screenOption={{
-        tabBarActiveTintColor: {
-          color: Gray_theme.balck,
-        },
-        tabBarInactiveTintColor: {
-          color: Gray_theme.gray_40,
-        },
+      screenOptions={{
+        tabBarActiveTintColor: Gray_theme.balck,
+        tabBarInactiveTintColor: Gray_theme.gray_40,
       }}
     >
       <Tab.Screen
@@ -26,9 +21,8 @@ export default function IngredientTab({ ingredientText }) {
         initialParams={{ ingredientText }}
         options={{
           title: "섭취 가능",
-
           tabBarLabelStyle: {
-            ...styles.labelFont,
+            fontFamily: "Pretendard-SemiBold",
           },
           tabBarIndicatorStyle: {
             // 라벨바 스타일 지정
@@ -48,7 +42,7 @@ export default function IngredientTab({ ingredientText }) {
           title: "섭취 불가능",
 
           tabBarLabelStyle: {
-            ...styles.labelFont,
+            fontFamily: "Pretendard-SemiBold",
           },
           tabBarIndicatorStyle: {
             // 라벨바 스타일 지정
@@ -62,9 +56,3 @@ export default function IngredientTab({ ingredientText }) {
     </Tab.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  labelFont: {
-    fontFamily: "Pretendard-SemiBold",
-  },
-});

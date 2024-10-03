@@ -24,6 +24,7 @@ import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 import MainIcons from "../../../assets/Icons/MainIcons";
 // Data 관련 import
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 이용자 정보
 import {
   getAllProducts,
@@ -34,6 +35,8 @@ import {
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext"; // 검색 정보
 
 export default function DicScreen({ route, navigation }) {
+  const { user, id, name, vegTypeName } = useUser();
+
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
@@ -78,6 +81,7 @@ export default function DicScreen({ route, navigation }) {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
         setSearchText("");
         handleOnSubmitEditing("");
+        checkTypeBtn(vegTypeName);
         scrollToTop();
       };
     }, [])
@@ -535,12 +539,6 @@ export default function DicScreen({ route, navigation }) {
           />
         )}
       </View>
-      <Button
-        onPress={() => {
-          navigation.navigate("DicList2");
-        }}
-        title="두 번째 시안 확인"
-      ></Button>
       <View style={{ height: 60 }}></View>
     </SafeAreaView>
   );
