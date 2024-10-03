@@ -14,4 +14,7 @@ export default mainIcons = {
   good_line: require("./Main_Icons/good-line.png"),
   bad: require("./Main_Icons/bad.png"),
   bad_line: require("./Main_Icons/bad-line.png"),
+  
+  review: require("./Main_Icons/user_review.png"),
+  udictionary: require("./Main_Icons/user_dictionary.png"),
 };
