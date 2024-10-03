@@ -14,7 +14,7 @@ export default function IngredientModal({
 }) {
   return (
     <Modal
-      animationType="slide" //모달이 나타나는 방식
+      animationType="fade" //모달이 나타나는 방식
       visible={visible} //모달이 보이는 여부
       transparent={true} // 모달 배경 투명 여부
       onRequestClose={onRequestClose} // 뒤로가기를 눌렀을 때

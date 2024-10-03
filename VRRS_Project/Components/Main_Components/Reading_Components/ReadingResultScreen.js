@@ -103,10 +103,12 @@ export default function ReadingResultScreen({ navigation, route }) {
   }, [isLoaded]);
 
   // 판독 결과 가능 여부를 저장
+  // 서버와 연동 후 기본값: null
   const [resultPossible, setResultPossible] = useState(true);
+  // 판독 불가 리스트 여부를 저장
+  const [readImposible, setReadImpossible] = useState(false);
   // 섭취 가능할 때 제품이 사전에 있는지 여부를 저장
   const [inDictionary, setInDictionary] = useState(true);
-
   // 제품 정보를 저장하는 state
   const [productData, setProductData] = useState([]);
   // 필터된 제품 리스트를 저장하는 변수
@@ -141,6 +143,7 @@ export default function ReadingResultScreen({ navigation, route }) {
     }
   };
 
+  // 원재료명 확인 모달창 제어
   const [visible, setVisible] = useState(false);
   const handleVisible = () => {
     setVisible(!visible);
@@ -201,16 +204,57 @@ export default function ReadingResultScreen({ navigation, route }) {
               {resultPossible ? "섭취 가능" : "섭취 불가능"}
             </Text>
           </View>
-          <View style={styles.infoTextContainer}>
-            <View>
-              <Text style={styles.userTypebg}>{vegTypeName}</Text>
-            </View>
-            <Text style={styles.infoText}>
-              {name}님의 유형으로 제품을 판독한 결과입니다.
-            </Text>
-            <Text style={styles.infoText}>
-              원재료명을 확인하고 더 자세한 결과를 알아보세요.
-            </Text>
+          <View
+            style={{
+              ...styles.infoTextContainer,
+              backgroundColor: readImposible
+                ? Gray_theme.gray_40
+                : Main_theme.main_20,
+            }}
+          >
+            {readImposible ? (
+              <Text
+                style={{
+                  ...styles.userTypebg,
+                  backgroundColor: Main_theme.main_Medium,
+                  color: Gray_theme.gray_80,
+                }}
+                onPress={() => {
+                  setReadImpossible(false);
+                }}
+              >
+                확인 필요
+              </Text>
+            ) : (
+              <Text
+                style={styles.userTypebg}
+                onPress={() => {
+                  setReadImpossible(true);
+                }}
+              >
+                인증 완료
+              </Text>
+            )}
+
+            {readImposible ? (
+              <View>
+                <Text style={styles.infoText}>
+                  판독에 사용되지 못한 단어들이 있습니다.
+                </Text>
+                <Text style={styles.infoText}>
+                  결과가 정확하지 않을 수 있으니 확인해주세요.
+                </Text>
+              </View>
+            ) : (
+              <View>
+                <Text style={styles.infoText}>
+                  {name}님의 유형으로 제품을 판독한 결과입니다.
+                </Text>
+                <Text style={styles.infoText}>
+                  원재료명을 확인하고 더 자세한 결과를 알아보세요.
+                </Text>
+              </View>
+            )}
           </View>
           <TouchableOpacity
             activeOpacity={0.8}
@@ -238,12 +282,7 @@ export default function ReadingResultScreen({ navigation, route }) {
         <View style={styles.otherContents}>
           {inDictionary || !resultPossible ? (
             <View style={styles.recListContainer}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
+              <View style={styles.otherContentsTitle}>
                 <Text style={{ ...styles.ocTitle, fontSize: 16 }}>
                   이런 제품은 어떠세요?
                 </Text>
@@ -400,7 +439,6 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     paddingHorizontal: 24,
     alignItems: "flex-start",
-    backgroundColor: Main_theme.main_20,
   },
   userTypebg: {
     backgroundColor: Main_theme.main_10,
@@ -441,7 +479,7 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
   },
   ocBtnTitle: {
-    fontFamily: "Pretendard-SemiBold",
+    fontFamily: "Pretendard-Bold",
     fontSize: 24,
   },
   ocIcon: {
@@ -453,7 +491,6 @@ const styles = StyleSheet.create({
   },
 
   mainDicContainer: {
-    marginTop: 16,
     marginBottom: 32,
   },
   itemContainer: {
@@ -496,5 +533,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 20,
     alignSelf: "flex-start",
+  },
+  otherContentsTitle: {
+    height: 56,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
   },
 });
