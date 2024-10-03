@@ -57,7 +57,7 @@ export default function DicProductScreen({ navigation, route }) {
 
   // 추천수 퍼센테이지
   const thuumsUp =
-    product.review !== 0 ? parseInt((product.rec / product.review) * 100) : 0;
+    product.review !== 0 ? parseInt((product.rec / product.review) * 100) : -1;
 
   // 제품 북마크 여부를 저장
   const [bookMark, setBookmark] = useState(false);
@@ -152,7 +152,7 @@ export default function DicProductScreen({ navigation, route }) {
                               ? Main_theme.main_30
                               : thuumsUp >= 35
                               ? "#FFD060"
-                              : thuumsUp >= 1
+                              : thuumsUp >= 0
                               ? Main_theme.main_reverse
                               : Gray_theme.gray_40,
                         }}
@@ -163,7 +163,7 @@ export default function DicProductScreen({ navigation, route }) {
                         ></Image>
                       </View>
                       <View style={{ flex: 1 }}>
-                        {thuumsUp !== 0 ? (
+                        {thuumsUp !== -1 ? (
                           <View style={styles.infoPerC}>
                             <Text
                               style={{
@@ -173,7 +173,7 @@ export default function DicProductScreen({ navigation, route }) {
                                     ? Main_theme.main_30
                                     : thuumsUp >= 35
                                     ? "#FFD060"
-                                    : thuumsUp >= 1
+                                    : thuumsUp >= 0
                                     ? Main_theme.main_reverse
                                     : Gray_theme.gray_40,
                               }}
@@ -203,7 +203,7 @@ export default function DicProductScreen({ navigation, route }) {
                                     ? Main_theme.main_30
                                     : thuumsUp >= 35
                                     ? "#FFD060"
-                                    : thuumsUp >= 1
+                                    : thuumsUp >= 0
                                     ? Main_theme.main_reverse
                                     : Gray_theme.gray_40,
                               }}

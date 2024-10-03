@@ -86,6 +86,7 @@ export default function Main_BottomBar() {
           listeners={({ navigation }) => ({
             tabPress: () => {
               navigation.reset({
+                index: 0,
                 routes: [{ name: "DicTab", params: { screen: "DicList" } }], // DicStack의 DicList 스크린으로 리셋
               });
               //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.

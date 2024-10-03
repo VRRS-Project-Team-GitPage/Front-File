@@ -9,6 +9,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import { CommonActions } from "@react-navigation/native";
 // 클릭 시 적용되는 애니메이션 Component
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 import { StyleSheet, useWindowDimensions, FlatList } from "react-native";
@@ -236,12 +237,17 @@ export default function HomeScreen({ navigation }) {
               onPress={() => {
                 navigation.navigate("DicTab", {
                   screen: "DicList",
-                  params: {
-                    type: vegTypeName, // 전체 제품을 필터로 설정
-                    sortOption: "인기순", // 인기순으로 정렬
-                    autoSearch: true, // 자동으로 검색을 트리거
-                  },
-                });
+                }),
+                  setTimeout(() => {
+                    navigation.navigate("DicTab", {
+                      screen: "DicList",
+                      params: {
+                        type: vegTypeName, // 전체 제품을 필터로 설정
+                        sortOption: "인기순", // 인기순으로 정렬
+                        autoSearch: true, // 자동으로 검색을 트리거
+                      },
+                    });
+                  }, 0);
               }}
               style={{
                 marginTop: 32,
@@ -276,9 +282,14 @@ export default function HomeScreen({ navigation }) {
                         onPress={() => {
                           const productID = item.id;
                           navigation.navigate("DicTab", {
-                            screen: "ProductInfo",
-                            params: { id: productID },
+                            screen: "DicList", // DicList로 먼저 이동
                           });
+
+                          setTimeout(() => {
+                            navigation.navigate("ProductInfo", {
+                              id: productID,
+                            }); // DicList에서 ProductInfo로 이동
+                          }, 0); // DicList가 렌더링된 후 ProductInfo로 이동
                         }}
                       >
                         <Image
@@ -308,12 +319,17 @@ export default function HomeScreen({ navigation }) {
               onPress={() => {
                 navigation.navigate("DicTab", {
                   screen: "DicList",
-                  params: {
-                    type: "전체", // 전체 제품을 필터로 설정
-                    sortOption: "인기순", // 인기순으로 정렬
-                    autoSearch: true, // 자동으로 검색을 트리거
-                  },
-                });
+                }),
+                  setTimeout(() => {
+                    navigation.navigate("DicTab", {
+                      screen: "DicList",
+                      params: {
+                        type: "전체", // 전체 제품을 필터로 설정
+                        sortOption: "인기순", // 인기순으로 정렬
+                        autoSearch: true, // 자동으로 검색을 트리거
+                      },
+                    });
+                  }, 0);
               }}
               style={{
                 marginTop: 16,
@@ -340,11 +356,15 @@ export default function HomeScreen({ navigation }) {
                     <TouchableScale
                       onPress={() => {
                         const productID = item.id;
-
                         navigation.navigate("DicTab", {
-                          screen: "ProductInfo",
-                          params: { id: productID },
+                          screen: "DicList", // DicList로 먼저 이동
                         });
+
+                        setTimeout(() => {
+                          navigation.navigate("ProductInfo", {
+                            id: productID,
+                          }); // DicList에서 ProductInfo로 이동
+                        }, 0); // DicList가 렌더링된 후 ProductInfo로 이동
                       }}
                     >
                       <Image

@@ -29,7 +29,7 @@ export default function DicUploadScreen({ navigation }) {
 
   const pickImage = async () => {
     if (productImages.length >= 1) {
-      showToast("최대 1개의 이미지만 등록할 수 있습니다.");
+      showToast("1개의 이미지만 등록할 수 있습니다.");
       return;
     }
 
@@ -92,7 +92,11 @@ export default function DicUploadScreen({ navigation }) {
                 style={styles.cPoint}
               />
             </View>
-            <View>
+            <View
+              style={{
+                flexDirection: "row",
+              }}
+            >
               <TextInput
                 placeholder="제품 이름을 입력해주세요."
                 value={proName}
@@ -109,6 +113,16 @@ export default function DicUploadScreen({ navigation }) {
                 onSubmitEditing={() => {
                   setProductName(proName);
                 }}
+              />
+              <Octicons
+                name="x-circle-fill"
+                size={16}
+                color={Gray_theme.gray_60}
+                style={{
+                  position: "absolute",
+                  right: -48,
+                }}
+                onPress={() => setProName("")} // 이미지 삭제 버튼
               />
             </View>
           </View>
