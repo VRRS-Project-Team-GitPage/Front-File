@@ -67,7 +67,7 @@ export default function UseCamera({ navigation }) {
     const photo = await cameraRef.current.takePictureAsync();
     const photoUri = photo.uri;
     navigation.navigate("ReadTab", {
-      screen: "IngridientScreen",
+      screen: "ProNameScreen",
       params: { photoUri: photoUri, triggerSubmit: true },
     });
   };

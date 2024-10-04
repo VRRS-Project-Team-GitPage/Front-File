@@ -30,13 +30,6 @@ const QuestionModal = ({
           <View style={styles.modalHeader}>
             {/* 모달 창의 제목이 되는 텍스트 입니다. */}
             <Text style={styles.modalHeaderText}>{children}</Text>
-            <Octicons
-              name="x"
-              size={24}
-              color={Gray_theme.gray_90}
-              style={styles.modalHeaderX}
-              onPress={onRequestClose}
-            />
           </View>
           <View style={styles.modalBtn}>
             <BtnC style={style_cancle} onPress={onRequestClose}>
@@ -68,21 +61,18 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
     width: "100%",
     paddingVertical: 16,
-    borderRadius: 20,
+    borderRadius: 12,
     elevation: 3,
   },
 
   modalHeader: {
     height: 60,
     justifyContent: "center",
-  },
-
-  modalHeaderX: {
-    position: "absolute",
-    right: 24,
+    paddingHorizontal: 32,
   },
   modalHeaderText: {
-    textAlign: "center",
+    textAlign: "left",
+    fontSize: 16,
     fontFamily: "Pretendard-SemiBold",
   },
   modalBtn: {

@@ -39,7 +39,7 @@ export default function ReadingResultScreen({ navigation, route }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
-  const { productUri, ingredientText, triggerSubmit } = route.params || {};
+  const { img_path, name_pro, ingredients, triggerSubmit } = route.params || {};
   const [isLoaded, setIsLoaded] = useState(false);
   const [checkImage, setCheckImage] = useState();
 
@@ -96,7 +96,7 @@ export default function ReadingResultScreen({ navigation, route }) {
   // 이미지가 로드되었을 때, 비율을 유지한 채로 리사이즈
   useEffect(() => {
     if (isLoaded) {
-      resizeImage(productUri).then((resizedUri) => {
+      resizeImage(img_path).then((resizedUri) => {
         setCheckImage(resizedUri);
       });
     }
@@ -158,7 +158,7 @@ export default function ReadingResultScreen({ navigation, route }) {
           navigation.navigate("Report");
           handleVisible();
         }}
-        ingredientText={ingredientText}
+        ingredientText={ingredients}
       />
       <NomalHeader
         onPress={() => {
@@ -212,19 +212,21 @@ export default function ReadingResultScreen({ navigation, route }) {
                 : Main_theme.main_20,
             }}
           >
-            {readImposible ? (
-              <Text
-                style={{
-                  ...styles.userTypebg,
-                  backgroundColor: Main_theme.main_Medium,
-                  color: Gray_theme.gray_80,
-                }}
-                onPress={() => {
-                  setReadImpossible(false);
-                }}
-              >
-                확인 필요
-              </Text>
+            {readImposible ? ( // 판독 불가능 원재료명이 있는 경우
+              <View style={{ flexDirection: "row" }}>
+                <Text
+                  style={{
+                    ...styles.userTypebg,
+                    backgroundColor: Main_theme.main_Medium,
+                    color: Gray_theme.gray_80,
+                  }}
+                  onPress={() => {
+                    setReadImpossible(false);
+                  }}
+                >
+                  확인 필요
+                </Text>
+              </View>
             ) : (
               <Text
                 style={styles.userTypebg}
@@ -244,6 +246,31 @@ export default function ReadingResultScreen({ navigation, route }) {
                 <Text style={styles.infoText}>
                   결과가 정확하지 않을 수 있으니 확인해주세요.
                 </Text>
+                <TouchableOpacity
+                  activeOpacity={0.6}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    marginTop: 12,
+                  }}
+                >
+                  <Octicons
+                    name="question"
+                    size={12}
+                    color={Main_theme.main_reverse}
+                    style={{
+                      marginRight: 6,
+                    }}
+                  />
+                  <Text
+                    style={{
+                      ...styles.infoText,
+                      color: Main_theme.main_reverse,
+                    }}
+                  >
+                    판독 불가 목록
+                  </Text>
+                </TouchableOpacity>
               </View>
             ) : (
               <View>
@@ -289,7 +316,7 @@ export default function ReadingResultScreen({ navigation, route }) {
                 <MaterialIcons
                   name="change-circle"
                   size={24}
-                  color={Gray_theme.gray_60}
+                  color={Main_theme.main_30}
                   onPress={() => {
                     setInDictionary(false);
                   }}
@@ -442,7 +469,7 @@ const styles = StyleSheet.create({
   },
   userTypebg: {
     backgroundColor: Main_theme.main_10,
-    borderRadius: 16,
+    borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontFamily: "Pretendard-Bold",

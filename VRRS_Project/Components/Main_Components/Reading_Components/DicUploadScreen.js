@@ -190,9 +190,7 @@ export default function DicUploadScreen({ navigation }) {
                   style={styles.cPoint}
                 />
               </View>
-              <Text style={styles.cTitleM}>
-                제품 뒤 식품 유형과 동일하게 선택해주세요.
-              </Text>
+              <Text style={styles.cTitleM}>식품 유형에 따라 선택해주세요.</Text>
             </View>
             <DropDownPicker
               open={open}

@@ -57,10 +57,20 @@ export default function DicScreen({ route, navigation }) {
   // 화면 포커싱 시 초기 화면으로 돌리기 위한 변수
   const scrollViewRef = useRef(null);
 
+  const [buttonLayouts, setButtonLayouts] = useState({}); // 각 버튼의 위치 저장
+
+  const moveToSelectedButton = (btnType) => {
+    if (buttonLayouts[btnType]) {
+      const { x, width } = buttonLayouts[btnType];
+      const scrollToPosition = x - width / 2; // 중앙으로 맞추기 위해 약간 보정
+      scrollViewRef.current.scrollTo({ x: scrollToPosition, animated: true });
+    }
+  };
+
   // 스크롤뷰를 처음으로 돌리는 함수
-  const scrollViewReturn = () => {
+  const scrollViewReturn = ({ location }) => {
     if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({ x: 0, animated: true });
+      scrollViewRef.current.scrollTo({ x: location, animated: true });
     }
   };
 
@@ -81,7 +91,6 @@ export default function DicScreen({ route, navigation }) {
         // 화면이 포커싱 될 경우 해당 옵션을 default로
         setSearchText("");
         handleOnSubmitEditing("");
-        checkTypeBtn(vegTypeName);
         scrollToTop();
       };
     }, [])
@@ -92,6 +101,7 @@ export default function DicScreen({ route, navigation }) {
   useEffect(() => {
     if (autoSearch) {
       checkTypeBtn(type);
+      moveToSelectedButton(type);
       selectOption(sortOption);
       sortProducts();
     }
@@ -145,7 +155,7 @@ export default function DicScreen({ route, navigation }) {
     checkTypeBtn("전체");
     selectOption("등록순");
     sortProducts();
-    scrollViewReturn();
+    scrollViewReturn(0);
   };
 
   // 검색 및 필터에 사용될 변수 모음입니다
@@ -188,7 +198,12 @@ export default function DicScreen({ route, navigation }) {
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
     } else if (selectedOption === "인기순") {
-      sortedList.sort((a, b) => b.rec + b.review - (a.rec + a.review));
+      sortedList.sort(
+        (a, b) =>
+          b.rec +
+          parseInt(b.rec / b.review) -
+          (a.rec + parseInt(a.rec / a.review))
+      );
     }
 
     if (filterText !== "") {
@@ -317,7 +332,16 @@ export default function DicScreen({ route, navigation }) {
                     activeOpacity={0.6}
                     key={btnType}
                     onPress={() => {
-                      checkTypeBtn(btnType);
+                      checkTypeBtn(btnType); // 버튼 상태 변경
+                      moveToSelectedButton(btnType); // 해당 버튼으로 스크롤 이동
+                    }}
+                    onLayout={(event) => {
+                      // 버튼이 렌더링될 때 위치와 너비 저장
+                      const { x, width } = event.nativeEvent.layout;
+                      setButtonLayouts((prevLayouts) => ({
+                        ...prevLayouts,
+                        [btnType]: { x, width },
+                      }));
                     }}
                     style={{
                       borderBottomWidth: 1,
