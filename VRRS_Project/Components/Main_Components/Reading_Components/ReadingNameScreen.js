@@ -142,11 +142,8 @@ export default function ProNameScreen({ route, navigation }) {
             },
           });
         }}
-        style_cancle={styles.style_cancle}
-        style_ok={styles.style_ok}
-      >
-        제품명이 정확히 작성되었나요?
-      </QuestionModal>
+        children={"제품명이 정확히 작성되었나요?"}
+      ></QuestionModal>
 
       {isPhotoLoaded || isImgLoaded ? ( // 사진 로딩 상태에 따른 렌더링 제어
         <ImageBackground
@@ -338,16 +335,5 @@ const styles = StyleSheet.create({
     color: Gray_theme.gray_60,
     fontFamily: "Pretendard-Medium",
     fontSize: 12,
-  },
-  style_cancle: {
-    flex: 1,
-    backgroundColor: Gray_theme.gray_40,
-    borderColor: Gray_theme.gray_40,
-    marginRight: 4,
-  },
-  style_ok: {
-    flex: 1,
-    backgroundColor: Main_theme.main_30,
-    marginLeft: 4,
   },
 });

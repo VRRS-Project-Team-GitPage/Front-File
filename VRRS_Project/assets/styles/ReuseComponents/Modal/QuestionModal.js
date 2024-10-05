@@ -6,11 +6,10 @@ import BtnC from "../Button/BtnC";
 
 const QuestionModal = ({
   children,
+  children_body,
   visible,
   onRequestClose,
   onPress,
-  style_cancle,
-  style_ok,
 }) => {
   return (
     <Modal
@@ -30,12 +29,23 @@ const QuestionModal = ({
           <View style={styles.modalHeader}>
             {/* 모달 창의 제목이 되는 텍스트 입니다. */}
             <Text style={styles.modalHeaderText}>{children}</Text>
+            <Octicons
+              name="x"
+              size={24}
+              color={Gray_theme.gray_90}
+              onPress={onRequestClose}
+            />
           </View>
+
           <View style={styles.modalBtn}>
-            <BtnC style={style_cancle} onPress={onRequestClose}>
+            <BtnC
+              style={styles.style_cancle}
+              stlye_title={styles.cancle_title}
+              onPress={onRequestClose}
+            >
               취소
             </BtnC>
-            <BtnC style={style_ok} onPress={onPress}>
+            <BtnC style={styles.style_ok} onPress={onPress}>
               확인
             </BtnC>
           </View>
@@ -60,25 +70,45 @@ const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: Gray_theme.white,
     width: "100%",
-    paddingVertical: 16,
-    borderRadius: 12,
+    borderRadius: 15,
     elevation: 3,
   },
 
   modalHeader: {
-    height: 60,
-    justifyContent: "center",
-    paddingHorizontal: 32,
+    paddingVertical: 32,
+    paddingHorizontal: 24,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   modalHeaderText: {
     textAlign: "left",
     fontSize: 16,
     fontFamily: "Pretendard-SemiBold",
+    color: Gray_theme.gray_90,
   },
   modalBtn: {
     flexDirection: "row",
-    marginTop: 32,
-    paddingHorizontal: 24,
+    justifyContent: "flex-end",
+    paddingRight: 24,
+    paddingLeft: 80,
+    marginVertical: 24,
+  },
+  style_cancle: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: Gray_theme.white,
+    borderColor: Main_theme.main_30,
+    marginRight: 4,
+  },
+  cancle_title: {
+    color: Main_theme.main_30,
+  },
+  style_ok: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: Main_theme.main_30,
+    marginLeft: 4,
   },
 });
 

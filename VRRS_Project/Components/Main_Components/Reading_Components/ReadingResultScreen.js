@@ -6,8 +6,8 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   FlatList,
+  Button,
 } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import React from "react";
@@ -28,8 +28,10 @@ import IngredientModal from "./IngredientModal/IngredientModal";
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
   getAllProducts,
+  getProTypeName,
   getVegTypeName,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
+import BarIcons from "../../../assets/Icons/BarIcons";
 
 export default function ReadingResultScreen({ navigation, route }) {
   // user의 정보를 불러옴
@@ -285,29 +287,158 @@ export default function ReadingResultScreen({ navigation, route }) {
           </View>
           <TouchableOpacity
             activeOpacity={0.8}
-            style={styles.checkIng}
+            style={styles.checkIngre}
             onPress={() => {
               setVisible(true);
             }}
           >
-            <Octicons name="search" size={24} color={Gray_theme.gray_80} />
+            <Octicons name="search" size={20} color={Gray_theme.gray_60} />
             <Text
               style={{
                 fontFamily: "Pretendard-Medium",
+                color: Gray_theme.gray_70,
+                marginHorizontal: 12,
               }}
             >
               원재료명 확인하기
             </Text>
-            <Octicons
-              name="chevron-right"
-              size={24}
-              color={Gray_theme.gray_80}
-            />
           </TouchableOpacity>
         </View>
+        {resultPossible ? (
+          <View style={styles.otherContents}>
+            {inDictionary ? (
+              <View style={styles.recListContainer}>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.inDictionaryBtn}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Image
+                      source={BarIcons.dicIcon_C}
+                      style={{
+                        width: 24,
+                        height: 24,
+                        marginRight: 12,
+                        tintColor: Main_theme.main_30,
+                      }}
+                    ></Image>
+                    <Text
+                      style={{
+                        fontFamily: "Pretendard-SemiBold",
+                        color: Gray_theme.gray_90,
+                      }}
+                    >
+                      사전에 등록된 제품이에요!
+                    </Text>
+                  </View>
+                  <Octicons
+                    name="chevron-right"
+                    size={24}
+                    color={Gray_theme.gray_80}
+                  />
+                </TouchableOpacity>
+                <View style={styles.otherContentsC}>
+                  <View style={styles.otherContentsTitle}>
+                    <Text style={{ ...styles.ocTitle, fontSize: 16 }}>
+                      이런 제품은 어떠세요?
+                    </Text>
+                  </View>
+                  <View style={styles.mainDicContainer}>
+                    <FlatList
+                      horizontal={true}
+                      showsHorizontalScrollIndicator={false}
+                      data={filterList.slice(0, 50)} // 상태로 관리되는 제품 데이터를 사용
+                      keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
+                      renderItem={({ item }) => {
+                        const itemVegTypeName = getVegTypeName(
+                          item.veg_type_id
+                        );
+                        if (itemVegTypeName !== vegTypeName) {
+                          return null;
+                        }
+                        // 일치할 경우에만 해당 아이템을 렌더링
+                        return (
+                          <View style={styles.itemContainer}>
+                            <TouchableScale
+                              onPress={() => {
+                                const productID = item.id;
+                                navigation.navigate("DicTab", {
+                                  screen: "DicList", // DicList로 먼저 이동
+                                });
 
-        <View style={styles.otherContents}>
-          {inDictionary || !resultPossible ? (
+                                setTimeout(() => {
+                                  navigation.navigate("ProductInfo", {
+                                    id: productID,
+                                  }); // DicList에서 ProductInfo로 이동
+                                }, 0); // DicList가 렌더링된 후 ProductInfo로 이동
+                              }}
+                            >
+                              <Image
+                                source={{ uri: item.img_path }}
+                                style={styles.image}
+                              />
+
+                              <View style={styles.textContainer}>
+                                {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                                <Text style={styles.name}>{item.name}</Text>
+                                <Text style={styles.category}>
+                                  {getProTypeName(item.pro_type_id)}
+                                </Text>
+                                <Text style={styles.vegType}>
+                                  {itemVegTypeName}
+                                  {/* 아이템의 채식 유형 이름 표시 */}
+                                </Text>
+                              </View>
+                            </TouchableScale>
+                          </View>
+                        );
+                      }}
+                    />
+                  </View>
+                </View>
+              </View>
+            ) : (
+              <View>
+                <TouchableScale
+                  style={styles.ocBtn}
+                  onPress={() => {
+                    navigation.navigate("Upload");
+                  }}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    <View>
+                      <Text style={styles.infoText}>
+                        앗! 사전에 없는 제품이에요
+                      </Text>
+                      <View style={{ flexDirection: "row" }}>
+                        <Text
+                          style={{
+                            ...styles.ocBtnTitle,
+                            color: Main_theme.main_30,
+                            marginRight: 6,
+                          }}
+                        >
+                          제품
+                        </Text>
+                        <Text style={styles.ocBtnTitle}>등록하기</Text>
+                      </View>
+                    </View>
+                    <Image
+                      source={MainIcons.dictionary}
+                      style={styles.ocIcon}
+                    ></Image>
+                  </View>
+                </TouchableScale>
+                <View style={{ height: 20 }}></View>
+              </View>
+            )}
+          </View>
+        ) : (
+          <View style={styles.otherContents}>
             <View style={styles.recListContainer}>
               <View style={styles.otherContentsTitle}>
                 <Text style={{ ...styles.ocTitle, fontSize: 16 }}>
@@ -358,52 +489,36 @@ export default function ReadingResultScreen({ navigation, route }) {
                 />
               </View>
             </View>
-          ) : (
-            <View>
-              <TouchableScale
-                style={styles.ocBtn}
-                onPress={() => {
-                  navigation.navigate("Upload");
-                }}
-              >
-                <View style={{ flexDirection: "row" }}>
-                  <View>
-                    <Text style={styles.infoText}>
-                      앗! 사전에 없는 제품이에요
-                    </Text>
-                    <View style={{ flexDirection: "row" }}>
-                      <Text
-                        style={{
-                          ...styles.ocBtnTitle,
-                          color: Main_theme.main_30,
-                          marginRight: 6,
-                        }}
-                      >
-                        제품
-                      </Text>
-                      <Text style={styles.ocBtnTitle}>등록하기</Text>
-                    </View>
-                  </View>
-                  <Image
-                    source={MainIcons.dictionary}
-                    style={styles.ocIcon}
-                  ></Image>
-                </View>
-              </TouchableScale>
-              <View style={{ height: 60 }}>
-                <Text
-                  onPress={() => {
-                    setInDictionary(true);
-                  }}
-                >
-                  확인용
-                </Text>
-              </View>
-            </View>
-          )}
+          </View>
+        )}
+        <View
+          style={{
+            flexDirection: "row",
+          }}
+        >
+          <Button
+            title="섭취 가능/사전 등록"
+            onPress={() => {
+              setResultPossible(true);
+              setInDictionary(true);
+            }}
+          ></Button>
+          <Button
+            title="섭취 가능/사전 미등록"
+            onPress={() => {
+              setResultPossible(true);
+              setInDictionary(false);
+            }}
+          ></Button>
+          <Button
+            title="섭취 불가능"
+            onPress={() => {
+              setResultPossible(false);
+              setInDictionary(false);
+            }}
+          ></Button>
         </View>
       </ScrollView>
-
       <View
         style={{
           paddingHorizontal: 16,
@@ -427,14 +542,16 @@ export default function ReadingResultScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+  // 전체
   container: {
     flex: 1,
     backgroundColor: Main_theme.main_10,
   },
+  // 결과 화면
   resultContainer: {
     marginTop: 16,
     paddingVertical: 4,
-    borderRadius: 30,
+    borderRadius: 20,
     backgroundColor: Gray_theme.white,
   },
   imgContainer: {
@@ -479,52 +596,53 @@ const styles = StyleSheet.create({
   infoText: {
     fontFamily: "Pretendard-Medium",
     fontSize: 12,
-    color: Gray_theme.gray_80,
+    color: Gray_theme.gray_90,
   },
-  checkIng: {
+  checkIngre: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
     alignItems: "center",
     paddingBottom: 12,
   },
+  // 사전 O
   recListContainer: {
-    marginTop: 32,
+    marginTop: 12,
   },
-  otherContents: {
-    marginTop: 32,
+  inDictionaryBtn: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 15,
+    backgroundColor: Gray_theme.white,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  // 유사 제품 추천
+  otherContents: {},
+  otherContentsC: {
+    backgroundColor: Gray_theme.white,
+    borderRadius: 15,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    marginBottom: 24,
+  },
+  otherContentsTitle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
   },
   ocTitle: {
     fontFamily: "Pretendard-SemiBold",
-    marginRight: 8,
-  },
-  ocBtn: {
-    width: "100%",
+    color: Gray_theme.balck,
     marginTop: 8,
-    paddingVertical: 36,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    backgroundColor: Gray_theme.white,
   },
-  ocBtnTitle: {
-    fontFamily: "Pretendard-Bold",
-    fontSize: 24,
-  },
-  ocIcon: {
-    width: 180,
-    height: 180,
-    position: "absolute",
-    right: 0,
-    top: -46,
-  },
-
+  // 유사 제품 추천 - 추천 사전 목록
   mainDicContainer: {
-    marginBottom: 32,
+    paddingVertical: 8,
   },
   itemContainer: {
-    marginRight: 8,
-    backgroundColor: Gray_theme.white,
-    borderRadius: 15,
-    padding: 12,
+    marginRight: 12,
   },
 
   image: {
@@ -561,10 +679,24 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignSelf: "flex-start",
   },
-  otherContentsTitle: {
-    height: 56,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 8,
+  // 사전 미등록
+  ocBtn: {
+    width: "100%",
+    marginTop: 12,
+    paddingVertical: 36,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    backgroundColor: Gray_theme.white,
+  },
+  ocBtnTitle: {
+    fontFamily: "Pretendard-Bold",
+    fontSize: 24,
+  },
+  ocIcon: {
+    width: 180,
+    height: 180,
+    position: "absolute",
+    right: 0,
+    top: -46,
   },
 });
