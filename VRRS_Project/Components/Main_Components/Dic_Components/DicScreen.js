@@ -81,16 +81,20 @@ export default function DicScreen({ route, navigation }) {
     }
   };
 
-  const isFocused = useIsFocused();
+  const { tabClicked } = route.params || {};
   useEffect(() => {
-    if (isFocused) {
+    if (tabClicked) {
+      // 탭이 클릭되었을 때 실행할 로직
       setSearchText("");
       checkTypeBtn(vegTypeName);
+      moveToSelectedButton(vegTypeName);
       selectOption("등록순");
       sortProducts();
       scrollViewReturn(0);
+
+      navigation.setParams({ tabClicked: false });
     }
-  }, [isFocused]);
+  }, [tabClicked]);
 
   const { type, sortOption, autoSearch } = route.params || {};
 
@@ -269,13 +273,15 @@ export default function DicScreen({ route, navigation }) {
   const handleToast = () => {
     toast.show("북마크 한 제품만 모아서 볼 수 있어요!", {
       type: "custom",
-      placement: "top",
+      placement: "bottom",
       duration: 3000,
-      style: styles.toastStyle,
+      style: { ...styles.toastStyle, bottom: windowHeigh - 148 },
       textStyle: styles.toastFont,
       animationType: "slide-in",
     });
   };
+
+  const [ownDic, setOwnDic] = useState(false);
 
   return (
     <SafeAreaView
@@ -398,18 +404,31 @@ export default function DicScreen({ route, navigation }) {
             }}
           >
             <TouchableOpacity
+              activeOpacity={0.8}
               style={{ flexDirection: "row", alignItems: "center" }}
+              onPressIn={() => {
+                setOwnDic(true);
+              }}
+              onPressOut={() => {
+                setOwnDic(false);
+              }}
               onPress={() => {
                 navigation.navigate("OwnDic");
               }}
             >
-              <Octicons name="check" size={16} color={Gray_theme.gray_40} />
+              <Octicons
+                name="check"
+                size={16}
+                color={!ownDic ? Gray_theme.gray_40 : Main_theme.main_30}
+              />
               <Text
                 style={{
                   marginLeft: 8,
-                  color: Gray_theme.gray_40,
+                  color: !ownDic ? Gray_theme.gray_40 : Gray_theme.balck,
                   fontSize: 12,
-                  fontFamily: "Pretendard-Medium",
+                  fontFamily: !ownDic
+                    ? "Pretendard-Medium"
+                    : "Pretendard-SemiBold",
                 }}
               >
                 개인 사전
@@ -744,7 +763,6 @@ const styles = StyleSheet.create({
     opacity: 0.8,
     position: "absolute",
     left: 100,
-    top: 172,
     backgroundColor: Gray_theme.gray_20,
     borderWidth: 1,
     borderColor: Gray_theme.gray_30,

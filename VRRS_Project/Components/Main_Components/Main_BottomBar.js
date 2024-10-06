@@ -84,12 +84,18 @@ export default function Main_BottomBar() {
           name="DicTab"
           component={DicStack}
           listeners={({ navigation }) => ({
-            tabPress: () => {
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "DicTab", params: { screen: "DicList" } }], // DicStack의 DicList 스크린으로 리셋
-              });
-              //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
+            tabPress: (e) => {
+              e.preventDefault(); // 기본 동작 방지
+              navigation.navigate("DicTab", {
+                screen: "DicList",
+              }),
+                // Stack으로 값을 전달하며 navigate
+                setTimeout(() => {
+                  navigation.navigate("DicTab", {
+                    screen: "DicList",
+                    params: { tabClicked: true },
+                  });
+                }, 0);
             },
           })}
           options={{
