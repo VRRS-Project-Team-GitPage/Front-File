@@ -10,7 +10,6 @@ import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Entypo from "@expo/vector-icons/Entypo";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 // Component 관련
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
@@ -20,11 +19,13 @@ import { categories } from "../../../assets/ServerDatas/Dummy/dummyProductCate";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
-export default function DicUploadScreen({ navigation }) {
+export default function DicUploadScreen({ navigation, route }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
-  // 최대 6개까지 저장 가능
+  const { name } = route.params || {};
+
+  // 1개의 이미지 업로드
   const [productImages, setProductImages] = useState([]);
 
   const pickImage = async () => {
@@ -53,7 +54,7 @@ export default function DicUploadScreen({ navigation }) {
     setProductImages(productImages.filter((img) => img.id !== id)); // 선택한 이미지 삭제
   };
 
-  const [proName, setProName] = useState("");
+  const [proName, setProName] = useState(name);
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);

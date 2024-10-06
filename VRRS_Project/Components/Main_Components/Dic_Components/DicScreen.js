@@ -1,11 +1,6 @@
 import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { useState, useEffect, useContext } from "react";
-import {
-  useWindowDimensions,
-  StyleSheet,
-  ScrollView,
-  Button,
-} from "react-native";
+import { useWindowDimensions, StyleSheet, ScrollView } from "react-native";
 import {
   View,
   Text,
@@ -17,6 +12,8 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useToast } from "react-native-toast-notifications";
+import { useIsFocused } from "@react-navigation/native";
 // component 관련
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // design 관련 import
@@ -84,17 +81,16 @@ export default function DicScreen({ route, navigation }) {
     }
   };
 
-  // 화면이 포커싱 될 경우 사용되는 hook
-  useFocusEffect(
-    React.useCallback(() => {
-      return () => {
-        // 화면이 포커싱 될 경우 해당 옵션을 default로
-        setSearchText("");
-        handleOnSubmitEditing("");
-        scrollToTop();
-      };
-    }, [])
-  );
+  const isFocused = useIsFocused();
+  useEffect(() => {
+    if (isFocused) {
+      setSearchText("");
+      checkTypeBtn(vegTypeName);
+      selectOption("등록순");
+      sortProducts();
+      scrollViewReturn(0);
+    }
+  }, [isFocused]);
 
   const { type, sortOption, autoSearch } = route.params || {};
 
@@ -268,6 +264,19 @@ export default function DicScreen({ route, navigation }) {
     setSortedProducts(filteredList);
   };
 
+  // 개인 사전 안내용 메세지
+  const toast = useToast();
+  const handleToast = () => {
+    toast.show("북마크 한 제품만 모아서 볼 수 있어요!", {
+      type: "custom",
+      placement: "top",
+      duration: 3000,
+      style: styles.toastStyle,
+      textStyle: styles.toastFont,
+      animationType: "slide-in",
+    });
+  };
+
   return (
     <SafeAreaView
       style={styles.container}
@@ -383,18 +392,39 @@ export default function DicScreen({ route, navigation }) {
           </ScrollView>
         </View>
         <View style={styles.firstHeader}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Octicons name="check" size={16} color={Gray_theme.gray_40} />
-            <Text
-              style={{
-                marginLeft: 8,
-                color: Gray_theme.gray_40,
-                fontSize: 12,
-                fontFamily: "Pretendard-Medium",
+          <View
+            style={{
+              flexDirection: "row",
+            }}
+          >
+            <TouchableOpacity
+              style={{ flexDirection: "row", alignItems: "center" }}
+              onPress={() => {
+                navigation.navigate("OwnDic");
               }}
             >
-              개인 사전
-            </Text>
+              <Octicons name="check" size={16} color={Gray_theme.gray_40} />
+              <Text
+                style={{
+                  marginLeft: 8,
+                  color: Gray_theme.gray_40,
+                  fontSize: 12,
+                  fontFamily: "Pretendard-Medium",
+                }}
+              >
+                개인 사전
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleToast}>
+              <Octicons
+                name="question"
+                size={12}
+                color={Gray_theme.gray_40}
+                style={{
+                  marginLeft: 6,
+                }}
+              />
+            </TouchableOpacity>
           </View>
           <TouchableOpacity
             onPress={toggleDropdown}
@@ -708,5 +738,21 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-Bold",
     fontSize: 8,
     color: Gray_theme.gray_40,
+  },
+  // 토스트 메세지 관련
+  toastStyle: {
+    opacity: 0.8,
+    position: "absolute",
+    left: 100,
+    top: 172,
+    backgroundColor: Gray_theme.gray_20,
+    borderWidth: 1,
+    borderColor: Gray_theme.gray_30,
+    borderRadius: 12,
+  },
+  toastFont: {
+    color: Gray_theme.gray_60,
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
   },
 });

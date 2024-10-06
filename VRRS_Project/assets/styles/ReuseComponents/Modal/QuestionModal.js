@@ -75,8 +75,8 @@ const styles = StyleSheet.create({
   },
 
   modalHeader: {
-    paddingVertical: 32,
-    paddingHorizontal: 24,
+    paddingVertical: 28,
+    paddingHorizontal: 28,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
@@ -92,7 +92,8 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     paddingRight: 24,
     paddingLeft: 80,
-    marginVertical: 24,
+    marginTop: 24,
+    marginBottom: 16,
   },
   style_cancle: {
     flex: 1,

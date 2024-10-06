@@ -106,7 +106,7 @@ export default function IngredientScreen({ route, navigation }) {
       {
         type: "custom",
         duration: 3000,
-        position: "top",
+        placement: "bottom",
         style: styles.toastStyle,
         textStyle: styles.toastFont,
         animationType: "slide-in",
@@ -326,6 +326,8 @@ const styles = StyleSheet.create({
     color: Gray_theme.balck,
   },
   toastStyle: {
+    position: "absolute",
+    bottom: 80,
     backgroundColor: Gray_theme.gray_20,
     borderWidth: 1,
     borderColor: Gray_theme.gray_30,
