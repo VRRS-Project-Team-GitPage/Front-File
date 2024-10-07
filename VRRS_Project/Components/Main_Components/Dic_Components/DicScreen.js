@@ -82,6 +82,7 @@ export default function DicScreen({ route, navigation }) {
   };
 
   const { tabClicked } = route.params || {};
+
   useEffect(() => {
     if (tabClicked) {
       // 탭이 클릭되었을 때 실행할 로직
@@ -91,7 +92,7 @@ export default function DicScreen({ route, navigation }) {
       moveToSelectedButton(vegTypeName);
       selectOption("등록순");
       sortProducts();
-      scrollViewReturn(0);
+      scrollToTop();
 
       navigation.setParams({ tabClicked: false });
     }
@@ -107,6 +108,7 @@ export default function DicScreen({ route, navigation }) {
       checkTypeBtn(type);
       moveToSelectedButton(type);
       sortProducts();
+      scrollToTop();
     }
     navigation.setParams({ autoSearch: false });
   }, [autoSearch]);
@@ -463,7 +465,12 @@ export default function DicScreen({ route, navigation }) {
 
           {isDropdownOpen && (
             <View style={styles.dropdownList}>
-              <TouchableOpacity onPress={() => selectOption("등록순")}>
+              <TouchableOpacity
+                onPress={() => {
+                  selectOption("등록순");
+                  scrollToTop();
+                }}
+              >
                 <View style={styles.dropdownItemContainer}>
                   <Text
                     style={[
