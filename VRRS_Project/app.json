@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "VRRS_Project",
+    "name": "채식 어디",
     "slug": "VRRS_Project",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/System_Image/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -27,7 +27,7 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/System_Image/favicon.png"
     },
     "permissions": ["CAMERA"],
     "plugins": ["expo-font"]

@@ -6,8 +6,8 @@ import {
   ActivityIndicator,
   ScrollView,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   FlatList,
+  Button,
 } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import React from "react";
@@ -24,12 +24,15 @@ import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHead
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 import IngredientModal from "./IngredientModal/IngredientModal";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // Data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
   getAllProducts,
+  getProTypeName,
   getVegTypeName,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
+import BarIcons from "../../../assets/Icons/BarIcons";
 
 export default function ReadingResultScreen({ navigation, route }) {
   // user의 정보를 불러옴
@@ -39,7 +42,7 @@ export default function ReadingResultScreen({ navigation, route }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
-  const { productUri, ingredientText, triggerSubmit } = route.params || {};
+  const { img_path, name_pro, ingredients, triggerSubmit } = route.params || {};
   const [isLoaded, setIsLoaded] = useState(false);
   const [checkImage, setCheckImage] = useState();
 
@@ -96,17 +99,21 @@ export default function ReadingResultScreen({ navigation, route }) {
   // 이미지가 로드되었을 때, 비율을 유지한 채로 리사이즈
   useEffect(() => {
     if (isLoaded) {
-      resizeImage(productUri).then((resizedUri) => {
+      resizeImage(img_path).then((resizedUri) => {
         setCheckImage(resizedUri);
       });
     }
   }, [isLoaded]);
 
-  // 판독 결과 가능 여부를 저장
+  // 판독 가능 여부를 저장
+  const [readingPossible, setReadingPossible] = useState(false);
+  // 섭취 가능 여부를 저장
+  // 서버와 연동 후 기본값: null
   const [resultPossible, setResultPossible] = useState(true);
+  // 판독 불가 리스트 여부를 저장
+  const [readCancleList, setReadCancleList] = useState(false);
   // 섭취 가능할 때 제품이 사전에 있는지 여부를 저장
   const [inDictionary, setInDictionary] = useState(true);
-
   // 제품 정보를 저장하는 state
   const [productData, setProductData] = useState([]);
   // 필터된 제품 리스트를 저장하는 변수
@@ -141,6 +148,7 @@ export default function ReadingResultScreen({ navigation, route }) {
     }
   };
 
+  // 원재료명 확인 모달창 제어
   const [visible, setVisible] = useState(false);
   const handleVisible = () => {
     setVisible(!visible);
@@ -155,7 +163,7 @@ export default function ReadingResultScreen({ navigation, route }) {
           navigation.navigate("Report");
           handleVisible();
         }}
-        ingredientText={ingredientText}
+        ingredientText={ingredients}
       />
       <NomalHeader
         onPress={() => {
@@ -186,75 +194,243 @@ export default function ReadingResultScreen({ navigation, route }) {
           </View>
           <View style={styles.resultPossibleContainer}>
             <Text style={styles.resultInfoText}>
-              {resultPossible
-                ? "이 제품은 먹을 수 있어요!"
-                : "이 제품은 먹을 수 없어요..."}
+              {readingPossible
+                ? resultPossible
+                  ? "이 제품은 먹을 수 있어요!"
+                  : "이 제품은 먹을 수 없어요..."
+                : "판독에 실패했어요..."}
             </Text>
             <Text
               style={{
                 ...styles.resultPossible,
-                color: resultPossible
-                  ? Main_theme.main_30
-                  : Main_theme.main_reverse,
+                color: readingPossible
+                  ? resultPossible
+                    ? Main_theme.main_30
+                    : Main_theme.main_reverse
+                  : Gray_theme.gray_80,
               }}
             >
-              {resultPossible ? "섭취 가능" : "섭취 불가능"}
+              {readingPossible
+                ? resultPossible
+                  ? "섭취 가능"
+                  : "섭취 불가능"
+                : "판독 불가능"}
             </Text>
           </View>
-          <View style={styles.infoTextContainer}>
-            <View>
-              <Text style={styles.userTypebg}>{vegTypeName}</Text>
-            </View>
-            <Text style={styles.infoText}>
-              {name}님의 유형으로 제품을 판독한 결과입니다.
-            </Text>
-            <Text style={styles.infoText}>
-              원재료명을 확인하고 더 자세한 결과를 알아보세요.
-            </Text>
+
+          <View
+            style={{
+              ...styles.infoTextContainer,
+              backgroundColor: readingPossible
+                ? readCancleList
+                  ? Gray_theme.gray_40
+                  : Main_theme.main_20
+                : Gray_theme.gray_40,
+            }}
+          >
+            {readingPossible ? (
+              <View>
+                {readCancleList ? ( // 판독 불가능 원재료명이 있는 경우
+                  <Text
+                    style={{
+                      ...styles.userTypebg,
+                      backgroundColor: Main_theme.main_Medium,
+                      color: Gray_theme.gray_80,
+                    }}
+                    onPress={() => {
+                      setReadCancleList(false);
+                    }}
+                  >
+                    확인 필요
+                  </Text>
+                ) : (
+                  <Text
+                    style={styles.userTypebg}
+                    onPress={() => {
+                      setReadCancleList(true);
+                    }}
+                  >
+                    인증 완료
+                  </Text>
+                )}
+              </View>
+            ) : (
+              <Text
+                style={{
+                  ...styles.userTypebg,
+                  backgroundColor: Main_theme.main_reverse,
+                  color: Gray_theme.white,
+                }}
+                onPress={() => {
+                  setReadingPossible(true);
+                }}
+              >
+                판독 실패
+              </Text>
+            )}
+            {readingPossible ? (
+              <View>
+                {readCancleList ? (
+                  <View>
+                    <Text style={styles.infoText}>
+                      판독에 사용되지 못한 단어들이 있습니다.
+                    </Text>
+                    <Text style={styles.infoText}>
+                      결과가 정확하지 않을 수 있으니 확인해주세요.
+                    </Text>
+                    <TouchableOpacity
+                      activeOpacity={0.6}
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        marginTop: 12,
+                      }}
+                    >
+                      <Octicons
+                        name="question"
+                        size={12}
+                        color={Main_theme.main_reverse}
+                        style={{
+                          marginRight: 6,
+                        }}
+                      />
+                      <Text
+                        style={{
+                          ...styles.infoText,
+                          color: Main_theme.main_reverse,
+                        }}
+                      >
+                        판독 불가 목록
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View>
+                    <Text style={styles.infoText}>
+                      {name}님의 유형으로 제품을 판독한 결과입니다.
+                    </Text>
+                    <Text style={styles.infoText}>
+                      원재료명을 확인하고 더 자세한 결과를 알아보세요.
+                    </Text>
+                  </View>
+                )}
+              </View>
+            ) : (
+              <View>
+                <Text style={styles.infoText}>
+                  원재료명을 읽는데 실패했어요.
+                </Text>
+                <Text style={styles.infoText}>
+                  원재료명을 수정하거나 사진을 변경해주세요.
+                </Text>
+              </View>
+            )}
           </View>
           <TouchableOpacity
             activeOpacity={0.8}
-            style={styles.checkIng}
+            style={styles.checkIngre}
             onPress={() => {
-              setVisible(true);
+              if (readingPossible) {
+                setVisible(true);
+              } else {
+                showToast("확인할 원재료명이 없습니다");
+              }
             }}
           >
-            <Octicons name="search" size={24} color={Gray_theme.gray_80} />
+            <Octicons name="search" size={20} color={Gray_theme.gray_60} />
             <Text
               style={{
                 fontFamily: "Pretendard-Medium",
+                color: Gray_theme.gray_70,
+                marginHorizontal: 12,
               }}
             >
               원재료명 확인하기
             </Text>
-            <Octicons
-              name="chevron-right"
-              size={24}
-              color={Gray_theme.gray_80}
-            />
           </TouchableOpacity>
         </View>
-
-        <View style={styles.otherContents}>
-          {inDictionary || !resultPossible ? (
-            <View style={styles.recListContainer}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Text style={{ ...styles.ocTitle, fontSize: 16 }}>
-                  이런 제품은 어떠세요?
-                </Text>
-                <MaterialIcons
-                  name="change-circle"
-                  size={24}
-                  color={Gray_theme.gray_60}
-                  onPress={() => {
-                    setInDictionary(false);
-                  }}
-                />
+        {readingPossible ? (
+          <View>
+            {resultPossible ? (
+              <View style={styles.otherContents}>
+                {inDictionary ? (
+                  <View style={styles.recListContainer}>
+                    <TouchableOpacity
+                      activeOpacity={0.8}
+                      style={styles.inDictionaryBtn}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                        }}
+                      >
+                        <Image
+                          source={BarIcons.dicIcon_C}
+                          style={{
+                            width: 24,
+                            height: 24,
+                            marginRight: 12,
+                            tintColor: Main_theme.main_30,
+                          }}
+                        ></Image>
+                        <Text
+                          style={{
+                            fontFamily: "Pretendard-SemiBold",
+                            color: Gray_theme.gray_90,
+                          }}
+                        >
+                          사전에 등록된 제품이에요!
+                        </Text>
+                      </View>
+                      <Octicons
+                        name="chevron-right"
+                        size={24}
+                        color={Gray_theme.gray_80}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <View>
+                    <TouchableScale
+                      style={styles.ocBtn}
+                      onPress={() => {
+                        navigation.navigate("Upload", {
+                          name: name_pro,
+                        });
+                      }}
+                    >
+                      <View style={{ flexDirection: "row" }}>
+                        <View>
+                          <Text style={styles.infoText}>
+                            앗! 사전에 없는 제품이에요
+                          </Text>
+                          <View style={{ flexDirection: "row" }}>
+                            <Text
+                              style={{
+                                ...styles.ocBtnTitle,
+                                color: Main_theme.main_30,
+                                marginRight: 6,
+                              }}
+                            >
+                              제품
+                            </Text>
+                            <Text style={styles.ocBtnTitle}>등록하기</Text>
+                          </View>
+                        </View>
+                        <Image
+                          source={MainIcons.dictionary}
+                          style={styles.ocIcon}
+                        ></Image>
+                      </View>
+                    </TouchableScale>
+                    <View style={{ height: 20 }}></View>
+                  </View>
+                )}
+              </View>
+            ) : null}
+            <View style={styles.otherContentsC}>
+              <View style={styles.otherContentsTitle}>
+                <Text style={{ ...styles.ocTitle }}>이런 제품은 어떠세요?</Text>
               </View>
               <View style={styles.mainDicContainer}>
                 <FlatList
@@ -270,7 +446,20 @@ export default function ReadingResultScreen({ navigation, route }) {
                     // 일치할 경우에만 해당 아이템을 렌더링
                     return (
                       <View style={styles.itemContainer}>
-                        <TouchableScale>
+                        <TouchableScale
+                          onPress={() => {
+                            const productID = item.id;
+                            navigation.navigate("DicTab", {
+                              screen: "DicList", // DicList로 먼저 이동
+                            });
+
+                            setTimeout(() => {
+                              navigation.navigate("ProductInfo", {
+                                id: productID,
+                              }); // DicList에서 ProductInfo로 이동
+                            }, 0); // DicList가 렌더링된 후 ProductInfo로 이동
+                          }}
+                        >
                           <Image
                             source={{ uri: item.img_path }}
                             style={styles.image}
@@ -279,7 +468,9 @@ export default function ReadingResultScreen({ navigation, route }) {
                           <View style={styles.textContainer}>
                             {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
                             <Text style={styles.name}>{item.name}</Text>
-                            <Text style={styles.category}>{item.category}</Text>
+                            <Text style={styles.category}>
+                              {getProTypeName(item.pro_type_id)}
+                            </Text>
                             <Text style={styles.vegType}>
                               {itemVegTypeName}
                               {/* 아이템의 채식 유형 이름 표시 */}
@@ -292,50 +483,42 @@ export default function ReadingResultScreen({ navigation, route }) {
                 />
               </View>
             </View>
-          ) : (
-            <View>
-              <TouchableScale
-                style={styles.ocBtn}
+
+            <View
+              style={{
+                flexDirection: "row",
+              }}
+            >
+              <Button
+                title="섭취 가능/사전 등록"
                 onPress={() => {
-                  navigation.navigate("Upload");
+                  setResultPossible(true);
+                  setInDictionary(true);
                 }}
-              >
-                <View style={{ flexDirection: "row" }}>
-                  <View>
-                    <Text style={styles.infoText}>
-                      앗! 사전에 없는 제품이에요
-                    </Text>
-                    <View style={{ flexDirection: "row" }}>
-                      <Text
-                        style={{
-                          ...styles.ocBtnTitle,
-                          color: Main_theme.main_30,
-                          marginRight: 6,
-                        }}
-                      >
-                        제품
-                      </Text>
-                      <Text style={styles.ocBtnTitle}>등록하기</Text>
-                    </View>
-                  </View>
-                  <Image
-                    source={MainIcons.dictionary}
-                    style={styles.ocIcon}
-                  ></Image>
-                </View>
-              </TouchableScale>
-              <View style={{ height: 60 }}>
-                <Text
-                  onPress={() => {
-                    setInDictionary(true);
-                  }}
-                >
-                  확인용
-                </Text>
-              </View>
+              ></Button>
+              <Button
+                title="섭취 가능/사전 미등록"
+                onPress={() => {
+                  setResultPossible(true);
+                  setInDictionary(false);
+                }}
+              ></Button>
+              <Button
+                title="섭취 불가능"
+                onPress={() => {
+                  setResultPossible(false);
+                  setInDictionary(false);
+                }}
+              ></Button>
             </View>
-          )}
-        </View>
+          </View>
+        ) : (
+          <View
+            style={{
+              marginBottom: 24,
+            }}
+          ></View>
+        )}
       </ScrollView>
 
       <View
@@ -361,14 +544,16 @@ export default function ReadingResultScreen({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
+  // 전체
   container: {
     flex: 1,
     backgroundColor: Main_theme.main_10,
   },
+  // 결과 화면
   resultContainer: {
     marginTop: 16,
     paddingVertical: 4,
-    borderRadius: 30,
+    borderRadius: 20,
     backgroundColor: Gray_theme.white,
   },
   imgContainer: {
@@ -400,11 +585,10 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     paddingHorizontal: 24,
     alignItems: "flex-start",
-    backgroundColor: Main_theme.main_20,
   },
   userTypebg: {
     backgroundColor: Main_theme.main_10,
-    borderRadius: 16,
+    borderRadius: 20,
     paddingHorizontal: 12,
     paddingVertical: 8,
     fontFamily: "Pretendard-Bold",
@@ -414,53 +598,54 @@ const styles = StyleSheet.create({
   infoText: {
     fontFamily: "Pretendard-Medium",
     fontSize: 12,
-    color: Gray_theme.gray_80,
+    color: Gray_theme.gray_90,
   },
-  checkIng: {
+  checkIngre: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
     alignItems: "center",
     paddingBottom: 12,
   },
+  // 사전 O
   recListContainer: {
-    marginTop: 32,
+    marginTop: 16,
   },
-  otherContents: {
-    marginTop: 32,
+  inDictionaryBtn: {
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 15,
+    backgroundColor: Gray_theme.white,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  // 유사 제품 추천
+  otherContents: {},
+  otherContentsC: {
+    backgroundColor: Gray_theme.white,
+    marginTop: 16,
+    borderRadius: 15,
+    paddingHorizontal: 12,
+    paddingVertical: 16,
+    marginBottom: 24,
+  },
+  otherContentsTitle: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 4,
+    marginBottom: 8,
   },
   ocTitle: {
-    fontFamily: "Pretendard-SemiBold",
-    marginRight: 8,
+    fontFamily: "Pretendard-Bold",
+    color: Gray_theme.balck,
+    marginVertical: 8,
   },
-  ocBtn: {
-    width: "100%",
-    marginTop: 8,
-    paddingVertical: 36,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    backgroundColor: Gray_theme.white,
-  },
-  ocBtnTitle: {
-    fontFamily: "Pretendard-SemiBold",
-    fontSize: 24,
-  },
-  ocIcon: {
-    width: 180,
-    height: 180,
-    position: "absolute",
-    right: 0,
-    top: -46,
-  },
-
+  // 유사 제품 추천 - 추천 사전 목록
   mainDicContainer: {
-    marginTop: 16,
-    marginBottom: 32,
+    marginTop: 4,
   },
   itemContainer: {
-    marginRight: 8,
-    backgroundColor: Gray_theme.white,
-    borderRadius: 15,
-    padding: 12,
+    marginRight: 10,
   },
 
   image: {
@@ -496,5 +681,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 20,
     alignSelf: "flex-start",
+  },
+  // 사전 미등록
+  ocBtn: {
+    width: "100%",
+    marginTop: 16,
+    paddingVertical: 36,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    backgroundColor: Gray_theme.white,
+  },
+  ocBtnTitle: {
+    fontFamily: "Pretendard-Bold",
+    fontSize: 24,
+  },
+  ocIcon: {
+    width: 180,
+    height: 180,
+    position: "absolute",
+    right: 0,
+    top: -46,
   },
 });

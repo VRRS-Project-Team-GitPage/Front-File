@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BottomSheetScreen from "./BottomSheetScreen";
 import UseCamera from "./UseCamera";
 import UseImagePicker from "./UseImagePicker";
+import ProNameScreen from "./ReadingNameScreen";
 import ReadingIngridientScreen from "./ReadIngridientScreen";
 import ReadingResultScreen from "./ReadingResultScreen";
 import DicUploadScreen from "./DicUploadScreen";
@@ -23,6 +24,10 @@ export default function Readingtack() {
       ></Stack.Screen>
       <Stack.Screen name="Camera" component={UseCamera}></Stack.Screen>
       <Stack.Screen name="Image" component={UseImagePicker}></Stack.Screen>
+      <Stack.Screen
+        name="ProNameScreen"
+        component={ProNameScreen}
+      ></Stack.Screen>
       <Stack.Screen
         name="IngridientScreen"
         component={ReadingIngridientScreen}
