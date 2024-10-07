@@ -1,33 +1,30 @@
 import React, { useCallback, useLayoutEffect, useRef } from "react";
-import { useState, useEffect, useContext } from "react";
-import { useWindowDimensions, StyleSheet, ScrollView } from "react-native";
+import { useState, useEffect } from "react";
+import { useWindowDimensions, StyleSheet } from "react-native";
 import {
   View,
   Text,
-  TextInput,
   FlatList,
   Image,
-  TouchableOpacity,
   TouchableWithoutFeedback,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // component 관련
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
-import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
+import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 // design 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
-import MainIcons from "../../../assets/Icons/MainIcons";
 // Data 관련 import
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 이용자 정보
 import {
   getAllProducts,
   getVegTypeName,
   getProTypeName,
   products,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts"; // 제품 정보
+import { getAllBookmarkedProducts } from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
 
 export default function DicScreenOwn({ route, navigation }) {
   const { user, id, name, vegTypeName } = useUser();
@@ -48,38 +45,51 @@ export default function DicScreenOwn({ route, navigation }) {
     }
   };
 
-  // 화면이 포커싱 될 경우 사용되는 hook
+  // 북마크 된 항목을 저장하는 변수
+  const [bookmarkedProducts, setBookmarkedProducts] = useState([]);
+
+  // useFocusEffect를 사용하여 화면이 포커스될 때마다 북마크된 제품을 새로 불러옴
   useFocusEffect(
-    React.useCallback(() => {
-      return () => {
-        scrollToTop();
+    useCallback(() => {
+      scrollToTop();
+      const fetchBookmarkedProducts = async () => {
+        const productIds = products.map((product) => product.id); // 모든 제품의 ID 리스트 추출
+        const bookmarkedProductIds = await getAllBookmarkedProducts(productIds); // 북마크된 제품 ID만 가져옴
+        const filteredProducts = products.filter((product) =>
+          bookmarkedProductIds.includes(product.id)
+        );
+        setBookmarkedProducts(filteredProducts);
       };
+
+      fetchBookmarkedProducts();
     }, [])
   );
 
-  const [bookmark, setBookmark] = useState(1);
-
   return (
     <SafeAreaView style={styles.container}>
-      <BackHeader
+      <NomalHeader
         onPress={() => {
-          navigation.goBack();
+          navigation.popToTop();
         }}
       >
         개인 사전
-      </BackHeader>
+      </NomalHeader>
       <View
         style={{
           flex: 1,
           backgroundColor:
-            bookmark === 0 ? Gray_theme.gray_20 : Gray_theme.white,
+            bookmarkedProducts.length === 0
+              ? Gray_theme.gray_20
+              : Gray_theme.white,
         }}
       >
         <View style={styles.bookMarkTotal}>
           <Text style={styles.bookMarkTitle}>총 북마크 수 </Text>
-          <Text style={styles.bookMarkTitle}>{bookmark} 개</Text>
+          <Text style={styles.bookMarkTitle}>
+            {bookmarkedProducts.length} 개
+          </Text>
         </View>
-        {bookmark === 0 ? (
+        {bookmarkedProducts.length === 0 ? (
           <View
             style={{
               justifyContent: "center",
@@ -87,31 +97,15 @@ export default function DicScreenOwn({ route, navigation }) {
               marginTop: 120,
             }}
           >
-            <Text
-              style={{
-                marginTop: 16,
-                color: Main_theme.main_50,
-                fontFamily: "Pretendard-Bold",
-              }}
-            >
-              북마크 한 제품이 없어요
-            </Text>
-            <Text
-              style={{
-                marginBottom: 24,
-                color: Main_theme.main_50,
-                fontFamily: "Pretendard-Bold",
-              }}
-            >
-              다른 검색어를 입력해주세요.
-            </Text>
+            <Text style={styles.notBokkMarkList}>북마크 한 제품이 없어요</Text>
+            <Text style={styles.notBokkMarkList}>항목을 추가해주세요</Text>
           </View>
         ) : (
           <FlatList
             ref={flatListRef}
             style={{ paddingHorizontal: 8 }}
             showsVerticalScrollIndicator={false}
-            data={products}
+            data={bookmarkedProducts}
             keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
             renderItem={({ item }) => {
               // 제품의 유형을 저장하는 변수
@@ -196,11 +190,16 @@ const styles = StyleSheet.create({
     height: 60,
     justifyContent: "flex-start",
     alignItems: "center",
+    marginBottom: 16,
   },
   bookMarkTitle: {
     fontFamily: "Pretendard-SemiBold",
     fontSize: 16,
     color: Gray_theme.balck,
+  },
+  notBokkMarkList: {
+    color: Gray_theme.gray_80,
+    fontFamily: "Pretendard-SemiBold",
   },
   itemContainer: {
     padding: 10,

@@ -1,13 +1,6 @@
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  FlatList,
-  Image,
-} from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
 import { StyleSheet } from "react-native";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -58,7 +51,9 @@ export default function DicProductReviewScreen({ route, navigation }) {
   // 사용자가 작성한 리뷰 저장
   const [mainUserReview, setMainUserReview] = useState("");
 
+  // 모달창 닫기
   const onRequestClose = () => {
+    // 서버에 리뷰가 업로드 되지 않은 경우
     if (!upLoadReview) {
       setReviewText("");
       setIsRec(false);
@@ -66,8 +61,6 @@ export default function DicProductReviewScreen({ route, navigation }) {
     }
     setReviewModalVisible(false);
   };
-
-  // [로컬에서 리뷰 관리하기]
 
   // 삭제 모달창 관리
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -94,7 +87,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
       // 삭제 완료 메시지 표시
       showToast("리뷰가 삭제되었습니다.");
     } catch (e) {
-      console.log("리뷰 삭제 중 오류 발생:", e);
+      showToast("리뷰 삭제 중 오류가 발생하였습니다 :", e);
     }
   };
 
