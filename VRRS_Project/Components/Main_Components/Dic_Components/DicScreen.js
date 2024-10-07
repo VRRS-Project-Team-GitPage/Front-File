@@ -86,6 +86,7 @@ export default function DicScreen({ route, navigation }) {
     if (tabClicked) {
       // 탭이 클릭되었을 때 실행할 로직
       setSearchText("");
+      setFilterText("");
       checkTypeBtn(vegTypeName);
       moveToSelectedButton(vegTypeName);
       selectOption("등록순");
@@ -100,9 +101,11 @@ export default function DicScreen({ route, navigation }) {
 
   useEffect(() => {
     if (autoSearch) {
+      setSearchText("");
+      setFilterText("");
+      selectOption(sortOption);
       checkTypeBtn(type);
       moveToSelectedButton(type);
-      selectOption(sortOption);
       sortProducts();
     }
     navigation.setParams({ autoSearch: false });

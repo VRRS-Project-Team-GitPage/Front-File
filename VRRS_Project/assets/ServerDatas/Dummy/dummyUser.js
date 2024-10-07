@@ -3,7 +3,7 @@ import { vegTypes } from "./dummyVegTypes";
 export const users = [
   {
     id: 1,
-    name: "김철수",
+    name: "김신한",
     veg_type_id: 1, // 비건
   },
   {
@@ -44,7 +44,7 @@ export const users = [
 
   {
     id: 9,
-    name: " 통통이",
+    name: "통통이",
     veg_type_id: 2,
   },
 

@@ -1,14 +1,9 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import {
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  BackHandler,
-} from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { View, Text, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import MainIcons from "../../../assets/Icons/MainIcons";
@@ -54,6 +49,8 @@ export default function DicProductScreen({ navigation, route }) {
       }
     }
   }, [id]);
+
+  // 제품 북마크
 
   // 추천수 퍼센테이지
   const thuumsUp =
