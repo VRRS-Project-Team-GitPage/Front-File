@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, ActivityIndicator } from "react-native";
 import { useState, useEffect } from "react";
 import { Gray_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
 import * as Font from "expo-font"; // custom font를 사용하기 위해 import
@@ -37,19 +37,18 @@ export default function App() {
   }, []);
 
   if (!fontsLoaded) {
-    return null; // 폰트가 로드되기 전에는 아무것도 렌더링하지 않음
+    return <ActivityIndicator />; // 폰트가 로드되기 전에는 아무것도 렌더링하지 않음
   }
 
+  // 로그인 Stack을 Main_BottomBar 위에 작성 후 조건에 따라(어플 시용자가 로그인 한 경우)
+  // 해당 Stack의 여부를 볼 수 있게 함
   return (
     // USerProvider를 최상위 Component로 하여 앱 전역적으로 user의 정보를 사용할 수 있도록 함
     <UserProvider>
       <SearchProvider>
         <ToastProvider>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <View style={styles.container}>
-              <StatusBar style="auto" />
-              <Main_BottomBar />
-            </View>
+            <Main_BottomBar />
           </GestureHandlerRootView>
         </ToastProvider>
       </SearchProvider>
