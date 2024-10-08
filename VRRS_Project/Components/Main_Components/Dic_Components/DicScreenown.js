@@ -24,7 +24,7 @@ import {
   getProTypeName,
   products,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts"; // 제품 정보
-import { getAllBookmarkedProducts } from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
+import { getAllBookmarkedProductsWithTimestamp } from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
 
 export default function DicScreenOwn({ route, navigation }) {
   const { user, id, name, vegTypeName } = useUser();
@@ -51,13 +51,21 @@ export default function DicScreenOwn({ route, navigation }) {
   // useFocusEffect를 사용하여 화면이 포커스될 때마다 북마크된 제품을 새로 불러옴
   useFocusEffect(
     useCallback(() => {
-      scrollToTop();
       const fetchBookmarkedProducts = async () => {
-        const productIds = products.map((product) => product.id); // 모든 제품의 ID 리스트 추출
-        const bookmarkedProductIds = await getAllBookmarkedProducts(productIds); // 북마크된 제품 ID만 가져옴
-        const filteredProducts = products.filter((product) =>
-          bookmarkedProductIds.includes(product.id)
+        const productIds = products.map((product) => product.id);
+        const bookmarkedProductData =
+          await getAllBookmarkedProductsWithTimestamp(productIds);
+
+        // 타임스탬프를 기준으로 북마크된 제품 정렬 (오래된 순서대로)
+        const sortedBookmarks = bookmarkedProductData.sort(
+          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
         );
+
+        // 정렬된 북마크 ID로 필터링된 제품 목록 가져오기
+        const filteredProducts = sortedBookmarks.map((bookmark) =>
+          products.find((product) => product.id === bookmark.id)
+        );
+
         setBookmarkedProducts(filteredProducts);
       };
 

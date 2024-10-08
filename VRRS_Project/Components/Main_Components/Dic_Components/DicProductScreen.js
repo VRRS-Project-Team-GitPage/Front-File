@@ -16,7 +16,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import {
-  saveBookmarkStatus,
+  saveBookmarkWithTimestamp,
   getBookmarkStatus,
 } from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
 // Date 관련
@@ -68,7 +68,8 @@ export default function DicProductScreen({ navigation, route }) {
     // 컴포넌트가 마운트될 때 북마크 상태 불러오기
     const fetchBookmarkStatus = async () => {
       const status = await getBookmarkStatus(product.id);
-      setIsBookmarked(status);
+      // 상태의 bookmarked 값을 가져와서 설정
+      setIsBookmarked(status.bookmarked);
     };
 
     fetchBookmarkStatus();
@@ -77,7 +78,7 @@ export default function DicProductScreen({ navigation, route }) {
   const toggleBookmark = async () => {
     const newStatus = !isBookmarked;
     setIsBookmarked(newStatus);
-    await saveBookmarkStatus(product.id, newStatus); // 북마크 상태 저장
+    await saveBookmarkWithTimestamp(product.id, newStatus); // newStatus를 저장해야 하므로 saveBookmarkWithTimestamp 함수 수정 필요
   };
 
   // 리뷰 관련
@@ -126,7 +127,6 @@ export default function DicProductScreen({ navigation, route }) {
               <TouchableScale
                 style={styles.imgHeart}
                 onPress={() => {
-                  setIsBookmarked(!isBookmarked);
                   toggleBookmark();
                 }}
               >
