@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   },
 
   modalHeader: {
-    paddingVertical: 28,
+    paddingVertical: 32,
     paddingHorizontal: 28,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -85,25 +85,23 @@ const styles = StyleSheet.create({
     textAlign: "left",
     fontSize: 16,
     fontFamily: "Pretendard-SemiBold",
-    color: Gray_theme.gray_90,
+    color: Gray_theme.balck,
   },
   modalBtn: {
     flexDirection: "row",
     justifyContent: "flex-end",
-    paddingRight: 24,
-    paddingLeft: 80,
-    marginTop: 24,
-    marginBottom: 16,
+    paddingHorizontal: 24,
+    marginVertical: 16,
   },
   style_cancle: {
     flex: 1,
     justifyContent: "flex-end",
-    backgroundColor: Gray_theme.white,
-    borderColor: Main_theme.main_30,
+    backgroundColor: Gray_theme.gray_30,
+    borderColor: Gray_theme.gray_30,
     marginRight: 4,
   },
   cancle_title: {
-    color: Main_theme.main_30,
+    color: Gray_theme.gray_70,
   },
   style_ok: {
     flex: 1,

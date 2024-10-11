@@ -52,13 +52,13 @@ export const UserProvider = ({ children }) => {
   // 1. 로그인 정보를 받아오는 컴포넌트에서 useUser를 import 한다.
   // 2. const { signUpUser } = useUser(); 를 통해 해당 함수를 불러온다.
   // 3. 유저 정보 object를 저장한다.
-  // 다음과 같은 과정을 진행하면 전역적으로 유저의 정보를 사용할 수 있게 됩니다!
+  // 다음과 같은 과정을 진행하면 전역적으로 유저의 정보를 사용할 수 있게 됩니다
   const signUpUser = async (userData) => {
     await saveUserToStorage(userData); // 새 유저 정보 저장
   };
 
   // AsyncStorage를 초기화 하는 함수입니다.
-  // 추후 탈퇴 기능을 구현하게 되면 사용해주세요!
+  // 추후 탈퇴 기능을 구현하게 되면 사용해주세요
   const clearStorage = async () => {
     try {
       await AsyncStorage.removeItem(USER_STORAGE_KEY);

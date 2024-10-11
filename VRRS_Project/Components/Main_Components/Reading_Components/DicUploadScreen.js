@@ -14,6 +14,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
+import DropDown from "../../../assets/styles/ReuseComponents/Button/DropDown";
 // Data 관련 import
 import { categories } from "../../../assets/ServerDatas/Dummy/dummyProductCate";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
@@ -193,33 +194,14 @@ export default function DicUploadScreen({ navigation, route }) {
               </View>
               <Text style={styles.cTitleM}>식품 유형에 따라 선택해주세요.</Text>
             </View>
-            <DropDownPicker
+            <DropDown
               open={open}
               value={value}
               items={items}
               setOpen={setOpen}
               setValue={setValue}
               setItems={setItems}
-              placeholder="제품 유형을 선택하세요"
-              style={{
-                paddingHorizontal: 16,
-                backgroundColor: !open ? Gray_theme.gray_20 : Gray_theme.white,
-                borderRadius: 10,
-                borderColor: open ? Gray_theme.gray_50 : Gray_theme.gray_80,
-              }}
-              dropDownContainerStyle={{
-                paddingHorizontal: 12,
-              }}
-              textStyle={{
-                fontSize: 12,
-                fontFamily: "Pretendard-Medium",
-                color: Gray_theme.balck,
-              }}
-              placeholderStyle={{
-                fontSize: 12,
-                fontFamily: "Pretendard-Medium",
-                color: Gray_theme.gray_60,
-              }}
+              placeholder={"제품 유형을 선택하세요"}
               onChangeValue={(selectedValue) => {
                 setProductCategory(selectedValue);
               }}
