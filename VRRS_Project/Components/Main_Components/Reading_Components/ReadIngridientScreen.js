@@ -63,6 +63,8 @@ export default function IngredientScreen({ route, navigation }) {
   useEffect(() => {
     if (isPhotoLoaded || isImgLoaded) {
       setCheckImage(img_path);
+
+      console.log(img_path);
     }
   }, [isPhotoLoaded, isImgLoaded]);
 
