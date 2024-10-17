@@ -218,7 +218,8 @@ export default function DicProductScreen({ navigation, route }) {
                             <View
                               style={{
                                 ...styles.scrollBarPer,
-                                width: thuumsUp.toString() + "%",
+                                width:
+                                  thuumsUp >= 0 ? thuumsUp.toString() + "%" : 0,
                                 backgroundColor:
                                   thuumsUp >= 75
                                     ? Main_theme.main_30
@@ -226,7 +227,7 @@ export default function DicProductScreen({ navigation, route }) {
                                     ? "#FFD060"
                                     : thuumsUp >= 0
                                     ? Main_theme.main_reverse
-                                    : Gray_theme.gray_40,
+                                    : null,
                               }}
                             >
                               <View style={styles.barCir}></View>
