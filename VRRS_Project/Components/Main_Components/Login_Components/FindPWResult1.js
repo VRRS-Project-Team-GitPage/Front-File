@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Alert,} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -14,16 +13,19 @@ export default function FindPWResult1({ navigation }) {
     useTabBarVisibility(false);
 
     const [timer, setTimer] = useState(180); // 3분 (180초)
-    const [verificationCode, setVerificationCode] = useState('');
-
-    // 타이머 효과
+    const [isTimerExpired, setIsTimerExpired] = useState(false); // 타이머 만료 여부
+    const [authCode, setAuthCode] = useState(''); // 인증번호 상태
+  
+    // 타이머 
     useEffect(() => {
-        if (timer > 0) {
-            const interval = setInterval(() => {
-                setTimer(prev => prev - 1);
-            }, 1000);
-            return () => clearInterval(interval);
-        }
+      if (timer > 0) {
+        const interval = setInterval(() => {
+          setTimer((prevTimer) => prevTimer - 1);
+        }, 1000);
+        return () => clearInterval(interval);
+      } else {
+        setIsTimerExpired(true); // 타이머가 0이 되면 만료 처리
+      }
     }, [timer]);
 
     // 초를 분:초로 변환
@@ -38,10 +40,13 @@ export default function FindPWResult1({ navigation }) {
         alert(`재전송 완료`);
     };
 
-    // 확인 버튼
     const handleLogin = () => {
-        alert(`인증번호 입력 완료`);
+      if (!isTimerExpired&&authCode==='123') {
+        alert('인증번호 입력 완료');
         navigation.navigate('FindPWr2');
+      } else {
+        Alert.alert('인증 오류', '만료되거나 잘못된 인증번호입니다.');
+      }
     };
 
     return (
@@ -61,8 +66,8 @@ export default function FindPWResult1({ navigation }) {
                     style={styles.input}
                     placeholder="인증번호 입력"
                     keyboardType="numeric"
-                    value={verificationCode}
-                    onChangeText={setVerificationCode}
+                    value={authCode}
+                    onChangeText={setAuthCode}
                 />
                 <View style={styles.resendButton}>
                     <BtnD onPress={handleResend}>재전송</BtnD>
@@ -103,7 +108,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     inputSection: {
-        position: 'relative', // relative로 설정
+        position: 'relative',
         marginBottom: 8,
         paddingHorizontal: 16,
     },
@@ -117,9 +122,9 @@ const styles = StyleSheet.create({
         fontSize: 14,
     },
     resendButton: {
-        position: 'absolute', // absolute로 설정
-        right: 8,  // 오른쪽 끝에 배치
-        top: 12,   // input 중앙에 맞추기 위해 top 조정
+        position: 'absolute',
+        right: 8, 
+        top: 8,
         paddingHorizontal: 16,
     },
     timerText: {

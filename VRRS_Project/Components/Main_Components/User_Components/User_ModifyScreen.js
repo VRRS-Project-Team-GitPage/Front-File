@@ -10,16 +10,21 @@ import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
 import Octicons from '@expo/vector-icons/Octicons'
+// Server data를 사용하기 위해 저장한 component들을 import(현재는 더미 데이터를 사용)
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 
 export default function User_ModifyScreen({ navigation }) {
     useTabBarVisibility(false);
 
-    const [nickname, setNickname] = useState('김철수');
-    const [selectedVegType, setSelectedVegType] = useState('오보 베지테리언');
+    const { user, name, vegTypeName } = useUser();
+    
+    const [selectedVegType, setSelectedVegType] = useState(vegTypeName);
+    const [nickname, setNickname] = useState(name);
 
     const handleModify = () => {
-        alert('수정 완료');
+        alert(`닉네임 : ${nickname} 채식 유형 : ${selectedVegType}`);
     };
+    
 
     return (
         <SafeAreaView style={styles.container}>
@@ -47,6 +52,8 @@ export default function User_ModifyScreen({ navigation }) {
                     style={styles.input}
                     value={nickname}
                     onChangeText={setNickname}
+                    placeholder="닉네임을 정해주세요"
+                    placeholderTextColor={Gray_theme.gray_40}
                 />
             </View>
 
@@ -67,7 +74,6 @@ export default function User_ModifyScreen({ navigation }) {
                     </Picker>
                 </View>
             </View>
-
             <View style={styles.buttonContainer}>
                 <View style={styles.button}>
                     <Btn onPress={handleModify}>확인</Btn>
@@ -126,17 +132,18 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Gray_theme.gray_60,
         borderRadius: 8,
-        fontSize: 12,
+        fontSize: 16,
     },
     pickerContainer: {
+        height: 48,
+        width: '100%',
         borderWidth: 1,
         borderColor: Gray_theme.gray_60,
         borderRadius: 8,
         overflow: 'hidden',
     },
     picker: {
-        height: 48,
-        width: '100%',
+        fontSize:12,
     },
     button: {
         width: '30%',

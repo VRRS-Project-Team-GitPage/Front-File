@@ -15,6 +15,8 @@ export default function User_Feedback({ navigation }) {
   const handleSubmit = () => {
     // 제출 버튼 클릭 시 실행할 로직
     console.log('제출된 피드백:', feedback);
+    alert("제출되었습니다.\n소중한 의견 감사합니다." );
+    setFeedback('');
   };
 
   return (

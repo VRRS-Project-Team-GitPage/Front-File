@@ -1,62 +1,70 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Octicons from '@expo/vector-icons/Octicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
-import BtnD from "../../../assets/styles/ReuseComponents/Button/BtnD";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
 export default function Join1({ navigation }) {
     useTabBarVisibility(false);
 
-    const [email, setEmail] = useState('');
-    const [userId, setUserId] = useState('');
-    const [password, setPassword] = useState('');
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [isEmailValid, setIsEmailValid] = useState(false);
-    const [isIdValid, setIsIdValid] = useState(false);
-    const [isIdChecked, setIsIdChecked] = useState(false);
-    const [isEmailTouched, setIsEmailTouched] = useState(false);
-    const [isIdTouched, setIsIdTouched] = useState(false);
-    const [isPasswordValid, setIsPasswordValid] = useState(false);
-    const [isPasswordTouched, setIsPasswordTouched] = useState(false);
-
-    const validateEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        setIsEmailValid(emailRegex.test(email));
-    };
-
-    const validateId = (userId) => {
-        const idRegex = /^[a-zA-Z0-9]{6,12}$/;
-        setIsIdValid(idRegex.test(userId));
-    };
-
-    const validatePassword = (password) => {
-        const passwordRegex = /^[\w!@#\$%\^&\*\(\)]{4,20}$/;
-        setIsPasswordValid(passwordRegex.test(password));
-    };
-
-    const togglePasswordVisibility = () => {
-        setIsPasswordVisible(!isPasswordVisible);
-    };
+    const [allAgree, setAllAgree] = useState(false);
+    const [termsAgree, setTermsAgree] = useState(false);
+    const [privacyAgree, setPrivacyAgree] = useState(false);
 
     const handleConfirm = () => {
-        if (isEmailValid && isIdValid && isPasswordValid && isIdChecked) {
+        // 모든 체크박스가 체크되었는지 확인
+        if (termsAgree && privacyAgree) {
             navigation.navigate('Join2');
         } else {
-            alert('입력한 정보를 확인해주세요.');
+            Alert.alert('필수 항목에 모두 동의해 주세요.'); // 경고 메시지
         }
     };
 
-    const handleOverlap = () => {
-        setIsIdChecked(true);
-        alert('중복확인 완료');
+    const handleAllAgree = () => {
+        const newState = !allAgree;
+        setAllAgree(newState);
+        setTermsAgree(newState);
+        setPrivacyAgree(newState);
     };
+
+    const toggleTermsAgree = () => {
+        setTermsAgree((prev) => {
+            const newState = !prev;
+            if (newState && privacyAgree) {
+                setAllAgree(true);
+            } else {
+                setAllAgree(false);
+            }
+            return newState;
+        });
+    };
+
+    const togglePrivacyAgree = () => {
+        setPrivacyAgree((prev) => {
+            const newState = !prev;
+            if (newState && termsAgree) {
+                setAllAgree(true);
+            } else {
+                setAllAgree(false);
+            }
+            return newState;
+        });
+    };
+
+    useEffect(() => {
+        if (termsAgree && privacyAgree) {
+            setAllAgree(true);
+        } else {
+            setAllAgree(false);
+        }
+    }, [termsAgree, privacyAgree]);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -66,10 +74,10 @@ export default function Join1({ navigation }) {
                 }}
             >회원가입하기
             </BackHeader>
-
+            {/* 단계 섹션 */}
             <View style={styles.stepContainer}>
-                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={styles.stepHeader}> 계정생성</Text>
+                <View style={{ alignItems: 'center', justifyContent: 'center', }}>
+                    <Text style={styles.stepHeader}>약관동의</Text>
                 </View>
                 <View style={styles.stepIndicator1}>
                     <MaterialCommunityIcons name="numeric-1-circle" size={24} color="#468585" />
@@ -79,93 +87,74 @@ export default function Join1({ navigation }) {
                     <Octicons name="dot" size={24} color="#E0E0E0" />
                 </View>
                 <View style={styles.stepIndicator2}>
-                    <Text style={styles.stepText1}> 계정생성</Text>
+                    <Text style={styles.stepText1}>  약관동의</Text>
+                    <Octicons name="kebab-horizontal" size={24} color="white" />
+                    <Text style={styles.stepText2}>계정생성</Text>
                     <Octicons name="kebab-horizontal" size={24} color="white" />
                     <Text style={styles.stepText2}>정보입력</Text>
-                    <Octicons name="kebab-horizontal" size={24} color="white" />
-                    <Text style={styles.stepText2}>약관동의</Text>
                 </View>
             </View>
 
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>이메일 *</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="이메일을 입력하세요"
-                    value={email}
-                    onChangeText={(text) => {
-                        setEmail(text);
-                        validateEmail(text);
-                        setIsEmailTouched(true);
-                    }}
-                    keyboardType="email-address"
-                    placeholderTextColor={Gray_theme.gray_40}
-                />
-                {isEmailTouched && (!isEmailValid || email === '') ? (
-                    <Text style={styles.warningText}>유효한 이메일을 입력해주세요.</Text>
-                ) : isEmailTouched && isEmailValid ? (
-                    <Text style={styles.helperText}>사용할 수 있는 이메일입니다.</Text>
-                ) : null}
-            </View>
-
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>아이디 *</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="아이디를 입력하세요"
-                    value={userId}
-                    onChangeText={(text) => {
-                        setUserId(text);
-                        setIsIdTouched(true);
-                        setIsIdChecked(false);
-                        validateId(text);
-                    }}
-                    placeholderTextColor={Gray_theme.gray_40}
-                />
-                <View style={styles.overlapButton}>
-                    <BtnD onPress={handleOverlap}>중복확인</BtnD>
-                </View>
-                <View style={{ height: 24 }}>
-                    {isIdTouched && isIdChecked ? (
-                        <Text style={styles.helperText}>사용할 수 있는 아이디입니다.</Text>
-                    ) : isIdTouched && !isIdValid ? (
-                        <Text style={styles.warningText}>아이디는 6-12자의 영문, 숫자만 사용이 가능합니다.</Text>
-                    ) : null}
-                </View>
-            </View>
-
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>비밀번호 *</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="비밀번호를 입력하세요"
-                    value={password}
-                    onChangeText={(text) => {
-                        setPassword(text);
-                        validatePassword(text);
-                        setIsPasswordTouched(true);
-                    }}
-                    secureTextEntry={!isPasswordVisible}
-                    placeholderTextColor={Gray_theme.gray_40}
-                />
-
-                <TouchableOpacity style={styles.icon} onPress={togglePasswordVisibility}>
-                    {isPasswordVisible ? (
-                        <Octicons name="eye" size={18} color="gray" />
-                    ) : (
-                        <Octicons name="eye-closed" size={18} color="gray" />
-                    )}
+            {/* 전체 동의 체크박스 */}
+            <View style={styles.checkBoxAContainer}>
+                <TouchableOpacity onPress={handleAllAgree}>
+                    <View>
+                        <MaterialIcons name={allAgree ? "check-box" : "check-box-outline-blank"} size={24} color="#BDBDBD" />
+                    </View>
                 </TouchableOpacity>
+                <Text style={{ fontFamily: 'Pretendard-Medium', fontSize: 16, marginLeft: 8 }}>회원가입 약관에 모두 동의합니다.</Text>
+            </View>
 
-                <View style={{ height: 24 }}>
-                    {isPasswordTouched && isPasswordValid ? (
-                        <Text style={styles.helperText}>사용할 수 있는 비밀번호입니다.</Text>
-                    ) : isPasswordTouched && !isPasswordValid ? (
-                        <Text style={styles.warningText}>비밀번호는 4-20자리의 문자, 숫자, 기호 사용이 가능합니다.</Text>
-                    ) : null}
+            {/* 이용약관 동의 */}
+            <View style={styles.checkBoxContainer}>
+                <View style={styles.checkBoxLabel}>
+                    <TouchableOpacity onPress={toggleTermsAgree}>
+                        <View>
+                            <MaterialIcons name={termsAgree ? "check-box" : "check-box-outline-blank"} size={24} color="#BDBDBD" />
+                        </View>
+                    </TouchableOpacity>
+                    <Text style={styles.checkBoxText}>이용약관 동의 
+                        <Text style={{ color: 'red', fontSize: 12 }}>  (필수)</Text>
+                    </Text>
+                </View>
+                <View style={styles.agreementBox}>
+                    <ScrollView style={styles.agreementScroll}>
+                        <Text style={styles.agreementText}>
+                            제1조(목적) 이 약관은 회사(전자상거래 사업자가 운영하는 인터넷 사이버
+                            몰이용자 간의 권리와 의무에 관한 내용을 규정합니다. ...
+                        </Text>
+                    </ScrollView>
                 </View>
             </View>
 
+            {/* 개인정보 수집 동의 */}
+            <View style={styles.checkBoxContainer}>
+                <View style={styles.checkBoxLabel}>
+                    <TouchableOpacity onPress={togglePrivacyAgree}>
+                        <View>
+                            <MaterialIcons name={privacyAgree ? "check-box" : "check-box-outline-blank"} size={24} color="#BDBDBD" />
+                        </View>
+                    </TouchableOpacity>
+                    <Text style={styles.checkBoxText}>개인 정보 수집 및 이용 동의
+                        <Text style={{ color: 'red', fontSize: 12 }}>  (필수)</Text>
+                    </Text>
+                </View>
+                <View style={styles.agreementBox}>
+                    <ScrollView style={styles.agreementScroll}>
+                        <Text style={styles.agreementText}>
+                            [제1] 개인정보 처리방침{"\n"}{"\n"}
+                            1. 목적{"\n"}
+                            2. 개인정보의 수집에 대한 동의{"\n"}
+                            3. 개인정보의 수집 및 이용 목적{"\n"}
+                            4. 흐아아{'\n'}
+                            5. 흑흑{'\n'}
+                            ...
+                        </Text>
+                    </ScrollView>
+                </View>
+            </View>
+
+            {/* 다음 버튼 */}
             <View style={styles.button}>
                 <BtnC onPress={handleConfirm}>다음</BtnC>
             </View>
@@ -181,6 +170,19 @@ const styles = StyleSheet.create({
     stepContainer: {
         paddingTop: 24,
         paddingBottom: 24,
+    },
+    checkBoxAContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingBottom: 16,
+        marginBottom: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: Gray_theme.gray_30,
+    },
+    checkBoxContainer: {
+        paddingHorizontal: 16,
+        marginBottom: 16,
     },
     stepHeader: {
         fontSize: 24,
@@ -208,50 +210,35 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: Gray_theme.gray_30,
     },
-    inputContainer: {
-        position: 'relative',
-        marginBottom: 16,
-        paddingHorizontal: 16,
+    checkBoxLabel: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 8,
     },
-    label: {
+    checkBoxText: {
+        fontFamily: 'Pretendard-Regular',
         fontSize: 16,
-        fontFamily: 'Pretendard-Medium',
         marginLeft: 8,
     },
-    input: {
-        height: 42,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderBottomWidth: 1,
-        borderBottomColor: Gray_theme.gray_40,
-        fontFamily: "Pretendard-Regular",
+    agreementBox: {
+        borderWidth: 1,
+        borderColor: Gray_theme.gray_30,
+        borderRadius: 3,
+        height: 120,
+    },
+    agreementScroll: {
+        padding: 16,
+    },
+    agreementText: {
+        fontFamily: 'Pretendard-Regular',
         fontSize: 14,
-    },
-    helperText: {
-        fontSize: 12,
-        fontFamily: 'Pretendard-Regular',
-        color: Main_theme.main_50,
-        marginTop: 4,
-    },
-    warningText: {
-        fontSize: 12,
-        fontFamily: 'Pretendard-Regular',
-        color: Main_theme.main_reverse,
-        marginTop: 4,
-    },
-    overlapButton: {
-        position: 'absolute',
-        right: 8,
-        bottom: 32,
-        paddingHorizontal: 16,
-    },
-    icon: {
-        position: 'absolute',
-        right: 32,
-        bottom: 32,
+        color: Gray_theme.balck,
     },
     button: {
+        position: "absolute",
+        bottom: 24,
+        right: 0,
+        left: 0,
         paddingHorizontal: 16,
-        paddingVertical: 24,
     },
 });

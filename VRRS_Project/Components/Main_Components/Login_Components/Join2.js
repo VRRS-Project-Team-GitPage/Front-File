@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Picker } from '@react-native-picker/picker';
 
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -9,22 +8,58 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
+import BtnD from "../../../assets/styles/ReuseComponents/Button/BtnD";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
 export default function Join2({ navigation }) {
     useTabBarVisibility(false);
 
-    const [nickname, setNickname] = useState('');
-    const [vegType, setVegType] = useState('none'); // 초기값을 'none'으로 설정
-    const [isNicknameTouched, setIsNicknameTouched] = useState(false); // 닉네임 입력 필드가 터치된 여부
+    const [email, setEmail] = useState('');
+    const [userId, setUserId] = useState('');
+    const [password, setPassword] = useState('');
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [isEmailValid, setIsEmailValid] = useState(false);
+    const [isIdValid, setIsIdValid] = useState(false);
+    const [isIdChecked, setIsIdChecked] = useState(false);
+    const [isEmailChecked, setIsEmailChecked] = useState(false);
+    const [isEmailTouched, setIsEmailTouched] = useState(false);
+    const [isIdTouched, setIsIdTouched] = useState(false);
+    const [isPasswordValid, setIsPasswordValid] = useState(false);
+    const [isPasswordTouched, setIsPasswordTouched] = useState(false);
+
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        setIsEmailValid(emailRegex.test(email));
+    };
+
+    const validateId = (userId) => {
+        const idRegex = /^[a-zA-Z0-9]{6,12}$/;
+        setIsIdValid(idRegex.test(userId));
+    };
+
+    const validatePassword = (password) => {
+        const passwordRegex = /^[\w!@#\$%\^&\*\(\)]{8,20}$/;
+        setIsPasswordValid(passwordRegex.test(password));
+    };
+
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
+    };
 
     const handleConfirm = () => {
-        // 조건에 따라 확인 메시지 또는 다음 화면으로 이동
-        if (!nickname.trim() || vegType === 'none') {
-            alert('입력한 정보를 확인해주세요.');
-        } else {
+        if (isEmailValid && isIdValid && isPasswordValid && isIdChecked && isEmailChecked) {
             navigation.navigate('Join3');
+        } else {
+            alert('입력한 정보를 확인해주세요.');
         }
+    };
+    const handleCode = () => {
+        setIsEmailChecked(true);
+        alert('인증번호 전송 완료');
+    };
+    const handleOverlap = () => {
+        setIsIdChecked(true);
+        alert('중복확인 완료');
     };
 
     return (
@@ -35,10 +70,10 @@ export default function Join2({ navigation }) {
                 }}
             >회원가입하기
             </BackHeader>
-            {/* 단계 섹션 */}
+
             <View style={styles.stepContainer}>
-                <View style={{ alignItems: 'center', justifyContent: 'center', }}>
-                    <Text style={styles.stepHeader}> 계정생성</Text>
+                <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+                    <Text style={styles.stepHeader}>계정생성</Text>
                 </View>
                 <View style={styles.stepIndicator1}>
                     <Octicons name="dot-fill" size={24} color="#E0E0E0" />
@@ -48,57 +83,98 @@ export default function Join2({ navigation }) {
                     <Octicons name="dot" size={24} color="#E0E0E0" />
                 </View>
                 <View style={styles.stepIndicator2}>
-                    <Text style={styles.stepText2}>계정생성</Text>
-                    <Octicons name="kebab-horizontal" size={24} color="white" />
-                    <Text style={styles.stepText1}>정보입력</Text>
-                    <Octicons name="kebab-horizontal" size={24} color="white" />
                     <Text style={styles.stepText2}>약관동의</Text>
+                    <Octicons name="kebab-horizontal" size={24} color="white" />
+                    <Text style={styles.stepText1}>계정생성</Text>
+                    <Octicons name="kebab-horizontal" size={24} color="white" />
+                    <Text style={styles.stepText2}>정보입력</Text>
                 </View>
             </View>
-            {/* 닉네임 입력란 */}
+
             <View style={styles.inputContainer}>
-                <Text style={styles.label}>닉네임 *</Text>
+                <Text style={styles.label}>이메일 *</Text>
                 <TextInput
                     style={styles.input}
-                    placeholder="닉네임을 입력하세요"
-                    value={nickname}
+                    placeholder="이메일을 입력하세요"
+                    value={email}
                     onChangeText={(text) => {
-                        setNickname(text);
-                        setIsNicknameTouched(true); // 닉네임 입력 필드가 터치됨
+                        setEmail(text);
+                        validateEmail(text);
+                        setIsEmailTouched(true);
                     }}
+                    keyboardType="email-address"
+                    placeholderTextColor={Gray_theme.gray_40}
                 />
-                {isNicknameTouched && nickname.trim() === '' && (
-                    <Text style={styles.warningText}>반드시 입력해야 하는 정보입니다.</Text>
-                )}
-                {nickname.trim() && (
-                    <Text style={styles.helperText}>사용할 수 있는 닉네임입니다.</Text>
-                )}
-            </View>
-
-            {/* 채식 유형 선택 */}
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>채식 유형 *</Text>
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={vegType}
-                        onValueChange={(itemValue) => setVegType(itemValue)}
-                        style={styles.picker}
-                    >
-                        <Picker.Item label="채식 유형을 선택해주세요." value="none" />
-                        <Picker.Item label="비건" value="vegan" />
-                        <Picker.Item label="락토 베지테리언" value="lacto" />
-                        <Picker.Item label="오보 베지테리언" value="ovo" />
-                        <Picker.Item label="락토 오보 베지테리언" value="lacto_ovo" />
-                        <Picker.Item label="페스코 베지테리언" value="pescatarian" />
-                        <Picker.Item label="폴로 베지테리언" value="pollotarian" />
-                    </Picker>
+                <View style={styles.overlapButton}>
+                    <BtnD onPress={handleCode}>인증번호 전송</BtnD>
                 </View>
-                {vegType === 'none' && (
-                    <Text style={styles.warningText}>반드시 입력해야 하는 정보입니다.</Text>
-                )}
+                <View style={{ height: 24 }}>
+                    {isEmailTouched && isEmailChecked && (!isEmailValid || email === '') ? (
+                        <Text style={styles.warningText}>유효한 이메일을 입력해주세요.</Text>
+                    ) : isEmailTouched && isEmailChecked && isEmailValid ? (
+                        <Text style={styles.helperText}> </Text>
+                    ) : null}
+                </View>
             </View>
 
-            {/* 다음 버튼 */}
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>아이디 *</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="아이디를 입력하세요"
+                    value={userId}
+                    onChangeText={(text) => {
+                        setUserId(text);
+                        setIsIdTouched(true);
+                        setIsIdChecked(false);
+                        validateId(text);
+                    }}
+                    placeholderTextColor={Gray_theme.gray_40}
+                />
+                <View style={styles.overlapButton}>
+                    <BtnD onPress={handleOverlap}>중복확인</BtnD>
+                </View>
+                <View style={{ height: 24 }}>
+                    {isIdTouched && isIdChecked ? (
+                        <Text style={styles.helperText}>사용할 수 있는 아이디입니다.</Text>
+                    ) : isIdTouched && !isIdValid ? (
+                        <Text style={styles.warningText}>아이디는 6-12자의 영문, 숫자만 사용이 가능합니다.</Text>
+                    ) : null}
+                </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+                <Text style={styles.label}>비밀번호 *</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="비밀번호를 입력하세요"
+                    value={password}
+                    onChangeText={(text) => {
+                        setPassword(text);
+                        validatePassword(text);
+                        setIsPasswordTouched(true);
+                    }}
+                    secureTextEntry={!isPasswordVisible}
+                    placeholderTextColor={Gray_theme.gray_40}
+                />
+
+                <TouchableOpacity style={styles.icon} onPress={togglePasswordVisibility}>
+                    {isPasswordVisible ? (
+                        <Octicons name="eye" size={18} color="gray" />
+                    ) : (
+                        <Octicons name="eye-closed" size={18} color="gray" />
+                    )}
+                </TouchableOpacity>
+
+                <View style={{ height: 24 }}>
+                    {isPasswordTouched && isPasswordValid ? (
+                        <Text style={styles.helperText}>사용할 수 있는 비밀번호입니다.</Text>
+                    ) : isPasswordTouched && !isPasswordValid ? (
+                        <Text style={styles.warningText}>비밀번호는 8-20자리의 문자, 숫자, 기호 사용이 가능합니다.</Text>
+                    ) : null}
+                </View>
+            </View>
+
             <View style={styles.button}>
                 <BtnC onPress={handleConfirm}>다음</BtnC>
             </View>
@@ -172,21 +248,19 @@ const styles = StyleSheet.create({
         color: Main_theme.main_reverse,
         marginTop: 4,
     },
-    pickerContainer: {
-        borderWidth: 1,
-        borderColor: Gray_theme.gray_40,
-        borderRadius: 8,
-        marginTop: 8,
+    overlapButton: {
+        position: 'absolute',
+        right: 8,
+        bottom: 32,
+        paddingHorizontal: 16,
     },
-    picker: {
-        height: 48,
-        width: '100%',
+    icon: {
+        position: 'absolute',
+        right: 32,
+        bottom: 32,
     },
     button: {
-        position: "absolute",
-        bottom: 24,
-        right: 0,
-        left: 0,
         paddingHorizontal: 16,
+        paddingVertical: 24,
     },
 });

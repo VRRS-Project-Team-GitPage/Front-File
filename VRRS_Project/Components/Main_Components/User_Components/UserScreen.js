@@ -10,14 +10,10 @@ import Octicons from '@expo/vector-icons/Octicons';
 
 // Server data를 사용하기 위해 저장한 component들을 import(현재는 더미 데이터를 사용)
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import {
-  getAllProducts,
-  getVegTypeName,
-} from "../../../assets/ServerDatas/Dummy/dummyProducts";
 
 export default function UserScreen({ navigation }) {
   // 사용자 정보
-  const { user, username, vegTypeName } = useUser();
+  const { user, name, vegTypeName } = useUser();
   return (
     <SafeAreaView style={styles.container}>
       <BackHeader
@@ -29,7 +25,7 @@ export default function UserScreen({ navigation }) {
       {/* 상단 섹션 - 사용자 이름 및 채식 유형 */}
       <View style={styles.headerContainer}>
         <Text style={styles.greetingText}>
-          <Text style={styles.username}>{username}</Text> 님, 안녕하세요!
+          <Text style={styles.username}>{name || "이름이 없습니다."}</Text> 님, 안녕하세요!
         </Text>
         <TouchableOpacity style={styles.vegTypeBox}
           onPress={() => {
@@ -124,6 +120,7 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-Medium",
     color: Gray_theme.balck,
     marginBottom: 24,
+    paddingLeft:8,
   },
   username: {
     fontSize: 20,

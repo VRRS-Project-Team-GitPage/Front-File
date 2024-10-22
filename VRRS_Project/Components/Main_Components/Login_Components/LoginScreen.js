@@ -10,20 +10,53 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 
 import Octicons from '@expo/vector-icons/Octicons';
 
-export default function LoginScreen() {
-   useTabBarVisibility(false);
+export default function LoginScreen({ navigation }) {
+    useTabBarVisibility(false);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
-    const navigation = useNavigation();
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
+    };
+
+    // const [input, setInput] = useState('');
+    // const handleInput = (text) => {
+    //     setInput(text);
+
+    //     const emailRegex = /\S+@\S+\.\S+/;
+    //     if (emailRegex.test(text)) {
+    //         setEmail(text);  // 이메일로 설정
+    //         setUserId('');   // 아이디는 비움
+    //     } else {
+    //         setUserId(text); // 아이디로 설정
+    //         setEmail('');    // 이메일은 비움
+    //     }
+    // };
+
+    // return (
+    //     <View style={styles.input}>
+    //         <View style={styles.icon}>
+    //             <Octicons name="mail" size={18} color="gray" />
+    //         </View>
+    //         <TextInput
+    //             value={input}
+    //             onChangeText={handleInput}
+    //             placeholder="아이디 또는 이메일"
+    //             style={styles.inputText}
+    //         />
+    //     </View>
+    // );
+
 
     // 로그인 처리
     const handleSubmit = () => {
         if (email === 'shinhan' && password === '0000') {
             navigation.navigate("HomeTab", {
-                screen: "Home"})
+                screen: "Home"
+            })
         } else {
             setMessage('이메일이나 비밀번호가 틀렸습니다.');
         }
@@ -52,6 +85,7 @@ export default function LoginScreen() {
                         placeholder="아이디 또는 이메일"
                         keyboardType="email-address"
                         style={styles.inputText}
+                        placeholderTextColor={Gray_theme.gray_40}
                     />
                 </View>
 
@@ -63,9 +97,17 @@ export default function LoginScreen() {
                         value={password}
                         onChangeText={setPassword}
                         placeholder="비밀번호"
-                        secureTextEntry
                         style={styles.inputText}
+                        secureTextEntry={!isPasswordVisible}
+                        placeholderTextColor={Gray_theme.gray_40}
                     />
+                    <TouchableOpacity style={styles.icon2} onPress={togglePasswordVisibility}>
+                        {isPasswordVisible ? (
+                            <Octicons name="eye" size={18} color="gray" />
+                        ) : (
+                            <Octicons name="eye-closed" size={18} color="gray" />
+                        )}
+                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -86,11 +128,11 @@ export default function LoginScreen() {
                     <Text style={styles.joinText}>
                         아직 회원이 아니신가요?
                         <TouchableOpacity onPress={() => navigation.navigate('Join1')}>
-                            <Text style={{ fontFamily: 'Pretendard-Bold', fontSize: 14, color: Main_theme.main_30}}> 회원가입하러가기</Text>
+                            <Text style={{ fontFamily: 'Pretendard-Bold', fontSize: 14, color: Main_theme.main_30 }}> 회원가입하러가기</Text>
                         </TouchableOpacity>
                     </Text>
                 </View>
-            {message && <Text style={styles.message}>{message}</Text>}
+                {message && <Text style={styles.message}>{message}</Text>}
             </View>
 
         </SafeAreaView>
@@ -123,8 +165,14 @@ const styles = StyleSheet.create({
     icon: {
         position: 'absolute',
         left: 16,
-        top: 16,
+        top: 18,
     },
+    icon2: {
+        position: 'absolute',
+        right: 16,
+        top: 18,
+    },
+
     inputText: {
         width: '100%',
         height: 56,
@@ -143,7 +191,7 @@ const styles = StyleSheet.create({
     findText: {
         fontSize: 12,
         fontFamily: 'Pretendard-Medium',
-        color:Gray_theme.gray_50,
+        color: Gray_theme.gray_50,
     },
     button: {
         paddingHorizontal: 16,
@@ -162,7 +210,7 @@ const styles = StyleSheet.create({
     joinText: {
         fontSize: 12,
         textAlign: 'center',
-    },  
+    },
     message: {
         marginTop: 20,
         color: Main_theme.main_reverse,

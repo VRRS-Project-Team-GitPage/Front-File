@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
@@ -13,13 +13,26 @@ export default function User_Withdrawal({ navigation }) {
     useTabBarVisibility(false);
 
     const [modalVisible, setModalVisible] = useState(false);
+    const [isMenuSelected, setIsMenuSelected] = useState(false); // 메뉴 선택 여부를 추적하는 상태
 
     const handleLogin = () => {
-        alert('탈퇴 완료');
+        if (!isMenuSelected) {
+            Alert.alert('', '탈퇴하기 전에 필수 항목을 읽어주세요.',
+                [
+                    { text: '확인', onPress: () => { }, style: 'cancel' },
+                ],
+            );
+        } else {
+            Alert.alert('탈퇴 완료', '탈퇴가 완료 되었습니다.',
+                [
+                    { text: '확인', onPress: () => { }, style: 'cancel' },
+                ],
+            );
+        }
     };
-
     const openModal = () => {
         setModalVisible(true);
+        setIsMenuSelected(true); // 메뉴가 선택되면 true로 설정
     };
 
     const closeModal = () => {
@@ -54,12 +67,10 @@ export default function User_Withdrawal({ navigation }) {
                 </Text>
                 <BtnD
                     onPress={handleLogin}
-                    containerStyle={{ backgroundColor: 'red' ,borderColor: 'red', height: 48 }}
+                    containerStyle={{ backgroundColor: 'red', borderColor: 'red', height: 48 }}
                 >
                     탈퇴하기
                 </BtnD>
-
-
             </View>
 
             <Modal
@@ -72,7 +83,7 @@ export default function User_Withdrawal({ navigation }) {
                     <View style={styles.modalContainer}>
                         <Text style={styles.modalText}>삭제 안합니다.</Text>
                         <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
-                            <Text style={styles.closeButtonText}>닫기</Text>
+                            <Text style={styles.closeButtonText}>확인</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

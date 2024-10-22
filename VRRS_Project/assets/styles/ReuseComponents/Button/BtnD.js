@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: Gray_theme.white,
     fontFamily: "Pretendard-SemiBold",
-    fontSize: 16, // 기본 폰트 크기
+    fontSize: 14, // 기본 폰트 크기
   },
 });
 

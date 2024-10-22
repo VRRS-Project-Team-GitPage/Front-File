@@ -1,10 +1,10 @@
+
 import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { useState, useEffect, useContext } from "react";
 import { useWindowDimensions, StyleSheet, ScrollView, Button, Modal } from "react-native";
 import { View, Text, TextInput, FlatList, Image, TouchableOpacity, TouchableWithoutFeedback, } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-// component 관련
 
 // design 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -15,80 +15,13 @@ import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBa
 import BtnD from "../../../assets/styles/ReuseComponents/Button/BtnD";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 // Data 관련 import
-//import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 이용자 정보
-//import { getAllProducts, getVegTypeName, getProTypeName, products, review } from "../../../assets/ServerDatas/Dummy/dummyProducts"; // 제품 정보
-import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext"; // 검색 정보
-import { getAllReviews } from "../../../assets/ServerDatas/Dummy/dummyReviews";
-
-// Server data를 사용하기 위해 저장한 component들을 import(현재는 더미 데이터를 사용)
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import {
-  getAllProducts,
-  getVegTypeName,
-  getProTypeName,
-} from "../../../assets/ServerDatas/Dummy/dummyProducts";
+import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 이용자 정보
+import { getAllReviews, reviews, getAllProducts, getVegTypeName, getProTypeName, products } from "../../../assets/ServerDatas/Dummy/dummyReviews";
 
-export default function User_DicScreen({ route, navigation }) {
+export default function User_ReviewScreen({ navigation }) {
   useTabBarVisibility(false);
-   // user의 정보를 불러옴
-   const { user, id, name, vegTypeName,review } = useUser();
 
-   // 화면 크기를 저장한 변수
-   const windowWidth = useWindowDimensions().width;
-   // 제품 정보를 저장하는 state
-   const [productData, setProductData] = useState([]);
-   // 필터된 제품 리스트를 저장하는 변수
-   const [filterList, setFilterList] = useState([]);
- 
-   // 컴포넌트 마운트 시 데이터 로드
-   useEffect(() => {
-     console.log(user);
-     // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
-     const products = getAllProducts();
-     setProductData(products);
-   }, []);
- 
-   useEffect(() => {
-     if (productData.length > 0) {
-       filterUserType();
-     }
-   }, [productData]);
- 
-   const filterUserType = () => {
-     let sortedList = [...productData].sort(
-       (a, b) => b.rec + b.review - (a.rec + a.review)
-     );
-     setFilterList(sortedList);
-   };
- 
-   const scrollViewRef = useRef(null);
-   const flatListRef = useRef(null);
- 
-   // 스크롤뷰를 처음으로 돌리는 함수
-   const scrollViewReturn = () => {
-     if (scrollViewRef.current) {
-       scrollViewRef.current.scrollTo({ y: 0, animated: true });
-     }
-   };
- 
-   const subScrollViewReturn = () => {
-     if (flatListRef.current) {
-       flatListRef.current.scrollToOffset({ offset: 0, animated: true });
-     }
-   };
- 
-   useFocusEffect(
-     React.useCallback(() => {
-       return () => {
-         // 화면이 포커싱 될 경우 해당 옵션을 default로
-         scrollViewReturn();
-         subScrollViewReturn();
-       };
-     }, [])
-   );
-
-  //------------------------
   const [modalVisible, setModalVisible] = useState(false);
   const handleLogout = () => {
     setModalVisible(false);
@@ -102,15 +35,87 @@ export default function User_DicScreen({ route, navigation }) {
   };
   const [reviewVal, setreivew] = useState('');
   const maxLength = 50;
-  //--------------------------------
 
-  const reviews=()=>{
-    let reviewList=[...reviewVal];
-   }
+  const { user } = useUser(); // user 정보를 가져옴
+  const [productData, setProductData] = useState([]);
+  const [sortedProducts, setSortedProducts] = useState([]);
+  const [reviewtData, setReviewtData] = useState([]);
+  const [sortedReviews, setSortedReviews] = useState([]);
+  // 컴포넌트 마운트 시 데이터 로드
+  useEffect(() => {
+    console.log(user);
+    // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
+    const reviews = getAllReviews();
+    setReviewtData(reviews);
+  }, []);
+  // 필터된 제품 리스트를 저장하는 변수
+  const [filterList, setFilterList] = useState([]);
+  useEffect(() => {
+    if (reviewtData.length > 0) {
+      filterUserType();
+    }
+  }, [reviewtData]);
+
+  const filterUserType = () => {
+    let sortedList = [...reviews];
+    sortedList.sort(
+      (a, b) => new Date(b.created_at) - new Date(a.created_at)
+    );
+
+    setFilterList(sortedList);
+  };
+
+  //--------------------------------
+  // 검색 및 필터에 사용될 변수 모음입니다
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
+
+  // 화면 밖을 클릭했을 때 드롭다운 닫기
+  const closeDropdown = () => {
+    if (isDropdownOpen) {
+      setIsDropdownOpen(false);
+    }
+  };
+  // 화면 크기를 저장한 변수
+  const windowWidth = useWindowDimensions().width;
+  const windowHeigh = useWindowDimensions().height;
+
+  // 화면이 포커싱 될 때 하단바 유지
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      tabBarStyle: {
+        display: "flex", // 탭바가 다시 나타나도록 설정
+        height: 60,
+        borderTopStartRadius: 20,
+        borderTopEndRadius: 20,
+        position: "absolute",
+      },
+    });
+  }, [navigation]);
+
+  // FlatList의 참조
+  const flatListRef = useRef(null);
+
+  // 항목 스크롤을 맨 처음으로 돌리는 함수
+  const scrollToTop = () => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+    }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        scrollToTop();
+      };
+    }, [])
+  );
 
   return (
     <SafeAreaView
       style={styles.container}
+      onTouchEndCapture={() => {
+        closeDropdown();
+      }}
     >
       <BackHeader
         onPress={() => {
@@ -121,10 +126,10 @@ export default function User_DicScreen({ route, navigation }) {
       <View style={{ flex: 1 }}>
         <View style={styles.title}>
           <Text style={styles.titleText}>
-            내가 작성한 후기 총 {reviews.length}개
+            내가 작성한 후기 총 {sortedReviews.length}개
           </Text>
         </View>
-        {reviews.length === 0 ? (
+        {sortedReviews.length === 0 ? (
           <View
             style={{
               justifyContent: "center",
@@ -160,7 +165,7 @@ export default function User_DicScreen({ route, navigation }) {
             ref={flatListRef}
             style={{ paddingHorizontal: 8 }}
             showsVerticalScrollIndicator={false}
-            data={reviews}
+            data={products}
             keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
             renderItem={({ item }) => {
               // 제품의 유형을 저장하는 변수
@@ -336,79 +341,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Pretendard-SemiBold",
   },
-  searchTextInput: {
-    height: 40,
-    backgroundColor: Gray_theme.gray_20,
-    borderRadius: 10,
-    paddingLeft: 16,
-    paddingRight: 48,
-    fontFamily: "Pretendard-Medium",
-    fontSize: 12,
-  },
-  firstHeader: {
-    paddingHorizontal: 24,
-    paddingTop: 4,
-    paddingBottom: 12,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  firstBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: Gray_theme.gray_20,
-  },
-  buttonText: {
-    fontFamily: "Pretendard-Medium",
-    fontSize: 12,
-    marginRight: 6,
-    color: Gray_theme.gray_80,
-  },
-  dropdownList: {
-    backgroundColor: Gray_theme.white,
-    borderRadius: 20,
-    elevation: 3,
-    justifyContent: "center",
-    width: 86,
-    position: "absolute", // 드롭다운을 버튼 아래에 위치시키기 위해
-    top: 60, // 버튼 아래로 44px 떨어지게 설정
-    right: 24,
-    padding: 4,
-    zIndex: 1000, // 다른 요소들보다 위에 위치
-  },
-  dropdownItemContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  dropdownItem: {
-    alignItems: "baseline",
-    fontSize: 12,
-    fontFamily: "Pretendard-Medium",
-    marginRight: 6,
-    color: Gray_theme.gray_80,
-  },
-  selectedOptionText: {
-    color: Main_theme.main_30, // 선택된 옵션의 텍스트 색상 변경
-    fontFamily: "Pretendard-SemiBold",
-    fontSize: 12,
-  },
-  secondHeader: {
-    paddingHorizontal: 22,
-    paddingVertical: 12,
-    flexDirection: "row",
-    borderColor: Gray_theme.gray_20,
-  },
-  category: {
-    fontFamily: "Pretendard-Medium",
-    fontSize: 12,
-    color: Gray_theme.gray_60,
-  },
-  // 내꺼
+
   allContainer: {
     paddingHorizontal: 16,
     paddingVertical: 8,

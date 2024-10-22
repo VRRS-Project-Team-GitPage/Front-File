@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -15,9 +15,18 @@ export default function FindPWResult2({ navigation }) {
 
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    
+    const [isPasswordVisible1, setIsPasswordVisible1] = useState(false);
+    const [isPasswordVisible2, setIsPasswordVisible2] = useState(false);
+
+    const togglePasswordVisibility1 = () => {
+        setIsPasswordVisible1(!isPasswordVisible1);
+    };
+    const togglePasswordVisibility2 = () => {
+        setIsPasswordVisible2(!isPasswordVisible2);
+    };
+
     const handleLogin = () => {
-        if (newPassword === confirmPassword) {
+        if (newPassword === confirmPassword&& newPassword !=='' && confirmPassword!=='') {
             Alert.alert("성공", "비밀번호가 변경되었습니다.");
         } else {
             Alert.alert("오류", "비밀번호가 일치하지 않습니다.");
@@ -43,28 +52,42 @@ export default function FindPWResult2({ navigation }) {
                 <View style={styles.inputContainer}>
                     <Text style={styles.noticeText}>새 비밀번호</Text>
                     <View style={styles.icon}>
-                        <Octicons name="lock" size={18} color="black" />
+                        <Octicons name="lock" size={18} color="gray" />
                     </View>
                     <TextInput
                         value={newPassword}
                         onChangeText={setNewPassword}
                         placeholder="새 비밀번호 입력"
-                        secureTextEntry
+                        secureTextEntry={!isPasswordVisible1}
                         style={styles.input}
                     />
+                    <TouchableOpacity style={styles.icon2} onPress={togglePasswordVisibility1}>
+                        {isPasswordVisible1 ? (
+                            <Octicons name="eye" size={18} color="gray" />
+                        ) : (
+                            <Octicons name="eye-closed" size={18} color="gray" />
+                        )}
+                    </TouchableOpacity>
                 </View>
                 <View style={styles.inputContainer}>
                     <Text style={styles.noticeText}>새 비밀번호 확인</Text>
                     <View style={styles.icon}>
-                        <Octicons name="lock" size={18} color="black" />
+                        <Octicons name="lock" size={18} color="gray" />
                     </View>
                     <TextInput
                         value={confirmPassword}
                         onChangeText={setConfirmPassword}
-                        placeholder="새 비밀번호 확인 입력"
-                        secureTextEntry
+                        placeholder="새 비밀번호 확인"
+                        secureTextEntry={!isPasswordVisible2}
                         style={styles.input}
                     />
+                    <TouchableOpacity style={styles.icon2} onPress={togglePasswordVisibility2}>
+                        {isPasswordVisible2 ? (
+                            <Octicons name="eye" size={18} color="gray" />
+                        ) : (
+                            <Octicons name="eye-closed" size={18} color="gray" />
+                        )}
+                    </TouchableOpacity>
                 </View>
             </View>
             <View style={styles.button}>
@@ -80,11 +103,11 @@ const styles = StyleSheet.create({
         backgroundColor: Gray_theme.white,
     },
     titleContainer: {
-        paddingHorizontal:24,
+        paddingHorizontal: 24,
         marginTop: 32,
     },
     componentContainer: {
-        paddingHorizontal:16,
+        paddingHorizontal: 16,
         marginTop: 36,
     },
     titleText: {
@@ -113,6 +136,11 @@ const styles = StyleSheet.create({
     icon: {
         position: 'absolute',
         left: 16,
+        top: 40,
+    },
+    icon2: {
+        position: 'absolute',
+        right: 16,
         top: 40,
     },
     input: {

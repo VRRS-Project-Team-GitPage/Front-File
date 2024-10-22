@@ -182,32 +182,32 @@ export default function Main_BottomBar() {
           }}
         ></Tab.Screen>
         <Tab.Screen
-          name="User"
-          component={UserStack}
-          listeners={({ navigation }) => ({
-            tabPress: (e) => {
-              // Prevent default action
-              e.preventDefault();
-              // Do something with the `navigation` object
-              navigation.navigate("User", {
-                screen: "User_Main",
-              });
-              //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
-            },
-          })}
-          // name="Login"
-          // component={LoginStack}
+          // name="User"
+          // component={UserStack}
           // listeners={({ navigation }) => ({
           //   tabPress: (e) => {
           //     // Prevent default action
           //     e.preventDefault();
           //     // Do something with the `navigation` object
-          //     navigation.navigate("Login", {
-          //       screen: "Login_Main",
+          //     navigation.navigate("User", {
+          //       screen: "User_Main",
           //     });
           //     //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
           //   },
           // })}
+          name="Login"
+          component={LoginStack}
+          listeners={({ navigation }) => ({
+            tabPress: (e) => {
+              // Prevent default action
+              e.preventDefault();
+              // Do something with the `navigation` object
+              navigation.navigate("Login", {
+                screen: "Login_Main",
+              });
+              //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
+            },
+          })}
           options={{
             tabBarLabel: "내 정보", //화면에 표시될 텍스트
             headerShown: false,
