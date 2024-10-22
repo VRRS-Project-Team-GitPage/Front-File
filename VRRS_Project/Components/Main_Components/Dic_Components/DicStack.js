@@ -3,7 +3,7 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import DicScreen from "./DicScreen";
-import DicScreen2 from "./DicScreen2";
+import DicScreenOwn from "./DicScreenown";
 import ProducInfotScreen from "./DicProductScreen";
 import ReportProScreen from "./ReportProScreen";
 import DicProductReviewScreen from "./DicProductReviewScreen";
@@ -19,8 +19,8 @@ export default function DicStack() {
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
-        name="DicList2"
-        component={DicScreen2}
+        name="OwnDic"
+        component={DicScreenOwn}
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen

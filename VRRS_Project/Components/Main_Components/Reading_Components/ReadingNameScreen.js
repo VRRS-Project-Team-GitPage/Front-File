@@ -28,10 +28,12 @@ import QuestionModal from "../../../assets/styles/ReuseComponents/Modal/Question
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 
-export default function IngredientScreen({ route, navigation }) {
-  const { img_path, name, triggerSubmit, triggerSubmitImg } =
-    route.params || {};
-  const [isPhotoLoaded, setIsPhotoLoaded] = useState(false); // 사진 로딩 상태 관리
+export default function ProNameScreen({ route, navigation }) {
+  // 넘어온 이미지 값
+  const { photoUri, triggerSubmit } = route.params || {};
+  const { imgUri, triggerSubmitImg } = route.params || {};
+  // 사진 로딩 상태 관리
+  const [isPhotoLoaded, setIsPhotoLoaded] = useState(false);
   const [isImgLoaded, setIsImgLoaded] = useState(false);
   const [checkImage, setCheckImage] = useState();
 
@@ -39,9 +41,7 @@ export default function IngredientScreen({ route, navigation }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
-  const textInputRef = useRef();
-
-  // 넘어온 사진 로드
+  // 촬영한 사진 로드
   useEffect(() => {
     if (triggerSubmit) {
       setIsPhotoLoaded(true);
@@ -61,10 +61,10 @@ export default function IngredientScreen({ route, navigation }) {
 
   // 이미지 저장
   useEffect(() => {
-    if (isPhotoLoaded || isImgLoaded) {
-      setCheckImage(img_path);
-
-      console.log(img_path);
+    if (isPhotoLoaded) {
+      setCheckImage(photoUri);
+    } else if (isImgLoaded) {
+      setCheckImage(imgUri);
     }
   }, [isPhotoLoaded, isImgLoaded]);
 
@@ -72,7 +72,7 @@ export default function IngredientScreen({ route, navigation }) {
   const bottomSheetRef = useRef(null);
 
   // BottomSheet의 스냅 포인트: 위치 설정
-  const snapPoints = useMemo(() => ["40%", "80%"]);
+  const snapPoints = useMemo(() => ["35%", "60%"]);
 
   // 화면이 focus될 때마다 BottomSheet가 다시 열리도록 설정
   useFocusEffect(
@@ -104,7 +104,7 @@ export default function IngredientScreen({ route, navigation }) {
   const toast = useToast();
   const handleToast = () => {
     toast.show(
-      "실제 내용과 인식된 내용이 다를 경우 수정할 수 있어요. 정확한 결과를 위해 실제 원재료명과 다른 내용이 있다면 해당 부분을 눌러 수정해주세요.",
+      "실제 내용과 인식된 내용이 다를 경우 수정할 수 있어요. 정확한 결과를 위해 실제 제품명과 다르다면 수정해주세요.",
       {
         type: "custom",
         duration: 3000,
@@ -116,10 +116,8 @@ export default function IngredientScreen({ route, navigation }) {
     );
   };
 
-  // 원재료명을 저장
-  const [proIngredients, setProIngredients] = useState(
-    "추후 원재료명이 작성될 공간입니다."
-  );
+  // 제품명을 저장
+  const [proName, setProName] = useState("추후 제품명이 작성될 공간입니다.");
 
   const [confirmModal, setConfirmModal] = useState(false);
   const handleConfirmModal = () => {
@@ -135,22 +133,23 @@ export default function IngredientScreen({ route, navigation }) {
           setConfirmModal(false);
           bottomSheetRef.current.close();
           navigation.navigate("ReadTab", {
-            screen: "Result",
+            screen: "IngridientScreen",
             params: {
-              img_path: img_path,
-              name_pro: name,
-              ingredients: proIngredients,
-              triggerSubmit: true,
+              img_path: isPhotoLoaded ? photoUri : imgUri,
+              name: proName,
+              triggerSubmit: isPhotoLoaded,
+              triggerSubmitImg: isImgLoaded,
             },
           });
         }}
-        style_cancle={styles.style_cancle}
-        style_ok={styles.style_ok}
-      >
-        원재료명이 정확히 작성되었나요?
-      </QuestionModal>
+        children={"제품명이 정확히 작성되었나요?"}
+      ></QuestionModal>
+
       {isPhotoLoaded || isImgLoaded ? ( // 사진 로딩 상태에 따른 렌더링 제어
-        <ImageBackground source={{ uri: img_path }} style={styles.background}>
+        <ImageBackground
+          source={isPhotoLoaded ? { uri: photoUri } : { uri: imgUri }}
+          style={styles.background}
+        >
           {backgroundOpacity ? (
             <Animated.View style={[styles.overlay, { opacity }]} />
           ) : null}
@@ -188,7 +187,7 @@ export default function IngredientScreen({ route, navigation }) {
                       marginBottom: 16,
                     }}
                   >
-                    원재료명을 확인해주세요.
+                    제품명을 확인해주세요.
                   </Text>
                   <Octicons
                     name="x"
@@ -204,7 +203,6 @@ export default function IngredientScreen({ route, navigation }) {
                 </View>
                 <View style={{ alignItems: "center" }}>
                   <TextInput
-                    ref={textInputRef}
                     style={{
                       width: windowWidth - 32,
                       backgroundColor: Gray_theme.gray_20,
@@ -215,8 +213,8 @@ export default function IngredientScreen({ route, navigation }) {
                       fontFamily: "Pretendard-Medium",
                       fontSize: 12,
                     }}
-                    onChangeText={(text) => setProIngredients(text)}
-                    value={proIngredients}
+                    onChangeText={(text) => setProName(text)}
+                    value={proName}
                   ></TextInput>
                 </View>
                 <View
@@ -269,7 +267,7 @@ export default function IngredientScreen({ route, navigation }) {
                   marginRight: 4,
                 }}
               >
-                이전으로
+                {isPhotoLoaded ? "다시 촬영하기" : "다시 선택하기"}
               </Btn>
               <BtnC
                 onPress={() => {
@@ -280,7 +278,7 @@ export default function IngredientScreen({ route, navigation }) {
                   marginLeft: 4,
                 }}
               >
-                결과 확인하기
+                다음으로
               </BtnC>
             </View>
           </BottomSheetModal>
@@ -339,16 +337,5 @@ const styles = StyleSheet.create({
     color: Gray_theme.gray_60,
     fontFamily: "Pretendard-Medium",
     fontSize: 12,
-  },
-  style_cancle: {
-    flex: 1,
-    backgroundColor: Gray_theme.gray_40,
-    borderColor: Gray_theme.gray_40,
-    marginRight: 4,
-  },
-  style_ok: {
-    flex: 1,
-    backgroundColor: Main_theme.main_30,
-    marginLeft: 4,
   },
 });

@@ -1,24 +1,24 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import {
-  FlatList,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  BackHandler,
-} from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import { View, Text, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import MainIcons from "../../../assets/Icons/MainIcons";
 import Line from "../../../assets/styles/ReuseComponents/LineComponent";
-import Octicons from "@expo/vector-icons/Octicons";
 import BarIcons from "../../../assets/Icons/BarIcons";
 import Entypo from "@expo/vector-icons/Entypo";
+import Octicons from "@expo/vector-icons/Octicons";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 // component 관련
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
+import {
+  saveBookmarkWithTimestamp,
+  getBookmarkStatus,
+} from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
 // Date 관련
 import {
   getAllProducts,
@@ -55,12 +55,31 @@ export default function DicProductScreen({ navigation, route }) {
     }
   }, [id]);
 
+  // 제품 북마크
+
   // 추천수 퍼센테이지
   const thuumsUp =
     product.review !== 0 ? parseInt((product.rec / product.review) * 100) : -1;
 
   // 제품 북마크 여부를 저장
-  const [bookMark, setBookmark] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
+  useEffect(() => {
+    // 컴포넌트가 마운트될 때 북마크 상태 불러오기
+    const fetchBookmarkStatus = async () => {
+      const status = await getBookmarkStatus(product.id);
+      // 상태의 bookmarked 값을 가져와서 설정
+      setIsBookmarked(status.bookmarked);
+    };
+
+    fetchBookmarkStatus();
+  }, [product.id]);
+
+  const toggleBookmark = async () => {
+    const newStatus = !isBookmarked;
+    setIsBookmarked(newStatus);
+    await saveBookmarkWithTimestamp(product.id, newStatus); // newStatus를 저장해야 하므로 saveBookmarkWithTimestamp 함수 수정 필요
+  };
 
   // 리뷰 관련
   // 1. 제품 ID에 맞는 리뷰를 가져오고 최신순으로 정렬
@@ -95,7 +114,7 @@ export default function DicProductScreen({ navigation, route }) {
               navigation.navigate("reportPro");
             }}
           >
-            <Image source={MainIcons.error} style={styles.headerIcon}></Image>
+            <MaterialIcons name="error" size={24} color={Gray_theme.gray_40} />
           </TouchableOpacity>
         </View>
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -108,10 +127,10 @@ export default function DicProductScreen({ navigation, route }) {
               <TouchableScale
                 style={styles.imgHeart}
                 onPress={() => {
-                  setBookmark(!bookMark);
+                  toggleBookmark();
                 }}
               >
-                {!bookMark ? (
+                {!isBookmarked ? (
                   <Octicons name="heart" size={24} color={Gray_theme.gray_90} />
                 ) : (
                   <Octicons
@@ -186,7 +205,9 @@ export default function DicProductScreen({ navigation, route }) {
                           </View>
                         ) : (
                           <View style={styles.infoPerC}>
-                            <Text style={styles.infoPerText}>
+                            <Text
+                              style={{ marginLeft: 8, ...styles.infoPerText }}
+                            >
                               아직 평가가 없습니다
                             </Text>
                           </View>
@@ -409,11 +430,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  headerIcon: {
-    width: 26,
-    height: 26,
-    tintColor: Gray_theme.gray_90,
-  },
   headerText: {
     textAlign: "center",
     fontFamily: "Pretendard-Bold",
@@ -493,7 +509,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   infoPer: {
-    marginLeft: 4,
+    marginLeft: 8,
     fontFamily: "Pretendard-ExtraBold",
     fontSize: 16,
     marginRight: 2,

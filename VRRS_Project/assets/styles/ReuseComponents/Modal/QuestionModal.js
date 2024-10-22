@@ -6,11 +6,10 @@ import BtnC from "../Button/BtnC";
 
 const QuestionModal = ({
   children,
+  children_body,
   visible,
   onRequestClose,
   onPress,
-  style_cancle,
-  style_ok,
 }) => {
   return (
     <Modal
@@ -34,15 +33,19 @@ const QuestionModal = ({
               name="x"
               size={24}
               color={Gray_theme.gray_90}
-              style={styles.modalHeaderX}
               onPress={onRequestClose}
             />
           </View>
+
           <View style={styles.modalBtn}>
-            <BtnC style={style_cancle} onPress={onRequestClose}>
+            <BtnC
+              style={styles.style_cancle}
+              stlye_title={styles.cancle_title}
+              onPress={onRequestClose}
+            >
               취소
             </BtnC>
-            <BtnC style={style_ok} onPress={onPress}>
+            <BtnC style={styles.style_ok} onPress={onPress}>
               확인
             </BtnC>
           </View>
@@ -67,28 +70,44 @@ const styles = StyleSheet.create({
   modalContainer: {
     backgroundColor: Gray_theme.white,
     width: "100%",
-    paddingVertical: 16,
-    borderRadius: 20,
+    borderRadius: 15,
     elevation: 3,
   },
 
   modalHeader: {
-    height: 60,
-    justifyContent: "center",
-  },
-
-  modalHeaderX: {
-    position: "absolute",
-    right: 24,
+    paddingVertical: 32,
+    paddingHorizontal: 28,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   modalHeaderText: {
-    textAlign: "center",
+    textAlign: "left",
+    fontSize: 16,
     fontFamily: "Pretendard-SemiBold",
+    color: Gray_theme.balck,
   },
   modalBtn: {
     flexDirection: "row",
-    marginTop: 32,
+    justifyContent: "flex-end",
     paddingHorizontal: 24,
+    marginVertical: 16,
+  },
+  style_cancle: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: Gray_theme.gray_30,
+    borderColor: Gray_theme.gray_30,
+    marginRight: 4,
+  },
+  cancle_title: {
+    color: Gray_theme.gray_70,
+  },
+  style_ok: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: Main_theme.main_30,
+    marginLeft: 4,
   },
 });
 

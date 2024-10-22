@@ -1,14 +1,17 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, View } from "react-native";
+import { View, ActivityIndicator, StyleSheet } from "react-native";
 import { useState, useEffect } from "react";
-import { Gray_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
+import { Gray_theme, Main_theme } from "./assets/styles/Theme_Colors"; // 작성한 색상 코드를 import
 import * as Font from "expo-font"; // custom font를 사용하기 위해 import
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ToastProvider } from "react-native-toast-notifications"; // Toast 라이브러리
+import { NavigationContainer } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 // 전역적으로 사용될 정보 import
 import { UserProvider } from "./assets/ServerDatas/Users/UserContext"; //user 정보를 전역적으로 사용하기 위해 import
 import { SearchProvider } from "./assets/ServerDatas/ReuseDatas/SearchContext";
-import Main_BottomBar from "./Components/Main_Components/Main_BottomBar";
+// App의 흐름을 관리
+import AuthProvider from "./assets/ServerDatas/ReuseDatas/AuthProvider"; // 로그인 여부를 전역적으로 사용하기 위해 import
+import AuthNavigation from "./Components/AuthNavigation";
 
 export default function App() {
   // 폰트 로드를 위한 state 변수
@@ -32,28 +35,47 @@ export default function App() {
     setFontsLoaded(true); // 폰트 로드가 완료되면 상태를 변경
   };
 
+  // 로컬 저장 내용을 초기화
+  // 로컬에 저장된 내용을 삭제하고 싶을 때 사용하시면 됩니다. (그 외 사용 x)
+  // useEffect 내부에 함수 선언하면 사용 가능합니다
+  // 로컬 초기화 후 선언한 함수는 지워주세요
+  const clearAsyncStorage = async () => {
+    try {
+      await AsyncStorage.clear();
+      console.log("AsyncStorage가 초기화되었습니다.");
+    } catch (error) {
+      console.error("AsyncStorage 초기화 중 오류 발생:", error);
+    }
+  };
+
   useEffect(() => {
     loadFonts(); // 앱이 시작될 때 폰트를 로드
   }, []);
 
   if (!fontsLoaded) {
-    return null; // 폰트가 로드되기 전에는 아무것도 렌더링하지 않음
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color={Main_theme.main_30} />
+      </View>
+    ); // 폰트가 로드되기 전에는 아무것도 렌더링하지 않음
   }
 
+  // 로그인 Stack을 Main_BottomBar 위에 작성 후 조건에 따라(어플 시용자가 로그인 한 경우)
+  // 해당 Stack의 여부를 볼 수 있게 함
   return (
-    // USerProvider를 최상위 Component로 하여 앱 전역적으로 user의 정보를 사용할 수 있도록 함
-    <UserProvider>
-      <SearchProvider>
-        <ToastProvider>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <View style={styles.container}>
-              <StatusBar style="auto" />
-              <Main_BottomBar />
-            </View>
-          </GestureHandlerRootView>
-        </ToastProvider>
-      </SearchProvider>
-    </UserProvider>
+    <AuthProvider>
+      <UserProvider>
+        <SearchProvider>
+          <ToastProvider>
+            <NavigationContainer>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <AuthNavigation />
+              </GestureHandlerRootView>
+            </NavigationContainer>
+          </ToastProvider>
+        </SearchProvider>
+      </UserProvider>
+    </AuthProvider>
   );
 }
 

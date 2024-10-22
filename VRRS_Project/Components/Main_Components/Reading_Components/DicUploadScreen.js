@@ -10,21 +10,23 @@ import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Entypo from "@expo/vector-icons/Entypo";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 // Component 관련
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
+import DropDown from "../../../assets/styles/ReuseComponents/Button/DropDown";
 // Data 관련 import
 import { categories } from "../../../assets/ServerDatas/Dummy/dummyProductCate";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
-export default function DicUploadScreen({ navigation }) {
+export default function DicUploadScreen({ navigation, route }) {
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
-  // 최대 6개까지 저장 가능
+  const { name } = route.params || {};
+
+  // 1개의 이미지 업로드
   const [productImages, setProductImages] = useState([]);
 
   const pickImage = async () => {
@@ -53,7 +55,7 @@ export default function DicUploadScreen({ navigation }) {
     setProductImages(productImages.filter((img) => img.id !== id)); // 선택한 이미지 삭제
   };
 
-  const [proName, setProName] = useState("");
+  const [proName, setProName] = useState(name);
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
@@ -190,37 +192,16 @@ export default function DicUploadScreen({ navigation }) {
                   style={styles.cPoint}
                 />
               </View>
-              <Text style={styles.cTitleM}>
-                제품 뒤 식품 유형과 동일하게 선택해주세요.
-              </Text>
+              <Text style={styles.cTitleM}>식품 유형에 따라 선택해주세요.</Text>
             </View>
-            <DropDownPicker
+            <DropDown
               open={open}
               value={value}
               items={items}
               setOpen={setOpen}
               setValue={setValue}
               setItems={setItems}
-              placeholder="제품 유형을 선택하세요"
-              style={{
-                paddingHorizontal: 16,
-                backgroundColor: !open ? Gray_theme.gray_20 : Gray_theme.white,
-                borderRadius: 10,
-                borderColor: open ? Gray_theme.gray_50 : Gray_theme.gray_80,
-              }}
-              dropDownContainerStyle={{
-                paddingHorizontal: 12,
-              }}
-              textStyle={{
-                fontSize: 12,
-                fontFamily: "Pretendard-Medium",
-                color: Gray_theme.balck,
-              }}
-              placeholderStyle={{
-                fontSize: 12,
-                fontFamily: "Pretendard-Medium",
-                color: Gray_theme.gray_60,
-              }}
+              placeholder={"제품 유형을 선택하세요"}
               onChangeValue={(selectedValue) => {
                 setProductCategory(selectedValue);
               }}

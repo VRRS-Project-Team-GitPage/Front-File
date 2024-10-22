@@ -1,11 +1,6 @@
 import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { useState, useEffect, useContext } from "react";
-import {
-  useWindowDimensions,
-  StyleSheet,
-  ScrollView,
-  Button,
-} from "react-native";
+import { useWindowDimensions, StyleSheet, ScrollView } from "react-native";
 import {
   View,
   Text,
@@ -17,6 +12,8 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useToast } from "react-native-toast-notifications";
+import { useIsFocused } from "@react-navigation/native";
 // component 관련
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // design 관련 import
@@ -57,10 +54,20 @@ export default function DicScreen({ route, navigation }) {
   // 화면 포커싱 시 초기 화면으로 돌리기 위한 변수
   const scrollViewRef = useRef(null);
 
+  const [buttonLayouts, setButtonLayouts] = useState({}); // 각 버튼의 위치 저장
+
+  const moveToSelectedButton = (btnType) => {
+    if (buttonLayouts[btnType]) {
+      const { x, width } = buttonLayouts[btnType];
+      const scrollToPosition = x - width / 2; // 중앙으로 맞추기 위해 약간 보정
+      scrollViewRef.current.scrollTo({ x: scrollToPosition, animated: true });
+    }
+  };
+
   // 스크롤뷰를 처음으로 돌리는 함수
-  const scrollViewReturn = () => {
+  const scrollViewReturn = ({ location }) => {
     if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({ x: 0, animated: true });
+      scrollViewRef.current.scrollTo({ x: location, animated: true });
     }
   };
 
@@ -74,26 +81,34 @@ export default function DicScreen({ route, navigation }) {
     }
   };
 
-  // 화면이 포커싱 될 경우 사용되는 hook
-  useFocusEffect(
-    React.useCallback(() => {
-      return () => {
-        // 화면이 포커싱 될 경우 해당 옵션을 default로
-        setSearchText("");
-        handleOnSubmitEditing("");
-        checkTypeBtn(vegTypeName);
-        scrollToTop();
-      };
-    }, [])
-  );
+  const { tabClicked } = route.params || {};
+
+  useEffect(() => {
+    if (tabClicked) {
+      // 탭이 클릭되었을 때 실행할 로직
+      setSearchText("");
+      setFilterText("");
+      checkTypeBtn(vegTypeName);
+      moveToSelectedButton(vegTypeName);
+      selectOption("등록순");
+      sortProducts();
+      scrollToTop();
+
+      navigation.setParams({ tabClicked: false });
+    }
+  }, [tabClicked]);
 
   const { type, sortOption, autoSearch } = route.params || {};
 
   useEffect(() => {
     if (autoSearch) {
-      checkTypeBtn(type);
+      setSearchText("");
+      setFilterText("");
       selectOption(sortOption);
+      checkTypeBtn(type);
+      moveToSelectedButton(type);
       sortProducts();
+      scrollToTop();
     }
     navigation.setParams({ autoSearch: false });
   }, [autoSearch]);
@@ -145,7 +160,7 @@ export default function DicScreen({ route, navigation }) {
     checkTypeBtn("전체");
     selectOption("등록순");
     sortProducts();
-    scrollViewReturn();
+    scrollViewReturn(0);
   };
 
   // 검색 및 필터에 사용될 변수 모음입니다
@@ -188,7 +203,12 @@ export default function DicScreen({ route, navigation }) {
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
     } else if (selectedOption === "인기순") {
-      sortedList.sort((a, b) => b.rec + b.review - (a.rec + a.review));
+      sortedList.sort(
+        (a, b) =>
+          b.rec +
+          parseInt(b.rec / b.review) -
+          (a.rec + parseInt(a.rec / a.review))
+      );
     }
 
     if (filterText !== "") {
@@ -252,6 +272,21 @@ export default function DicScreen({ route, navigation }) {
     }
     setSortedProducts(filteredList);
   };
+
+  // 개인 사전 안내용 메세지
+  const toast = useToast();
+  const handleToast = () => {
+    toast.show("북마크 한 제품만 모아서 볼 수 있어요!", {
+      type: "custom",
+      placement: "bottom",
+      duration: 3000,
+      style: { ...styles.toastStyle, bottom: windowHeigh - 148 },
+      textStyle: styles.toastFont,
+      animationType: "slide-in",
+    });
+  };
+
+  const [ownDic, setOwnDic] = useState(false);
 
   return (
     <SafeAreaView
@@ -317,7 +352,16 @@ export default function DicScreen({ route, navigation }) {
                     activeOpacity={0.6}
                     key={btnType}
                     onPress={() => {
-                      checkTypeBtn(btnType);
+                      checkTypeBtn(btnType); // 버튼 상태 변경
+                      moveToSelectedButton(btnType); // 해당 버튼으로 스크롤 이동
+                    }}
+                    onLayout={(event) => {
+                      // 버튼이 렌더링될 때 위치와 너비 저장
+                      const { x, width } = event.nativeEvent.layout;
+                      setButtonLayouts((prevLayouts) => ({
+                        ...prevLayouts,
+                        [btnType]: { x, width },
+                      }));
                     }}
                     style={{
                       borderBottomWidth: 1,
@@ -359,18 +403,52 @@ export default function DicScreen({ route, navigation }) {
           </ScrollView>
         </View>
         <View style={styles.firstHeader}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Octicons name="check" size={16} color={Gray_theme.gray_40} />
-            <Text
-              style={{
-                marginLeft: 8,
-                color: Gray_theme.gray_40,
-                fontSize: 12,
-                fontFamily: "Pretendard-Medium",
+          <View
+            style={{
+              flexDirection: "row",
+            }}
+          >
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={{ flexDirection: "row", alignItems: "center" }}
+              onPressIn={() => {
+                setOwnDic(true);
+              }}
+              onPressOut={() => {
+                setOwnDic(false);
+              }}
+              onPress={() => {
+                navigation.navigate("OwnDic");
               }}
             >
-              개인 사전
-            </Text>
+              <Octicons
+                name="check"
+                size={16}
+                color={!ownDic ? Gray_theme.gray_40 : Main_theme.main_30}
+              />
+              <Text
+                style={{
+                  marginLeft: 8,
+                  color: !ownDic ? Gray_theme.gray_40 : Gray_theme.balck,
+                  fontSize: 12,
+                  fontFamily: !ownDic
+                    ? "Pretendard-Medium"
+                    : "Pretendard-SemiBold",
+                }}
+              >
+                개인 사전
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleToast}>
+              <Octicons
+                name="question"
+                size={12}
+                color={Gray_theme.gray_40}
+                style={{
+                  marginLeft: 6,
+                }}
+              />
+            </TouchableOpacity>
           </View>
           <TouchableOpacity
             onPress={toggleDropdown}
@@ -387,7 +465,12 @@ export default function DicScreen({ route, navigation }) {
 
           {isDropdownOpen && (
             <View style={styles.dropdownList}>
-              <TouchableOpacity onPress={() => selectOption("등록순")}>
+              <TouchableOpacity
+                onPress={() => {
+                  selectOption("등록순");
+                  scrollToTop();
+                }}
+              >
                 <View style={styles.dropdownItemContainer}>
                   <Text
                     style={[
@@ -684,5 +767,20 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-Bold",
     fontSize: 8,
     color: Gray_theme.gray_40,
+  },
+  // 토스트 메세지 관련
+  toastStyle: {
+    opacity: 0.8,
+    position: "absolute",
+    left: 100,
+    backgroundColor: Gray_theme.gray_20,
+    borderWidth: 1,
+    borderColor: Gray_theme.gray_30,
+    borderRadius: 12,
+  },
+  toastFont: {
+    color: Gray_theme.gray_60,
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
   },
 });

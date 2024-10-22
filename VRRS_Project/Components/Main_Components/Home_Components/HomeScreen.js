@@ -42,7 +42,6 @@ export default function HomeScreen({ navigation }) {
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
-    console.log(user);
     // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
     const products = getAllProducts();
     setProductData(products);

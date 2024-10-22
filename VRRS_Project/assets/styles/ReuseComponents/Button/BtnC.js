@@ -3,10 +3,10 @@ import { View, Text } from "react-native";
 import { StyleSheet } from "react-native";
 import { Gray_theme, Main_theme } from "../../Theme_Colors";
 
-const BtnC = ({ children, onPress, style }) => {
+const BtnC = ({ children, onPress, style, stlye_title }) => {
   return (
     <View style={[styles.BtnContainer, style]}>
-      <Text style={styles.BtnTitle} onPress={onPress}>
+      <Text style={[styles.BtnTitle, stlye_title]} onPress={onPress}>
         {children}
       </Text>
     </View>

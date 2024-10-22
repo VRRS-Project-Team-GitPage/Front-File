@@ -54,7 +54,7 @@ export default function ImagePickerScreen({ navigation }) {
       if (!result.canceled) {
         const imgUri = result.assets[0].uri;
         navigation.navigate("ReadTab", {
-          screen: "IngridientScreen",
+          screen: "ProNameScreen",
           params: { imgUri: imgUri, triggerSubmitImg: true },
         });
       } else {
