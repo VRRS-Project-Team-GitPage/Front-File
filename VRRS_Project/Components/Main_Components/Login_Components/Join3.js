@@ -1,27 +1,61 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Picker } from '@react-native-picker/picker';
 
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
+import DropDown from "../../../assets/styles/ReuseComponents/Button/DropDown";
+
+// Data 관련
+import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
+// 아래 내용을 추후 로그인 화면에 동일하게 import 하여 사용해주세요
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext"; // 유저의 정보(닉네임, 유형)를 전역적으로 사용
 
 export default function Join3({ navigation }) {
     useTabBarVisibility(false);
+    const windowWidth = useWindowDimensions().width;
+    const windowHeigh = useWindowDimensions().height;
 
-    const [nickname, setNickname] = useState('');
-    const [vegType, setVegType] = useState('none');
+
+    // [ 유저의 정보를 저장하는 내용입니다 ]
+    const { signUpUser, id, name, vegTypeName } = useUser();
+    const [nameText, setNameText] = useState("");
+
+    // 유저 정보를 저장하는 함수
+    const handleSave = () => {
+        const userData = {
+            // 저장할 내용은 실제 서버에서 받아와 넣어주시면 됩니다.
+            name: nameText,
+            veg_type_id: value,
+        };
+        signUpUser(userData); // 유저 정보를 저장
+    };
+
+    // 최종 로그인 함수 입니다
+    // 로그인 여부에 필요한 로직을 추가하여 사용해주세요
+    // (ex. 서버 내용 불러오기, textInput 확인하기 등)
     const [isNicknameTouched, setIsNicknameTouched] = useState(false);
 
-    const handleConfirm = () => {
-        if (!nickname.trim() || vegType === 'none') {
+    // DropDown에 사용될 변수 및 내용입니다
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [items, setItems] = useState(
+        vegTypes
+            .filter((item) => item.id !== 0)
+            .map((item) => ({ label: item.name, value: item.id }))
+    );
+
+    const handleLogin = () => {
+        if (!nameText.trim() && value === 'none') {
             alert('입력한 정보를 확인해주세요.');
         } else {
+            handleSave(); // 유저 정보를 저장
             navigation.navigate('Joinr');
         }
     };
@@ -56,50 +90,64 @@ export default function Join3({ navigation }) {
             </View>
             {/* 닉네임 입력란 */}
             <View style={styles.inputContainer}>
-                <Text style={styles.label}>닉네임 *</Text>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styles.label}>닉네임</Text>
+                    <FontAwesome5
+                        name="star-of-life"
+                        size={8}
+                        color={Main_theme.main_30}
+                        style={styles.cPoint}
+                    />
+                </View>
                 <TextInput
                     style={styles.input}
-                    placeholder="닉네임을 입력하세요"
-                    value={nickname}
-                    onChangeText={(text) => {
-                        setNickname(text);
+                    placeholder="가입 후 변경 가능합니다"
+                    value={nameText}
+                    onChangeText={(name) => {
+                        setNameText(name);
                         setIsNicknameTouched(true); // 닉네임 입력 필드가 터치됨
                     }}
                 />
-                {isNicknameTouched && nickname.trim() === '' && (
-                    <Text style={styles.warningText}>반드시 입력해야 하는 정보입니다.</Text>
-                )}
-                {nickname.trim() && (
-                    <Text style={styles.helperText}>사용할 수 있는 닉네임입니다.</Text>
-                )}
+                <View style={{ height: 16 }}>
+                    {isNicknameTouched && nameText.trim() === '' && (
+                        <Text style={styles.warningText}>반드시 입력해야 하는 정보입니다.</Text>
+                    )}
+                    {nameText.trim() && (
+                        <Text style={styles.helperText}>사용할 수 있는 닉네임입니다.</Text>
+                    )}
+                </View>
             </View>
 
             {/* 채식 유형 선택 */}
             <View style={styles.inputContainer}>
-                <Text style={styles.label}>채식 유형 *</Text>
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={vegType}
-                        onValueChange={(itemValue) => setVegType(itemValue)}
-                        style={styles.picker}
-                    >
-                        <Picker.Item label="채식 유형을 선택해주세요." value="none" />
-                        <Picker.Item label="비건" value="vegan" />
-                        <Picker.Item label="락토 베지테리언" value="lacto" />
-                        <Picker.Item label="오보 베지테리언" value="ovo" />
-                        <Picker.Item label="락토 오보 베지테리언" value="lacto_ovo" />
-                        <Picker.Item label="페스코 베지테리언" value="pescatarian" />
-                        <Picker.Item label="폴로 베지테리언" value="pollotarian" />
-                    </Picker>
+                <View style={{ flexDirection: 'row', marginBottom: 8 }}>
+                    <Text style={styles.label}>채식 유형</Text>
+                    <FontAwesome5
+                        name="star-of-life"
+                        size={8}
+                        color={Main_theme.main_30}
+                        style={styles.cPoint}
+                    />
                 </View>
-                {vegType === 'none' && (
-                    <Text style={styles.warningText}>반드시 입력해야 하는 정보입니다.</Text>
-                )}
+                <DropDown
+                    open={open}
+                    value={value}
+                    items={items}
+                    setOpen={setOpen}
+                    setValue={setValue}
+                    setItems={setItems}
+                    placeholder={"채식 유형을 선택해주세요"}
+                ></DropDown>
+                <View style={{ height: 16 }}>
+                    {value === 'none' && (
+                        <Text style={styles.warningText}>반드시 입력해야 하는 정보입니다.</Text>
+                    )}
+                </View>
             </View>
 
             {/* 다음 버튼 */}
-            <View style={styles.button}>
-                <BtnC onPress={handleConfirm}>다음</BtnC>
+            <View style={{ ...styles.button, top: windowHeigh - 36 }}>
+                <BtnC onPress={handleLogin}>다음</BtnC>
             </View>
         </SafeAreaView>
     );
@@ -142,7 +190,7 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         position: 'relative',
-        marginBottom: 16,
+        paddingBottom: 16,
         paddingHorizontal: 16,
     },
     label: {
@@ -171,21 +219,15 @@ const styles = StyleSheet.create({
         color: Main_theme.main_reverse,
         marginTop: 4,
     },
-    pickerContainer: {
-        borderWidth: 1,
-        borderColor: Gray_theme.gray_40,
-        borderRadius: 8,
-        marginTop: 8,
-    },
-    picker: {
-        height: 48,
-        width: '100%',
-    },
     button: {
         position: "absolute",
         bottom: 24,
         right: 0,
         left: 0,
         paddingHorizontal: 16,
+    },
+    cPoint: {
+        marginLeft: 4,
+        marginTop: 2
     },
 });

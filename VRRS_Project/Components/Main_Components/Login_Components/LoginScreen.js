@@ -1,7 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, KeyboardAvoidingView, Platform } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, useWindowDimensions } from "react-native";
+import { useState } from "react";
 import { useNavigation } from '@react-navigation/native';
+// Data 관련
+import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
+// 아래 내용을 추후 로그인 화면에 동일하게 import 하여 사용해주세요
+import { useAuth } from "../../../assets/ServerDatas/ReuseDatas/AuthProvider"; // 유저의 로그인 여부를 전역적으로 사용
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext"; // 유저의 정보(닉네임, 유형)를 전역적으로 사용
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -11,59 +18,55 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 import Octicons from '@expo/vector-icons/Octicons';
 
 export default function LoginScreen({ navigation }) {
+    const windowWidth = useWindowDimensions().width;
+    const windowHeigh = useWindowDimensions().height;
     useTabBarVisibility(false);
 
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    // [ 유저의 로그인 정보를 저장하는 내용입니다 ]
+    // 로그인 여부를 저장할 변수로 전역으로 관리합니다.
+    const { isLogin, setIsLogin } = useAuth();
+
+    // 로그인 여부를 저장할 함수입니다.
+    const checkLogin = async () => {
+        try {
+            await AsyncStorage.setItem("isLogin", "true");
+            showToast("로그인 되었습니다");
+            setIsLogin(true);
+        } catch (e) {
+            setMessage('이메일이나 비밀번호가 틀렸습니다.');
+        }
+    };
+    
+    // [ 유저의 정보를 저장하는 내용입니다 ]
+    const { signUpUser, id, name, vegTypeName } = useUser();
+    const [idText, setIdText] = useState("");
+    const [passwordText, setPasswordText] = useState('');
     const [message, setMessage] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    // 유저 정보를 저장하는 함수
+    const handleSave = () => {
+        const userData = {
+            // 저장할 내용은 실제 서버에서 받아와 넣어주시면 됩니다.
+            id: idText,
+            password: passwordText,
+        };
+        signUpUser(userData); // 유저 정보를 저장
+    };
+
+    // 최종 로그인 함수 입니다
+    // 로그인 여부에 필요한 로직을 추가하여 사용해주세요
+    // (ex. 서버 내용 불러오기, textInput 확인하기 등)
+    const handleLogin = () => {
+        handleSave(); // 유저 정보를 저장
+        checkLogin(); // 로그인 여부 저장
+    };
 
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(!isPasswordVisible);
     };
 
-    // const [input, setInput] = useState('');
-    // const handleInput = (text) => {
-    //     setInput(text);
-
-    //     const emailRegex = /\S+@\S+\.\S+/;
-    //     if (emailRegex.test(text)) {
-    //         setEmail(text);  // 이메일로 설정
-    //         setUserId('');   // 아이디는 비움
-    //     } else {
-    //         setUserId(text); // 아이디로 설정
-    //         setEmail('');    // 이메일은 비움
-    //     }
-    // };
-
-    // return (
-    //     <View style={styles.input}>
-    //         <View style={styles.icon}>
-    //             <Octicons name="mail" size={18} color="gray" />
-    //         </View>
-    //         <TextInput
-    //             value={input}
-    //             onChangeText={handleInput}
-    //             placeholder="아이디 또는 이메일"
-    //             style={styles.inputText}
-    //         />
-    //     </View>
-    // );
-
-
-    // 로그인 처리
-    const handleSubmit = () => {
-        if (email === 'shinhan' && password === '0000') {
-            navigation.navigate("HomeTab", {
-                screen: "Home"
-            })
-        } else {
-            setMessage('이메일이나 비밀번호가 틀렸습니다.');
-        }
-    };
-
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={{ flex: 1, ...styles.container }}>
             <View style={styles.logoContainer}>
                 <Image
                     source={MainIcons.mainLogo}
@@ -77,13 +80,12 @@ export default function LoginScreen({ navigation }) {
             <View style={styles.inputContainer}>
                 <View style={styles.input}>
                     <View style={styles.icon}>
-                        <Octicons name="mail" size={18} color="gray" />
+                        <Octicons name="person" size={18} color="gray" />
                     </View>
                     <TextInput
-                        value={email}
-                        onChangeText={setEmail}
-                        placeholder="아이디 또는 이메일"
-                        keyboardType="email-address"
+                        value={idText}
+                        onChangeText={(id) => setIdText(id)}
+                        placeholder="아이디"
                         style={styles.inputText}
                         placeholderTextColor={Gray_theme.gray_40}
                     />
@@ -94,8 +96,8 @@ export default function LoginScreen({ navigation }) {
                         <Octicons name="lock" size={18} color="gray" />
                     </View>
                     <TextInput
-                        value={password}
-                        onChangeText={setPassword}
+                        value={passwordText}
+                        onChangeText={setPasswordText}
                         placeholder="비밀번호"
                         style={styles.inputText}
                         secureTextEntry={!isPasswordVisible}
@@ -121,20 +123,19 @@ export default function LoginScreen({ navigation }) {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.button}>
-                    <BtnC onPress={handleSubmit}>로그인</BtnC>
+                    <BtnC onPress={handleLogin}>로그인</BtnC>
                 </View>
-
-                <View style={styles.join}>
-                    <Text style={styles.joinText}>
-                        아직 회원이 아니신가요?
-                        <TouchableOpacity onPress={() => navigation.navigate('Join1')}>
-                            <Text style={{ fontFamily: 'Pretendard-Bold', fontSize: 14, color: Main_theme.main_30 }}> 회원가입하러가기</Text>
-                        </TouchableOpacity>
-                    </Text>
-                </View>
-                {message && <Text style={styles.message}>{message}</Text>}
             </View>
 
+            <View style={{ ...styles.joinContainer, top: windowHeigh - 12 }}>
+                <Text style={{ fontSize: 12 }}>
+                    아직 회원이 아니신가요?
+                </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Join1')}>
+                    <Text style={{ fontFamily: 'Pretendard-Bold', fontSize: 14, color: Main_theme.main_30 }}> 회원가입하러가기</Text>
+                </TouchableOpacity>
+            </View>
+            {message && <Text style={styles.message}>{message}</Text>}
         </SafeAreaView>
     );
 };
@@ -145,18 +146,25 @@ const styles = StyleSheet.create({
         backgroundColor: Gray_theme.white,
     },
     logoContainer: {
-        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 52,
+        marginTop: 80,
     },
     inputContainer: {
-        flex: 1,
         paddingHorizontal: 16,
         marginTop: 52,
     },
     componentContainer: {
-        flex: 2,
+        paddingHorizontal: 16,
+    },
+    joinContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        position: "absolute",
+        bottom: 24,
+        right: 0,
+        left: 0,
         paddingHorizontal: 16,
     },
     input: {
@@ -196,20 +204,6 @@ const styles = StyleSheet.create({
     button: {
         paddingHorizontal: 16,
         marginTop: 24,
-    },
-    join: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: "absolute",
-        bottom: 24,
-        left: 0,
-        right: 0,
-        width: '100%',
-    },
-    joinText: {
-        fontSize: 12,
-        textAlign: 'center',
     },
     message: {
         marginTop: 20,

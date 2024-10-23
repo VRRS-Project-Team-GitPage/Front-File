@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image,useWindowDimensions } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -15,7 +15,7 @@ export default function UserScreen({ navigation }) {
   // 사용자 정보
   const { user, name, vegTypeName } = useUser();
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={{...styles.container,}}>
       <BackHeader
         onPress={() => {
           navigation.goBack();

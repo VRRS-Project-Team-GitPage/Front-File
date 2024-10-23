@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import Octicons from '@expo/vector-icons/Octicons';
@@ -13,6 +13,8 @@ import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBa
 
 export default function Join1({ navigation }) {
     useTabBarVisibility(false);
+    const windowWidth = useWindowDimensions().width;
+    const windowHeigh = useWindowDimensions().height;
 
     const [allAgree, setAllAgree] = useState(false);
     const [termsAgree, setTermsAgree] = useState(false);
@@ -113,15 +115,23 @@ export default function Join1({ navigation }) {
                             <MaterialIcons name={termsAgree ? "check-box" : "check-box-outline-blank"} size={24} color="#BDBDBD" />
                         </View>
                     </TouchableOpacity>
-                    <Text style={styles.checkBoxText}>이용약관 동의 
+                    <Text style={styles.checkBoxText}>이용약관 동의
                         <Text style={{ color: 'red', fontSize: 12 }}>  (필수)</Text>
                     </Text>
                 </View>
                 <View style={styles.agreementBox}>
                     <ScrollView style={styles.agreementScroll}>
                         <Text style={styles.agreementText}>
-                            제1조(목적) 이 약관은 회사(전자상거래 사업자가 운영하는 인터넷 사이버
-                            몰이용자 간의 권리와 의무에 관한 내용을 규정합니다. ...
+                            제 1 장 총칙{'\n'}
+                            제 1 조 (목적){'\n'}
+                            본 약관은 신한대학교 졸업프로젝트 4조(이하 “프로젝트”라 합니다)가 모바일 기기를 통해 운영하는 애플리케이션 ‘채식어디’ (이하 “어플”이라 합니다)에서 제공하는 모바일 서비스(이하 “서비스”라 한다)를 이용함에 있어 서비스 이용자의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
+                            {'\n'}{'\n'}
+                            제 2 조 (용어의 정의){'\n'}
+                            본 약관에서 사용하는 용어는 다음과 같이 정의한다.
+                            {'\n'}1. “회원”이란 이 약관에 따라 이용계약을 체결하고, 프로젝트가 제공하는 서비스를 이용하는 자를 의미합니다.
+                            {'\n'}2. “임시회원”이란 일부 정보만 제공하고 프로젝트가 제공하는 서비스의 일부만 이용하는 자를 의미합니다.
+                            {'\n'}..이하 생략
+                            {'\n'}...
                         </Text>
                     </ScrollView>
                 </View>
@@ -155,7 +165,7 @@ export default function Join1({ navigation }) {
             </View>
 
             {/* 다음 버튼 */}
-            <View style={styles.button}>
+            <View style={{ ...styles.button, top: windowHeigh - 36 }}>
                 <BtnC onPress={handleConfirm}>다음</BtnC>
             </View>
         </SafeAreaView>

@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
@@ -8,23 +7,37 @@ import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader
 import MainIcons from "../../../assets/Icons/MainIcons";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
+import DropDown from "../../../assets/styles/ReuseComponents/Button/DropDown";
 
-import Octicons from '@expo/vector-icons/Octicons'
-// Server data를 사용하기 위해 저장한 component들을 import(현재는 더미 데이터를 사용)
+import Octicons from '@expo/vector-icons/Octicons';
+
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
+import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
 
 export default function User_ModifyScreen({ navigation }) {
     useTabBarVisibility(false);
 
     const { user, name, vegTypeName } = useUser();
-    
-    const [selectedVegType, setSelectedVegType] = useState(vegTypeName);
+
+    const [vegType, setVegType] = useState(null);
     const [nickname, setNickname] = useState(name);
+    const [open, setOpen] = useState(false);
+    const [items, setItems] = useState(
+        vegTypes
+            .filter((item) => item.id !== 0)
+            .map((item) => ({ label: item.name, value: item.id }))
+    );
+
+    useEffect(() => {
+        const matchedItem = items.find(item => item.label === vegTypeName);
+        if (matchedItem) {
+            setVegType(matchedItem.value);
+        }
+    }, [vegTypeName, items]);
 
     const handleModify = () => {
-        alert(`닉네임 : ${nickname} 채식 유형 : ${selectedVegType}`);
+        alert(`닉네임 : ${nickname} 채식 유형 : ${vegType}`);
     };
-    
 
     return (
         <SafeAreaView style={styles.container}>
@@ -37,9 +50,7 @@ export default function User_ModifyScreen({ navigation }) {
             <View style={styles.profileContainer}>
                 <Image
                     source={MainIcons.user_profile}
-                    style={{
-                        width: 72, height: 72,
-                    }}
+                    style={{ width: 72, height: 72 }}
                 />
                 <TouchableOpacity style={styles.cameraIconContainer}>
                     <Octicons name="device-camera" size={16} color="white" />
@@ -56,23 +67,17 @@ export default function User_ModifyScreen({ navigation }) {
                     placeholderTextColor={Gray_theme.gray_40}
                 />
             </View>
-
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>채식 유형</Text>
-                <View style={styles.pickerContainer}>
-                    <Picker
-                        selectedValue={selectedVegType}
-                        onValueChange={(itemValue) => setSelectedVegType(itemValue)}
-                        style={styles.picker}
-                    >
-                        <Picker.Item label="비건" value="비건" />
-                        <Picker.Item label="오보 베지테리언" value="오보 베지테리언" />
-                        <Picker.Item label="락토 베지테리언" value="락토 베지테리언" />
-                        <Picker.Item label="락토 오보 베지테리언" value="락토 오보 베지테리언" />
-                        <Picker.Item label="페스코 베지테리언" value="페스코 베지테리언" />
-                        <Picker.Item label="폴로 베지테리언" value="폴로 베지테리언" />
-                    </Picker>
-                </View>
+                <DropDown
+                    open={open}
+                    value={vegType}
+                    items={items}
+                    setOpen={setOpen}
+                    setValue={setVegType}
+                    setItems={setItems}
+                    placeholder={"채식 유형을 선택해주세요"}
+                ></DropDown>
             </View>
             <View style={styles.buttonContainer}>
                 <View style={styles.button}>
@@ -118,10 +123,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-
     label: {
         fontSize: 16,
-        color: Gray_theme.balck,
+        color: Gray_theme.black,
         marginBottom: 8,
         paddingHorizontal: 8,
     },
@@ -132,18 +136,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: Gray_theme.gray_60,
         borderRadius: 8,
-        fontSize: 16,
-    },
-    pickerContainer: {
-        height: 48,
-        width: '100%',
-        borderWidth: 1,
-        borderColor: Gray_theme.gray_60,
-        borderRadius: 8,
-        overflow: 'hidden',
-    },
-    picker: {
-        fontSize:12,
+        fontSize: 14,
     },
     button: {
         width: '30%',
