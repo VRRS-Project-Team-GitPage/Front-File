@@ -6,19 +6,14 @@ const UserContext = createContext(null);
 
 const USER_STORAGE_KEY = "logged_in_user";
 
-// 유저의 veg_type_id를 받아 비교하여 유저 타입에 해당하는 텍스트를 추출하는 함수입니다.
-const getVegTypeNameById = (id) => {
-  const vegType = vegTypes.find((type) => type.id === id);
-  return vegType ? vegType.name : "비건";
-};
-
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   // 전역적으로 사용될 유저 정보입니다.
-  const id = user?.id || null; // 유저 고유 아이디(가입 아이디와는 다른 개념입니다. 유저를 구별하기 위한 용도입니다.)
-  const name = user?.name || ""; // 유저 닉네임
-  const vegTypeName = user ? getVegTypeNameById(user.veg_type_id) : ""; // 유저 타입
+  const jwt = user?.jwt || null; // 유저 고유 아이디(가입 아이디와는 다른 개념입니다. 유저를 구별하기 위한 용도입니다.)
+  const name = user?.nickname || ""; // 유저 닉네임
+  const vegTypeId = user?.vegType?.id || 1; // 유저 채식 유형 아이디
+  const vegTypeName = user?.vegType?.name || ""; // 유저 채식 유형 이름
 
   const saveUserToStorage = async (userData) => {
     try {
@@ -34,14 +29,6 @@ export const UserProvider = ({ children }) => {
       const storedUser = await AsyncStorage.getItem(USER_STORAGE_KEY);
       if (storedUser) {
         setUser(JSON.parse(storedUser));
-      } else {
-        const dummyUser = {
-          // 사용을 위한 더미 데이터 입니다.
-          id: 1,
-          name: "김철수",
-          veg_type_id: 1,
-        };
-        await saveUserToStorage(dummyUser); // 더미 유저 저장을 완료한 후에 로드
       }
     } catch (error) {
       console.error("저장된 유저 정보가 없습니다 :", error);
@@ -50,18 +37,27 @@ export const UserProvider = ({ children }) => {
 
   // 로그인 시 유저 정보를 저장할 수 있도록 하는 함수입니다.
   // 1. 로그인 정보를 받아오는 컴포넌트에서 useUser를 import 한다.
-  // 2. const { signUpUser } = useUser(); 를 통해 해당 함수를 불러온다.
-  // 3. 유저 정보 object를 저장한다.
+  // 2. const { signUpUser } = useUser(); 로 로그인 함수를 불러온다.
+  // 3. 서버에 아이디/비밀번호를 전송 후 유저 정보를 받아와 저장한다.
   // 다음과 같은 과정을 진행하면 전역적으로 유저의 정보를 사용할 수 있게 됩니다
-  const signUpUser = async (userData) => {
-    await saveUserToStorage(userData); // 새 유저 정보 저장
-  };
+  // 사용 방법은 LoginScreen.js에 구현되어 있습니다.
 
+  const signUpUser = async (userData) => {
+    // 서버에서 받은 로그인 데이터를 그대로 저장
+    const storageUser = {
+      jwt: userData.jwt, // JWT 토큰
+      nickname: userData.nickname, // 서버에서 받은 닉네임
+      vegType: userData.vegType, // 서버에서 받은 vegType (id와 name 포함)
+    };
+
+    await saveUserToStorage(storageUser); // 새 유저 정보 저장
+  };
   // AsyncStorage를 초기화 하는 함수입니다.
   // 추후 탈퇴 기능을 구현하게 되면 사용해주세요
   const clearStorage = async () => {
     try {
       await AsyncStorage.removeItem(USER_STORAGE_KEY);
+      setUser(null);
       console.log("Storage cleared");
     } catch (error) {
       console.error("Failed to clear storage:", error);
@@ -76,7 +72,15 @@ export const UserProvider = ({ children }) => {
   // 전역적으로 관리될 정보들입니다.
   return (
     <UserContext.Provider
-      value={{ user, signUpUser, clearStorage, id, name, vegTypeName }}
+      value={{
+        user,
+        signUpUser,
+        clearStorage,
+        jwt,
+        name,
+        vegTypeId,
+        vegTypeName,
+      }}
     >
       {children}
     </UserContext.Provider>

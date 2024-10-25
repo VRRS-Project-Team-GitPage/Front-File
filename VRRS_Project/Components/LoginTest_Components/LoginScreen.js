@@ -1,23 +1,28 @@
 import { SafeAreaView } from "react-native-safe-area-context";
-import { View, Text, TextInput, Button } from "react-native";
+import { View, Text, TextInput, Image, TouchableOpacity } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { useState } from "react";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 // component 관련
-import DropDown from "../../assets/styles/ReuseComponents/Button/DropDown";
+import BackHeader from "../../assets/styles/ReuseComponents/Header/BackHeader";
+import Btn from "../../assets/styles/ReuseComponents/Button/Btn";
+import BtnC from "../../assets/styles/ReuseComponents/Button/BtnC";
+import showToast from "../../assets/styles/ReuseComponents/showToast";
 // design 관련
 import { Gray_theme, Main_theme } from "../../assets/styles/Theme_Colors";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-// Data 관련
-import { vegTypes } from "../../assets/ServerDatas/Dummy/dummyVegTypes";
+import Octicons from "@expo/vector-icons/Octicons";
+import MainIcons from "../../assets/Icons/MainIcons";
 // 아래 내용을 추후 로그인 화면에 동일하게 import 하여 사용해주세요
+import { loginUser } from "../../assets/ServerDatas/ServerApi/authApi";
 import { useAuth } from "../../assets/ServerDatas/ReuseDatas/AuthProvider"; // 유저의 로그인 여부를 전역적으로 사용
 import { useUser } from "../../assets/ServerDatas/Users/UserContext"; // 유저의 정보(닉네임, 유형)를 전역적으로 사용
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import showToast from "../../assets/styles/ReuseComponents/showToast";
 
 export default function LoginScreen({ navigation }) {
-  const windowWidth = useWindowDimensions().width;
-  const windowHeigh = useWindowDimensions().height;
+  // TextInput에 들어갈 내용
+  const [idText, setIdText] = useState("");
+  const [passwordText, setPasswordText] = useState("");
+  const [visible, setVisible] = useState(false);
 
   // [ 유저의 로그인 정보를 저장하는 내용입니다 ]
   // 로그인 여부를 저장할 변수로 전역으로 관리합니다.
@@ -35,131 +40,109 @@ export default function LoginScreen({ navigation }) {
   };
 
   // [ 유저의 정보를 저장하는 내용입니다 ]
-  const { signUpUser, id, name, vegTypeName } = useUser();
-  const [nameText, setNameText] = useState("");
-  const [idText, setIdText] = useState("");
-  // 유저 정보를 저장하는 함수
-  const handleSave = () => {
-    const userData = {
-      // 저장할 내용은 실제 서버에서 받아와 넣어주시면 됩니다.
-      id: idText,
-      name: nameText,
-      veg_type_id: value,
-    };
-    signUpUser(userData); // 유저 정보를 저장
+  const { signUpUser } = useUser();
+
+  // 서버 연동에 필요한 내용
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const loginApi = async () => {
+    setLoading(true);
+    setError(null); // 에러 초기화
+
+    try {
+      const data = await loginUser(idText, passwordText);
+      // 성공 시 처리 (예: 다른 화면으로 이동)
+      await signUpUser(data);
+      checkLogin();
+    } catch (error) {
+      setError(error.message); // 에러 메시지 설정
+      showToast(error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 최종 로그인 함수 입니다
-  // 로그인 여부에 필요한 로직을 추가하여 사용해주세요
-  // (ex. 서버 내용 불러오기, textInput 확인하기 등)
-  const handleLogin = () => {
-    handleSave(); // 유저 정보를 저장
-    checkLogin(); // 로그인 여부 저장
-  };
-
-  // DropDown에 사용될 변수 및 내용입니다
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(null);
-  const [items, setItems] = useState(
-    vegTypes
-      .filter((item) => item.id !== 0)
-      .map((item) => ({ label: item.name, value: item.id }))
-  );
+  const windowWidth = useWindowDimensions().width;
+  const windowHeigh = useWindowDimensions().height;
 
   return (
     <SafeAreaView style={styles.container}>
-      <View
+      <BackHeader
+        children={"로그인 하기"}
+        onPress={() => {
+          navigation.goBack();
+        }}
+      />
+      <View style={styles.logoContainer}>
+        <Image source={MainIcons.mainLogo} style={styles.mainLogo} />
+      </View>
+      <KeyboardAwareScrollView
         style={{
-          marginVertical: 60,
+          paddingHorizontal: 24,
         }}
       >
-        <Text>테스트 용 로그인 스크린 입니다.</Text>
-        <Text>실제 로그인 스크린과 다르게 구성되어 있으며,</Text>
-        <Text>전역 및 로컬 저장에 대한 예시를 담기 위해</Text>
-        <Text>아래와 같이 구성하였으니 참고 바랍니다</Text>
-      </View>
-      <View style={styles.userInfo}>
         <View
           style={{
-            paddingVertical: 8,
-            marginBottom: 24,
+            marginBottom: 16,
           }}
         >
-          <View style={{ flexDirection: "row" }}>
-            <Text style={styles.textInfo}>아이디</Text>
-            <FontAwesome5
-              name="star-of-life"
-              size={8}
-              color={Main_theme.main_30}
-              style={styles.cPoint}
-            />
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <TextInput
-              placeholder="아이디를 입력해주세요"
-              placeholderTextColor={Gray_theme.gray_40}
-              value={idText}
-              onChangeText={(id) => setIdText(id)}
-              style={styles.textInput}
-            ></TextInput>
-          </View>
+          <TextInput
+            placeholder="아이디를 입력해주세요"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            placeholderTextColor={Gray_theme.gray_40}
+            value={idText}
+            onChangeText={(id) => setIdText(id)}
+            style={styles.textInput}
+          ></TextInput>
         </View>
         <View
           style={{
-            paddingVertical: 8,
-            marginBottom: 24,
+            flexDirection: "row",
           }}
         >
-          <View style={{ flexDirection: "row" }}>
-            <Text style={styles.textInfo}>닉네임</Text>
-            <FontAwesome5
-              name="star-of-life"
-              size={8}
-              color={Main_theme.main_30}
-              style={styles.cPoint}
-            />
-          </View>
-          <View style={{ flexDirection: "row" }}>
-            <TextInput
-              placeholder="가입 후 변경 가능합니다"
-              placeholderTextColor={Gray_theme.gray_40}
-              value={nameText}
-              onChangeText={(id) => setNameText(id)}
-              style={styles.textInput}
-            ></TextInput>
-          </View>
+          <TextInput
+            placeholder="비밀번호를 입력해주세요"
+            secureTextEntry={visible ? false : true}
+            autoCapitalize="none"
+            placeholderTextColor={Gray_theme.gray_40}
+            value={passwordText}
+            onChangeText={(id) => setPasswordText(id)}
+            style={styles.textInput}
+          ></TextInput>
+          <TouchableOpacity
+            style={styles.passwordVisible}
+            onPressIn={() => {
+              setVisible(true);
+            }}
+            onPressOut={() => {
+              setVisible(false);
+            }}
+          >
+            {!visible ? (
+              <Octicons
+                name="eye-closed"
+                size={20}
+                color={Gray_theme.gray_40}
+              />
+            ) : (
+              <Octicons name="eye" size={20} color={Gray_theme.gray_40} />
+            )}
+          </TouchableOpacity>
         </View>
-        <View
-          style={{
-            paddingVertical: 8,
-          }}
-        >
-          <View style={{ flexDirection: "row" }}>
-            <Text style={styles.textInfo}>채식 유형</Text>
-            <FontAwesome5
-              name="star-of-life"
-              size={8}
-              color={Main_theme.main_30}
-              style={styles.cPoint}
-            />
-          </View>
-          <DropDown
-            open={open}
-            value={value}
-            items={items}
-            setOpen={setOpen}
-            setValue={setValue}
-            setItems={setItems}
-            placeholder={"채식 유형을 선택해주세요"}
-          ></DropDown>
-        </View>
-      </View>
+      </KeyboardAwareScrollView>
       <View style={{ ...styles.buttonContainer, top: windowHeigh - 36 }}>
-        <Button
-          title="로그인"
-          color={Main_theme.main_50}
-          onPress={handleLogin}
-        ></Button>
+        {idText === "" || passwordText === "" ? (
+          <Btn
+            children={"로그인"}
+            onPress={() => {
+              showToast("모든 항목을 작성해주세요");
+            }}
+          ></Btn>
+        ) : (
+          <BtnC children={"로그인"} onPress={loginApi}></BtnC>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -169,29 +152,38 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Gray_theme.white,
-    paddingHorizontal: 24,
   },
-  userInfo: {},
-  textInfo: {
-    fontSize: 16,
-    fontFamily: "Pretendard-Medium",
-    marginBottom: 8,
+  contents: {
+    flex: 1,
+    alignItems: "center",
   },
-  cPoint: {
-    marginLeft: 4,
+  logoContainer: {
+    height: 300,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mainLogo: {
+    width: 140,
+    height: 140,
   },
   textInput: {
     // TextInput 디자인
     flex: 1,
-    height: 42,
-    paddingHorizontal: 8,
+    height: 56,
+    paddingHorizontal: 16,
     justifyContent: "center",
-    borderBottomWidth: 1,
+    borderWidth: 1,
     borderColor: Gray_theme.gray_50,
+    borderRadius: 8,
     // TextInput 내부 글씨
     color: Gray_theme.balck,
     fontFamily: "Pretendard-Regular",
     color: Gray_theme.balck,
+  },
+  passwordVisible: {
+    position: "absolute",
+    right: 24,
+    alignSelf: "center",
   },
   buttonContainer: {
     position: "absolute",
