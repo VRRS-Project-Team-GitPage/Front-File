@@ -1,4 +1,4 @@
-import React, { useRef, useContext, useState } from "react";
+import React, { useRef, useContext, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // component 관련
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
@@ -16,6 +17,7 @@ import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 // Data 관련
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 
 function SearchScreen({ navigation }) {
   const textInputRef = useRef();
@@ -33,14 +35,12 @@ function SearchScreen({ navigation }) {
   // 하단탭 숨김
   useTabBarVisibility(false);
 
-  // toast message를 띄워주기 위한 함수
-  const showToastWithGravity = () => {
-    ToastAndroid.showWithGravity(
-      "검색어를 입력해주세요",
-      ToastAndroid.SHORT,
-      ToastAndroid.BOTTOM
-    );
-  };
+  // 화면이 포커싱 되었을 때 언제나 모달창 닫기
+  useFocusEffect(
+    useCallback(() => {
+      setSearchText("");
+    }, [])
+  );
 
   // textInput에 해당하는 text를 입력해주는 함수
   const goToSearch = (text) => {
@@ -108,7 +108,7 @@ function SearchScreen({ navigation }) {
           value={searchText}
           onSubmitEditing={() => {
             if (searchText === "") {
-              return showToastWithGravity();
+              showToast("검색어를 입력해주세요");
             } else {
               saveSearchText();
               handleSearch();

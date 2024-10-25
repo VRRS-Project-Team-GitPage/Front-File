@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
 import { StyleSheet } from "react-native";
-import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // component 관련
@@ -18,16 +18,18 @@ import Entypo from "@expo/vector-icons/Entypo";
 // data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import LocalReviewModal from "../../../assets/ServerDatas/LocalDatas/LocalReviewModal";
-
-// 키 값을 통해 로컬 저장소에 접근
-// 추후 내 정보에 사용 시 동일한 시 선언 후 파일 저장
-const REVIEW_KEY = "userReview";
+// Server data 관련
+import {
+  fetchProductData,
+  fetchReviewData,
+} from "../../../assets/ServerDatas/ServerApi/dictionaryApi";
+import { deleteReview } from "../../../assets/ServerDatas/ServerApi/reviewApi";
 
 export default function DicProductReviewScreen({ route, navigation }) {
   // user의 정보를 불러옴
-  const { user, id, name, vegTypeName } = useUser();
+  const { jwt, name, vegTypeName } = useUser();
   // 이전 화면에서 넘어온 정보
-  const { productID, reviewLength, reviewList } = route.params || {};
+  const { productID } = route.params || {};
 
   // 화면이 포커싱 되었을 때 언제나 모달창 닫기
   useFocusEffect(
@@ -35,6 +37,29 @@ export default function DicProductReviewScreen({ route, navigation }) {
       setReviewModalVisible(false);
     }, [])
   );
+
+  // 리뷰 수를 저장할 state
+  const [reviewCnt, setReviewCnt] = useState();
+
+  // 사용자 리뷰를 저장할 state
+  const [reviews, setReviews] = useState([]);
+  const [ownReview, setOwnReview] = useState();
+
+  const loadData = async () => {
+    try {
+      const data = await fetchProductData(jwt, productID); // 제품 상세 데이터 요청
+      const reviewData = await fetchReviewData(jwt, productID); // 제품 리뷰 데이터 요청
+      setReviewCnt(data.reviewCnt);
+      setReviews(reviewData.reviews);
+      setOwnReview(reviewData.review);
+    } catch (error) {
+      console.error(error.message); // 에러 처리
+    }
+  };
+
+  useEffect(() => {
+    loadData(); // 데이터 불러오기 호출
+  }, [jwt, productID]);
 
   // 리뷰 작성 모달창 관리
   const [reviewModalVisible, setReviewModalVisible] = useState(false);
@@ -46,21 +71,36 @@ export default function DicProductReviewScreen({ route, navigation }) {
   const [reviewText, setReviewText] = useState("");
   // 리뷰 작성 시간
   const [reviewTime, setReviewTime] = useState("");
-  // 서버 업로드 여부
-  const [upLoadReview, setUpLoadReview] = useState(false);
   // 사용자가 작성한 리뷰 저장
   const [mainUserReview, setMainUserReview] = useState("");
 
   // 모달창 닫기
   const onRequestClose = () => {
     // 서버에 리뷰가 업로드 되지 않은 경우
-    if (!upLoadReview) {
+    if (!ownReview) {
       setReviewText("");
       setIsRec(false);
       setIsNotRec(false);
     }
     setReviewModalVisible(false);
+    loadData();
   };
+
+  const loadReviews = async () => {
+    try {
+      const data = await fetchProductData(jwt, productID); // 제품 데이터
+      const reviewData = await fetchReviewData(jwt, productID); // 리뷰 데이터
+      setReviewCnt(data.reviewCnt);
+      setReviews(reviewData.reviews);
+      setOwnReview(reviewData.review);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    loadReviews();
+  }, [productID]);
 
   // 삭제 모달창 관리
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -70,24 +110,24 @@ export default function DicProductReviewScreen({ route, navigation }) {
     setDeleteModalOpen(false);
   };
 
-  // 리뷰 삭제 함수
-  const deleteReview = async () => {
+  const handleReviewDelete = async () => {
     try {
-      // AsyncStorage에서 리뷰 데이터를 삭제
-      await AsyncStorage.removeItem(REVIEW_KEY);
+      // 서버로 DELETE 요청 보내기
+      await deleteReview(jwt, productID);
 
-      // 모든 상태를 초기화
-      setMainUserReview(null);
-      setReviewText(""); // 리뷰 텍스트 초기화
-      setIsRec(false); // 추천 상태 초기화
-      setIsNotRec(false); // 비추천 상태 초기화
-      setUpLoadReview(false); // 서버 업로드 여부 초기화
-      setDeleteModalOpen(false);
+      loadData(); // 데이터 불러오기 호출
+      // 상태 초기화
+      setMainUserReview(null); // 리뷰 데이터 제거
+      setReviewTime(null);
+      setReviewText("");
+      setIsRec(false);
+      setIsNotRec(false);
 
-      // 삭제 완료 메시지 표시
+      handleDeleteModal();
       showToast("리뷰가 삭제되었습니다.");
-    } catch (e) {
-      showToast("리뷰 삭제 중 오류가 발생하였습니다 :", e);
+    } catch (error) {
+      console.error("리뷰 삭제 중 오류:", error);
+      showToast("리뷰 삭제 중 오류가 발생하였습니다.");
     }
   };
 
@@ -105,16 +145,15 @@ export default function DicProductReviewScreen({ route, navigation }) {
         setReviewText={setReviewText}
         reviewTime={reviewTime}
         setReviewTime={setReviewTime}
-        upLoadReview={upLoadReview}
-        setUpLoadReview={setUpLoadReview}
         mainUserReview={mainUserReview}
         setMainUserReview={setMainUserReview}
         productID={productID}
+        loadReviews={loadReviews}
       />
       <QuestionModal
         visible={deleteModalOpen}
         onRequestClose={handleDeleteModal}
-        onPress={deleteReview}
+        onPress={handleReviewDelete}
         style_cancle={styles.style_cancle}
         style_ok={styles.style_ok}
       >
@@ -135,7 +174,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
             style={styles.headerIcon}
           />
           <Text style={styles.headerText}>리뷰</Text>
-          <Text style={styles.reviewTotal}>({reviewLength})</Text>
+          <Text style={styles.reviewTotal}>({reviewCnt})</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.mainUserReviewC}>
@@ -159,10 +198,10 @@ export default function DicProductReviewScreen({ route, navigation }) {
                 </Text>
               </View>
             </View>
-            {mainUserReview ? (
+            {ownReview ? (
               <View style={{ flexDirection: "row", alignItems: "center" }}>
                 <Text style={styles.writeDate}>
-                  {new Date(reviewTime).toLocaleDateString()}
+                  {new Date(ownReview.date).toLocaleDateString()}
                 </Text>
                 <Entypo
                   name="dot-single"
@@ -170,7 +209,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
                   color={Gray_theme.gray_50}
                   style={styles.dot}
                 />
-                {isRec ? (
+                {ownReview.rec ? (
                   <Image
                     source={MainIcons.good}
                     style={{ ...styles.userRec, marginBottom: 2 }}
@@ -186,7 +225,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
           </View>
         </View>
         <View style={styles.mainContent}>
-          {!mainUserReview ? (
+          {!ownReview ? (
             <Text
               style={{
                 ...styles.mainCText,
@@ -197,15 +236,15 @@ export default function DicProductReviewScreen({ route, navigation }) {
               작성된 리뷰가 없습니다.
             </Text>
           ) : (
-            <Text style={{ ...styles.mainCText }}>{reviewText}</Text>
+            <Text style={{ ...styles.mainCText }}>{ownReview.content}</Text>
           )}
         </View>
       </View>
-      {!mainUserReview ? (
+      {!ownReview ? (
         <View style={styles.btnC}>
           <BtnC
             onPress={() => {
-              setReviewModalVisible(!reviewModalVisible);
+              setReviewModalVisible(true);
             }}
           >
             리뷰 쓰기
@@ -245,10 +284,10 @@ export default function DicProductReviewScreen({ route, navigation }) {
 
       <View style={{ flex: 1, marginTop: 24 }}>
         <Line />
-        {reviewLength !== 0 ? (
+        {reviews && reviews.length > 0 ? (
           <FlatList
             showsVerticalScrollIndicator={false}
-            data={reviewList}
+            data={reviews}
             keyExtractor={(item, index) => index.toString()} // 인덱스를 key로 사용
             renderItem={({ item }) => {
               return (
@@ -266,9 +305,9 @@ export default function DicProductReviewScreen({ route, navigation }) {
                             marginBottom: 8,
                           }}
                         >
-                          <Text style={styles.userName}>{item.user_name}</Text>
+                          <Text style={styles.userName}>{item.nickname}</Text>
                           <Text style={styles.vegType}>
-                            {item.user_veg_type}
+                            {item.vegType.name}
                           </Text>
                         </View>
                       </View>
@@ -276,7 +315,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
                         style={{ flexDirection: "row", alignItems: "center" }}
                       >
                         <Text style={styles.writeDate}>
-                          {new Date(item.created_at).toLocaleDateString()}
+                          {new Date(item.date).toLocaleDateString()}
                         </Text>
                         <Entypo
                           name="dot-single"
@@ -284,7 +323,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
                           color={Gray_theme.gray_50}
                           style={styles.dot}
                         />
-                        {item.is_rec ? (
+                        {item.rec ? (
                           <Image
                             source={MainIcons.good}
                             style={{ ...styles.userRec, marginBottom: 2 }}
@@ -305,8 +344,20 @@ export default function DicProductReviewScreen({ route, navigation }) {
           />
         ) : (
           <View style={styles.noRevieContainer}>
-            <Text style={styles.noRevieText}>작성된 리뷰가 없습니다</Text>
-            <Text style={styles.noRevieText}>첫 번째 리뷰를 남겨주세요!</Text>
+            {ownReview ? (
+              <View>
+                <Text style={styles.noRevieText}>
+                  다른 사용자의 리뷰가 없습니다
+                </Text>
+              </View>
+            ) : (
+              <View>
+                <Text style={styles.noRevieText}>작성된 리뷰가 없습니다</Text>
+                <Text style={styles.noRevieText}>
+                  첫 번째 리뷰를 남겨주세요!
+                </Text>
+              </View>
+            )}
           </View>
         )}
       </View>
@@ -433,6 +484,7 @@ const styles = StyleSheet.create({
   noRevieText: {
     fontFamily: "Pretendard-Medium",
     color: Gray_theme.gray_70,
+    textAlign: "center",
   },
   // 삭제 모달
   style_cancle: {

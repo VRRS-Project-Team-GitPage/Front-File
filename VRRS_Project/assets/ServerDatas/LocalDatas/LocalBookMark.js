@@ -2,12 +2,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import showToast from "../../styles/ReuseComponents/showToast";
 
 // 북마크 상태 저장 함수
-export const saveBookmarkWithTimestamp = async (itemId, newStatus) => {
-  const timestamp = new Date().toISOString(); // 현재 시간을 ISO 문자열로 저장
+export const saveBookmarkWithTimestamp = async (itemId) => {
   try {
     await AsyncStorage.setItem(
       `bookmark_${itemId}`,
-      JSON.stringify({ bookmarked: newStatus, timestamp }) // 북마크와 함께 타임스탬프 저장
+      JSON.stringify({ bookmarked: newStatus }) // 북마크와 함께 타임스탬프 저장
     );
   } catch (e) {
     console.error("북마크 저장 중 에러 발생", e.message, e.stack);

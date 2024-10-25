@@ -1,9 +1,9 @@
 import React from "react";
-import { useState, useEffect } from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
-import { View, Text, Image, ScrollView } from "react-native";
+import { useState, useEffect, useCallback } from "react";
+import { ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, Image, ScrollView, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import MainIcons from "../../../assets/Icons/MainIcons";
@@ -19,47 +19,144 @@ import {
   saveBookmarkWithTimestamp,
   getBookmarkStatus,
 } from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
-// Date 관련
+// Server 관련
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
-  getAllProducts,
-  products,
-  getVegTypeName,
-  getProTypeName,
-} from "../../../assets/ServerDatas/Dummy/dummyProducts";
+  fetchProductData,
+  fetchReviewData,
+} from "../../../assets/ServerDatas/ServerApi/dictionaryApi";
 import {
-  getReviewsByProduct,
-  getReviewsWithUserInfo,
-  sortReviewsByDate,
-} from "../../../assets/ServerDatas/Dummy/dummyReviews";
+  addBookmark,
+  removeBookmark,
+} from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
 
 export default function DicProductScreen({ navigation, route }) {
+  // user의 정보를 불러옴
+  const { jwt } = useUser();
+
+  // 사전 화면에서 받아온 제품 id
   const { id } = route.params || {};
 
   // 하단탭 숨김
   useTabBarVisibility(false);
 
-  // 특정 id를 통해 제품을 찾는 함수
-  const findProductById = (id) => {
-    return products.find((product) => product.id === id);
-  };
+  useFocusEffect(
+    useCallback(() => {
+      setOwnReview("");
+      loadData();
+      loadReviewData();
+    }, [])
+  );
 
   // id를 통해 찾은 제품을 저장할 state
   const [product, setProduct] = useState([]);
+  const [ingredients, setIngredients] = useState();
 
-  useEffect(() => {
-    if (id) {
-      const foundProduct = findProductById(id);
-      if (foundProduct) {
-        setProduct(foundProduct);
+  // 사용자 리뷰를 저장할 state
+  const [reviews, setReviews] = useState();
+  const [ownReview, setOwnReview] = useState();
+
+  // 원재료명을 분리하는 함수
+  const parseIngredients = (input) => {
+    const result = [];
+    let currentItem = "";
+    let bracketStack = []; // 괄호를 추적하는 스택
+
+    for (let i = 0; i < input.length; i++) {
+      const char = input[i];
+
+      if (char === "," && bracketStack.length === 0) {
+        // 콤마가 괄호 밖에 있을 때만 분리
+        result.push({ item: currentItem.trim() });
+        currentItem = "";
+      } else {
+        // 괄호를 만나면 스택에 추가
+        if (char === "(" || char === "[" || char === "{") {
+          bracketStack.push(char);
+        }
+
+        // 닫는 괄호를 만나면 스택에서 제거
+        if (char === ")" && bracketStack[bracketStack.length - 1] === "(") {
+          bracketStack.pop();
+        }
+        if (char === "]" && bracketStack[bracketStack.length - 1] === "[") {
+          bracketStack.pop();
+        }
+        if (char === "}" && bracketStack[bracketStack.length - 1] === "{") {
+          bracketStack.pop();
+        }
+
+        // 현재 문자를 항목에 추가
+        currentItem += char;
       }
     }
-  }, [id]);
 
-  // 제품 북마크
+    // 마지막 항목 추가
+    if (currentItem) {
+      result.push({ item: currentItem.trim() });
+    }
+
+    return result;
+  };
+
+  const loadData = async () => {
+    try {
+      const data = await fetchProductData(jwt, id);
+      if (data) {
+        const ingredientsList = parseIngredients(data.ingredients);
+        const ingredientsWithLength = ingredientsList.map((ingredient) => ({
+          ...ingredient,
+          length: ingredient.item.length,
+        }));
+        setProduct(data);
+        setIngredients(ingredientsWithLength);
+      } else {
+        console.warn("Product data is undefined.");
+      }
+    } catch (error) {
+      console.error("Failed to load product data:", error.message);
+    }
+  };
+
+  const loadReviewData = async () => {
+    try {
+      const reviewData = await fetchReviewData(jwt, id);
+      if (reviewData?.reviews) {
+        setReviews(reviewData.reviews);
+        setOwnReview(reviewData.review);
+      } else {
+        setReviews([]);
+        setOwnReview(null);
+      }
+    } catch (error) {
+      console.error("Failed to load review data:", error.message);
+    }
+  };
+
+  useEffect(() => {
+    loadData(); // 데이터 불러오기 호출
+  }, [jwt, id, ownReview]);
+
+  const [firstReview, setFirstReview] = useState();
+
+  useEffect(() => {
+    // 첫 번째 리뷰만 가져오기
+    setFirstReview(
+      product.reviewCnt > 0 || reviews
+        ? reviews[0]
+        : ownReview
+        ? ownReview
+        : null
+    );
+  }, [reviews]);
 
   // 추천수 퍼센테이지
   const thuumsUp =
-    product.review !== 0 ? parseInt((product.rec / product.review) * 100) : -1;
+    product.reviewCnt !== 0
+      ? parseInt((product.recCnt / product.reviewCnt) * 100)
+      : -1;
+
+  // [ 제품 북마크 ]
 
   // 제품 북마크 여부를 저장
   const [isBookmarked, setIsBookmarked] = useState(false);
@@ -67,33 +164,33 @@ export default function DicProductScreen({ navigation, route }) {
   useEffect(() => {
     // 컴포넌트가 마운트될 때 북마크 상태 불러오기
     const fetchBookmarkStatus = async () => {
-      const status = await getBookmarkStatus(product.id);
+      const status = await getBookmarkStatus(id);
       // 상태의 bookmarked 값을 가져와서 설정
       setIsBookmarked(status.bookmarked);
     };
 
     fetchBookmarkStatus();
-  }, [product.id]);
+  }, [id]);
 
   const toggleBookmark = async () => {
     const newStatus = !isBookmarked;
     setIsBookmarked(newStatus);
-    await saveBookmarkWithTimestamp(product.id, newStatus); // newStatus를 저장해야 하므로 saveBookmarkWithTimestamp 함수 수정 필요
+
+    try {
+      if (newStatus) {
+        // 북마크 추가
+        await addBookmark(jwt, id); // jwtToken은 유저의 JWT 토큰
+      } else {
+        // 북마크 삭제
+        await removeBookmark(jwt, id);
+      }
+      await saveBookmarkWithTimestamp(id, newStatus); // 로컬에 기록
+    } catch (error) {
+      console.error("북마크 상태 업데이트 중 에러 발생:", error.message);
+      // 에러 발생 시 이전 상태로 되돌림
+      setIsBookmarked(!newStatus);
+    }
   };
-
-  // 리뷰 관련
-  // 1. 제품 ID에 맞는 리뷰를 가져오고 최신순으로 정렬
-  const productReviews = getReviewsByProduct(product.id);
-  const sortedReviews = sortReviewsByDate(productReviews);
-
-  // 2. 리뷰에 유저 정보를 연동
-  const productReviewsWithUserInfo = getReviewsWithUserInfo(sortedReviews);
-
-  // 3. 첫 번째 리뷰만 가져오기
-  const firstReview =
-    productReviewsWithUserInfo.length > 0 ? productReviewsWithUserInfo[0] : [];
-
-  const reviewLength = product.review;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -121,7 +218,7 @@ export default function DicProductScreen({ navigation, route }) {
           <View>
             <View style={styles.imageContain}>
               <Image
-                source={{ uri: product.img_path }}
+                source={{ uri: product.imgUrl }}
                 style={styles.image}
               ></Image>
               <TouchableScale
@@ -143,9 +240,7 @@ export default function DicProductScreen({ navigation, route }) {
             </View>
             <View>
               <View style={styles.proInfo_N}>
-                <Text style={styles.proType}>
-                  {getProTypeName(product.pro_type_id)}
-                </Text>
+                <Text style={styles.proType}>{product.category}</Text>
                 <Text style={styles.proName}>{product.name}</Text>
               </View>
               <View style={styles.itemInfoC}>
@@ -158,7 +253,7 @@ export default function DicProductScreen({ navigation, route }) {
                       marginBottom: 16,
                     }}
                   >
-                    <Text style={styles.infoReview}>{product.review}</Text>
+                    <Text style={styles.infoReview}>{product.reviewCnt}</Text>
                     <Text style={styles.infoReview}>명의 리뷰가 있어요!</Text>
                   </View>
                   <View>
@@ -249,31 +344,35 @@ export default function DicProductScreen({ navigation, route }) {
                     }}
                   >
                     <Text style={{ ...styles.text, color: Gray_theme.white }}>
-                      {getVegTypeName(product.veg_type_id)}
+                      {product.vegType}
                     </Text>
                   </View>
                 </View>
                 <View>
                   <Text style={styles.proTypeTitle}>원재료</Text>
-
-                  <ScrollView
-                    contentContainerStyle={{
-                      flexDirection: "row", // 가로로 나열
-                      flexWrap: "wrap", // 줄 바꿈
+                  <View
+                    style={{
+                      flexDirection: "row",
                     }}
                   >
-                    {product.ingredients && product.ingredients.length > 0 ? (
-                      product.ingredients.map((item, index) => (
-                        <View key={index} style={styles.textBadge}>
-                          <Text style={styles.text}>{item}</Text>
-                        </View>
-                      ))
-                    ) : (
-                      <Text style={styles.userName}>
-                        원재료 정보가 없습니다.
-                      </Text> // 데이터가 없을 때 표시
-                    )}
-                  </ScrollView>
+                    <View
+                      style={{
+                        flexDirection: "row", // 가로로 항목을 배치
+                        flexWrap: "wrap", // 화면이 넘치면 다음 줄로 감
+                        justifyContent: "flex-start", // 왼쪽부터 배치
+                      }}
+                    >
+                      {ingredients && ingredients.length > 0 ? (
+                        ingredients.map((item, index) => (
+                          <View style={styles.textBadge}>
+                            <Text style={styles.text}>{item.item}</Text>
+                          </View>
+                        ))
+                      ) : (
+                        <ActivityIndicator />
+                      )}
+                    </View>
+                  </View>
                 </View>
               </View>
               <Line />
@@ -283,8 +382,9 @@ export default function DicProductScreen({ navigation, route }) {
                     onPress={() => {
                       navigation.navigate("ProductReview", {
                         productID: product.id,
-                        reviewLength: reviewLength, // 리뷰의 총 개슈
-                        reviewList: productReviewsWithUserInfo, // 리뷰 리스트
+                        reviewLength: product.reviewCnt, // 리뷰의 총 개슈
+                        reviewList: reviews ? reviews : null, // 리뷰 리스트
+                        ownReview: ownReview ? ownReview : null, // 본인 리뷰
                       });
                     }}
                     activeOpacity={0.8}
@@ -295,7 +395,7 @@ export default function DicProductScreen({ navigation, route }) {
                       >
                         <Text style={styles.reviewTitle}>리뷰</Text>
                         <Text style={styles.reviewTotal}>
-                          ({product.review})
+                          ({product.reviewCnt})
                         </Text>
                       </View>
                       <View
@@ -321,7 +421,7 @@ export default function DicProductScreen({ navigation, route }) {
                 </View>
 
                 <View>
-                  {firstReview.length !== 0 ? (
+                  {firstReview ? (
                     <View style={styles.reviewContainer}>
                       <View style={styles.userReviewContainer}>
                         <Image
@@ -333,17 +433,15 @@ export default function DicProductScreen({ navigation, route }) {
                             style={{ flexDirection: "row", marginBottom: 6 }}
                           >
                             <Text style={styles.userName}>
-                              {firstReview.user_name}
+                              {firstReview ? firstReview.nickname : "유저"}
                             </Text>
                             <Text style={styles.vegType}>
-                              {firstReview.user_veg_type}
+                              {firstReview.vegType.name}
                             </Text>
                           </View>
                           <View style={{ flexDirection: "row" }}>
                             <Text style={styles.writeDate}>
-                              {new Date(
-                                firstReview.created_at
-                              ).toLocaleDateString()}
+                              {new Date(firstReview.date).toLocaleDateString()}
                             </Text>
 
                             <Entypo
@@ -352,7 +450,7 @@ export default function DicProductScreen({ navigation, route }) {
                               color={Gray_theme.gray_50}
                               style={styles.dot}
                             />
-                            {firstReview.is_rec ? (
+                            {firstReview.rec ? (
                               <Image
                                 source={MainIcons.good}
                                 style={styles.userRec}
@@ -377,8 +475,9 @@ export default function DicProductScreen({ navigation, route }) {
                           onPress={() => {
                             navigation.navigate("ProductReview", {
                               productID: product.id,
-                              reviewLength: reviewLength,
-                              reviewList: productReviewsWithUserInfo,
+                              reviewLength: product.reviewCnt, // 리뷰의 총 개슈
+                              reviewList: reviews ? reviews : null, // 리뷰 리스트
+                              ownReview: ownReview ? ownReview : null, // 본인 리뷰
                             });
                           }}
                         >
@@ -402,11 +501,110 @@ export default function DicProductScreen({ navigation, route }) {
                       </View>
                     </View>
                   ) : (
-                    <View style={styles.noRevieContainer}>
-                      <Text style={styles.proType}>작성된 리뷰가 없습니다</Text>
-                      <Text style={styles.proType}>
-                        첫 번째 리뷰를 남겨주세요!
-                      </Text>
+                    <View>
+                      {ownReview ? (
+                        <View style={styles.reviewContainer}>
+                          <View style={styles.userReviewContainer}>
+                            <Image
+                              source={MainIcons.user_profile}
+                              style={styles.userProfile}
+                            ></Image>
+                            <View style={styles.userInfo}>
+                              <View
+                                style={{
+                                  flexDirection: "row",
+                                  marginBottom: 6,
+                                }}
+                              >
+                                <Text style={styles.userName}>
+                                  {ownReview ? ownReview.nickname : "유저"}
+                                </Text>
+                                <Text
+                                  style={{
+                                    ...styles.userName,
+                                    fontSize: 12,
+                                    color: Gray_theme.gray_50,
+                                  }}
+                                >
+                                  {" "}
+                                  (본인)
+                                </Text>
+                                <Text style={styles.vegType}>
+                                  {ownReview.vegType.name}
+                                </Text>
+                              </View>
+                              <View style={{ flexDirection: "row" }}>
+                                <Text style={styles.writeDate}>
+                                  {new Date(
+                                    ownReview.date
+                                  ).toLocaleDateString()}
+                                </Text>
+
+                                <Entypo
+                                  name="dot-single"
+                                  size={20}
+                                  color={Gray_theme.gray_50}
+                                  style={styles.dot}
+                                />
+                                {ownReview.rec ? (
+                                  <Image
+                                    source={MainIcons.good}
+                                    style={styles.userRec}
+                                  ></Image>
+                                ) : (
+                                  <Image
+                                    source={MainIcons.bad}
+                                    style={{ ...styles.userRec, marginTop: 4 }}
+                                  ></Image>
+                                )}
+                              </View>
+                            </View>
+                          </View>
+                          <Text style={styles.content}>
+                            {ownReview.content}
+                          </Text>
+                          <View style={styles.moreContainer}>
+                            <TouchableOpacity
+                              activeOpacity={0.8}
+                              style={{
+                                flexDirection: "row",
+                                alignItems: "center",
+                              }}
+                              onPress={() => {
+                                navigation.navigate("ProductReview", {
+                                  productID: product.id,
+                                  reviewLength: product.reviewCnt, // 리뷰의 총 개슈
+                                  reviewList: reviews ? reviews : null, // 리뷰 리스트
+                                  ownReview: ownReview ? ownReview : null, // 본인 리뷰
+                                });
+                              }}
+                            >
+                              <Octicons
+                                name="chevron-down"
+                                size={24}
+                                color={Gray_theme.gray_40}
+                                style={{
+                                  marginRight: 8,
+                                }}
+                              />
+                              <Text
+                                style={{
+                                  ...styles.userName,
+                                  color: Gray_theme.gray_40,
+                                }}
+                              >
+                                더보기
+                              </Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      ) : (
+                        <View style={styles.noRevieContainer}>
+                          <Text style={styles.proType}>
+                            아직 리뷰가 없어요...
+                          </Text>
+                        </View>
+                      )}
                     </View>
                   )}
                 </View>
