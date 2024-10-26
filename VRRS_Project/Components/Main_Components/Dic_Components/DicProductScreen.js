@@ -15,10 +15,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 // component 관련
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
-import {
-  saveBookmarkWithTimestamp,
-  getBookmarkStatus,
-} from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
+import { truncateTextByWord } from "../../../assets/styles/ReuseComponents/truncateTextByWord";
 // Server 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
@@ -29,6 +26,7 @@ import {
   addBookmark,
   removeBookmark,
 } from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
+import { fetchBookmarks } from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
 
 export default function DicProductScreen({ navigation, route }) {
   // user의 정보를 불러옴
@@ -99,17 +97,17 @@ export default function DicProductScreen({ navigation, route }) {
     return result;
   };
 
+  // 제품 북마크 여부를 저장
+  const [isBookmarked, setIsBookmarked] = useState(false);
+
   const loadData = async () => {
     try {
       const data = await fetchProductData(jwt, id);
       if (data) {
         const ingredientsList = parseIngredients(data.ingredients);
-        const ingredientsWithLength = ingredientsList.map((ingredient) => ({
-          ...ingredient,
-          length: ingredient.item.length,
-        }));
-        setProduct(data);
-        setIngredients(ingredientsWithLength);
+        setProduct(data); // 제품 상세 정보
+        setIngredients(ingredientsList); // 제품 원재료명
+        setIsBookmarked(data.bookmark); // 제품 북마크 여부
       } else {
         console.warn("Product data is undefined.");
       }
@@ -152,25 +150,21 @@ export default function DicProductScreen({ navigation, route }) {
 
   // 추천수 퍼센테이지
   const thuumsUp =
-    product.reviewCnt !== 0
-      ? parseInt((product.recCnt / product.reviewCnt) * 100)
+    product.recCnt + product.notRecCnt !== 0
+      ? parseInt((product.recCnt / (product.recCnt + product.notRecCnt)) * 100)
       : -1;
 
   // [ 제품 북마크 ]
 
-  // 제품 북마크 여부를 저장
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const fetchBookmarkStatus = async () => {
+    const status = await fetchBookmarks(jwt);
+    // 상태의 bookmarked 값을 가져와서 설정
+  };
 
   useEffect(() => {
     // 컴포넌트가 마운트될 때 북마크 상태 불러오기
-    const fetchBookmarkStatus = async () => {
-      const status = await getBookmarkStatus(id);
-      // 상태의 bookmarked 값을 가져와서 설정
-      setIsBookmarked(status.bookmarked);
-    };
-
     fetchBookmarkStatus();
-  }, [id]);
+  }, []);
 
   const toggleBookmark = async () => {
     const newStatus = !isBookmarked;
@@ -179,12 +173,11 @@ export default function DicProductScreen({ navigation, route }) {
     try {
       if (newStatus) {
         // 북마크 추가
-        await addBookmark(jwt, id); // jwtToken은 유저의 JWT 토큰
+        await addBookmark(id, jwt); // jwtToken은 유저의 JWT 토큰
       } else {
         // 북마크 삭제
-        await removeBookmark(jwt, id);
+        await removeBookmark(id, jwt);
       }
-      await saveBookmarkWithTimestamp(id, newStatus); // 로컬에 기록
     } catch (error) {
       console.error("북마크 상태 업데이트 중 에러 발생:", error.message);
       // 에러 발생 시 이전 상태로 되돌림
@@ -204,7 +197,9 @@ export default function DicProductScreen({ navigation, route }) {
               navigation.goBack();
             }}
           />
-          <Text style={styles.headerText}>{product.name}</Text>
+          <Text style={styles.headerText}>
+            {truncateTextByWord(product.name, 20)}
+          </Text>
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => {
@@ -253,7 +248,9 @@ export default function DicProductScreen({ navigation, route }) {
                       marginBottom: 16,
                     }}
                   >
-                    <Text style={styles.infoReview}>{product.reviewCnt}</Text>
+                    <Text style={styles.infoReview}>
+                      {product.recCnt + product.notRecCnt}
+                    </Text>
                     <Text style={styles.infoReview}>명의 리뷰가 있어요!</Text>
                   </View>
                   <View>
@@ -362,7 +359,7 @@ export default function DicProductScreen({ navigation, route }) {
                         justifyContent: "flex-start", // 왼쪽부터 배치
                       }}
                     >
-                      {ingredients && ingredients.length > 0 ? (
+                      {ingredients ? (
                         ingredients.map((item, index) => (
                           <View style={styles.textBadge}>
                             <Text style={styles.text}>{item.item}</Text>
@@ -382,7 +379,7 @@ export default function DicProductScreen({ navigation, route }) {
                     onPress={() => {
                       navigation.navigate("ProductReview", {
                         productID: product.id,
-                        reviewLength: product.reviewCnt, // 리뷰의 총 개슈
+                        reviewLength: product.recCnt + product.notRecCnt, // 리뷰의 총 개슈
                         reviewList: reviews ? reviews : null, // 리뷰 리스트
                         ownReview: ownReview ? ownReview : null, // 본인 리뷰
                       });
@@ -395,7 +392,7 @@ export default function DicProductScreen({ navigation, route }) {
                       >
                         <Text style={styles.reviewTitle}>리뷰</Text>
                         <Text style={styles.reviewTotal}>
-                          ({product.reviewCnt})
+                          ({product.recCnt + product.notRecCnt})
                         </Text>
                       </View>
                       <View
@@ -441,7 +438,7 @@ export default function DicProductScreen({ navigation, route }) {
                           </View>
                           <View style={{ flexDirection: "row" }}>
                             <Text style={styles.writeDate}>
-                              {new Date(firstReview.date).toLocaleDateString()}
+                              {firstReview.date}
                             </Text>
 
                             <Entypo
@@ -535,9 +532,7 @@ export default function DicProductScreen({ navigation, route }) {
                               </View>
                               <View style={{ flexDirection: "row" }}>
                                 <Text style={styles.writeDate}>
-                                  {new Date(
-                                    ownReview.date
-                                  ).toLocaleDateString()}
+                                  {ownReview.date}
                                 </Text>
 
                                 <Entypo

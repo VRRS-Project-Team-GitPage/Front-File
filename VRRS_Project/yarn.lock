@@ -3095,15 +3095,7 @@ expo-camera@~15.0.16:
   dependencies:
     invariant "^2.2.4"
 
-expo-constants@^16.0.2:
-  version "16.0.2"
-  resolved "https://registry.yarnpkg.com/expo-constants/-/expo-constants-16.0.2.tgz#eb5a1bddb7308fd8cadac8fc44decaf4784cac5e"
-  integrity sha512-9tNY3OVO0jfiMzl7ngb6IOyR5VFzNoN5OOazUWoeGfmMqVB5kltTemRvKraK9JRbBKIw+SOYLEmF0sEqgFZ6OQ==
-  dependencies:
-    "@expo/config" "~9.0.0"
-    "@expo/env" "~0.3.0"
-
-expo-constants@~16.0.0:
+expo-constants@^16.0.2, expo-constants@~16.0.0:
   version "16.0.2"
   resolved "https://registry.npmjs.org/expo-constants/-/expo-constants-16.0.2.tgz"
   integrity sha512-9tNY3OVO0jfiMzl7ngb6IOyR5VFzNoN5OOazUWoeGfmMqVB5kltTemRvKraK9JRbBKIw+SOYLEmF0sEqgFZ6OQ==
@@ -3128,9 +3120,9 @@ expo-image-loader@~4.7.0:
   resolved "https://registry.npmjs.org/expo-image-loader/-/expo-image-loader-4.7.0.tgz"
   integrity sha512-cx+MxxsAMGl9AiWnQUzrkJMJH4eNOGlu7XkLGnAXSJrRoIiciGaKqzeaD326IyCTV+Z1fXvIliSgNW+DscvD8g==
 
-expo-image-manipulator@~12.0.5:
+expo-image-manipulator@^12.0.5:
   version "12.0.5"
-  resolved "https://registry.npmjs.org/expo-image-manipulator/-/expo-image-manipulator-12.0.5.tgz"
+  resolved "https://registry.yarnpkg.com/expo-image-manipulator/-/expo-image-manipulator-12.0.5.tgz#e3dd2810d27025705f73523cd4ba47b0d091a662"
   integrity sha512-zJ8yINjckYw/yfoSuICt4yJ9xr112+W9e5QVXwK3nCAHr7sv45RQ5sxte0qppf594TPl+UoV6Tjim7WpoKipRQ==
   dependencies:
     expo-image-loader "~4.7.0"

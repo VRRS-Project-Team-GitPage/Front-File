@@ -11,14 +11,14 @@ import {
 } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import React from "react";
-import { useEffect, useCallback, useMemo, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ImageManipulator from "expo-image-manipulator";
 // assets 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MainIcons from "../../../assets/Icons/MainIcons";
+import BarIcons from "../../../assets/Icons/BarIcons";
 // Component 관련
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
@@ -32,27 +32,18 @@ import {
   getProTypeName,
   getVegTypeName,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts";
-import BarIcons from "../../../assets/Icons/BarIcons";
+// server 관련
+import { submitProductData } from "../../../assets/ServerDatas/ServerApi/readingApi";
 
 export default function ReadingResultScreen({ navigation, route }) {
   // user의 정보를 불러옴
-  const { user, id, name, vegTypeName } = useUser();
+  const { jwt, name, vegTypeId, vegTypeName } = useUser();
 
-  // 화면 크기를 저장한 변수
-  const windowWidth = useWindowDimensions().width;
-  const windowHeigh = useWindowDimensions().height;
+  // 넘어온 데이터
+  const { img_path, readingData } = route.params || {};
 
-  const { img_path, name_pro, ingredients, triggerSubmit } = route.params || {};
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [checkImage, setCheckImage] = useState();
-
-  // 넘어온 사진 로드
-  useEffect(() => {
-    if (triggerSubmit) {
-      setIsLoaded(true);
-      navigation.setParams({ triggerSubmit: false });
-    }
-  }, [triggerSubmit]);
+  const [checkImage, setCheckImage] = useState(); // 이미지 저장
+  const [checkData, setCheckData] = useState(); // OCR 정보 저장
 
   // 이미지 리사이징 함수
   const resizeImage = async (imageUri) => {
@@ -98,22 +89,74 @@ export default function ReadingResultScreen({ navigation, route }) {
 
   // 이미지가 로드되었을 때, 비율을 유지한 채로 리사이즈
   useEffect(() => {
-    if (isLoaded) {
+    if (img_path || readingData) {
+      console.log("넘어온 값: ", readingData);
+      setCheckData(readingData);
       resizeImage(img_path).then((resizedUri) => {
         setCheckImage(resizedUri);
       });
     }
-  }, [isLoaded]);
+  }, [img_path, readingData]);
+
+  const [isLoading, setLoading] = useState(false);
+  const [result, setResult] = useState();
+
+  // 데이터 전송 함수
+  const handleReadingData = async () => {
+    setLoading(true);
+    if (checkData) {
+      try {
+        const response = await submitProductData(
+          checkData.reportNum,
+          vegTypeId,
+          checkData.ingredients,
+          checkData.exists,
+          checkData.fullBracket,
+          jwt
+        );
+        console.log("판독 결과", response);
+        setResult(response); // 서버 응답 데이터를 저장
+      } catch (error) {
+        console.log(error, "데이터 전송에 실패했습니다.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+  useEffect(() => {
+    if (checkData) {
+      handleReadingData();
+    }
+  }, [checkData]);
 
   // 판독 가능 여부를 저장
   const [readingPossible, setReadingPossible] = useState(false);
   // 섭취 가능 여부를 저장
   // 서버와 연동 후 기본값: null
   const [resultPossible, setResultPossible] = useState(true);
-  // 판독 불가 리스트 여부를 저장
-  const [readCancleList, setReadCancleList] = useState(false);
+  // 섭취 가능 원재료명 저장
+  const [consumables, setConsumables] = useState([]);
+  // 섭취 불가능 원재료명 저장
+  const [nonConsumables, setNonConsumables] = useState([]);
+  // 판독 불가 원재료명 저장
+  const [unidentifiables, setUnidentifiables] = useState();
   // 섭취 가능할 때 제품이 사전에 있는지 여부를 저장
   const [inDictionary, setInDictionary] = useState(true);
+  // 추천 제품 항목 저장
+  const [recommendations, setRecommendations] = useState();
+
+  useEffect(() => {
+    if (result) {
+      setReadingPossible(true); // 값이 넘어왔을 경우 판독 가능
+      setResultPossible(!result.nonConsumables ? true : false); // 섭취 불가능 여부에 따라 가능 불가능 판단
+      setConsumables(result.consumables ? result.consumables : []);
+      setNonConsumables(result.nonConsumables ? result.nonConsumables : []);
+      setUnidentifiables(result.unidentifiables ? result.unidentifiables : []);
+      setInDictionary(result.proId ? true : false);
+      setRecommendations(result.recommendations);
+    }
+  }, [result]);
+
   // 제품 정보를 저장하는 state
   const [productData, setProductData] = useState([]);
   // 필터된 제품 리스트를 저장하는 변수
@@ -163,7 +206,7 @@ export default function ReadingResultScreen({ navigation, route }) {
           navigation.navigate("Report");
           handleVisible();
         }}
-        ingredientText={ingredients}
+        ingredientText={readingData.ingredients}
       />
       <NomalHeader
         onPress={() => {
@@ -183,7 +226,7 @@ export default function ReadingResultScreen({ navigation, route }) {
       >
         <View style={styles.resultContainer}>
           <View style={styles.imgContainer}>
-            {isLoaded ? (
+            {checkImage ? (
               <Image
                 source={{ uri: checkImage }}
                 style={styles.resultImg}
@@ -222,7 +265,7 @@ export default function ReadingResultScreen({ navigation, route }) {
             style={{
               ...styles.infoTextContainer,
               backgroundColor: readingPossible
-                ? readCancleList
+                ? unidentifiables
                   ? Gray_theme.gray_40
                   : Main_theme.main_20
                 : Gray_theme.gray_40,
@@ -230,28 +273,18 @@ export default function ReadingResultScreen({ navigation, route }) {
           >
             {readingPossible ? (
               <View>
-                {readCancleList ? ( // 판독 불가능 원재료명이 있는 경우
+                {unidentifiables ? ( // 판독 불가능 원재료명이 있는 경우
                   <Text
                     style={{
                       ...styles.userTypebg,
                       backgroundColor: Main_theme.main_Medium,
                       color: Gray_theme.gray_80,
                     }}
-                    onPress={() => {
-                      setReadCancleList(false);
-                    }}
                   >
                     확인 필요
                   </Text>
                 ) : (
-                  <Text
-                    style={styles.userTypebg}
-                    onPress={() => {
-                      setReadCancleList(true);
-                    }}
-                  >
-                    인증 완료
-                  </Text>
+                  <Text style={styles.userTypebg}>인증 완료</Text>
                 )}
               </View>
             ) : (
@@ -261,16 +294,13 @@ export default function ReadingResultScreen({ navigation, route }) {
                   backgroundColor: Main_theme.main_reverse,
                   color: Gray_theme.white,
                 }}
-                onPress={() => {
-                  setReadingPossible(true);
-                }}
               >
                 판독 실패
               </Text>
             )}
             {readingPossible ? (
               <View>
-                {readCancleList ? (
+                {unidentifiables ? (
                   <View>
                     <Text style={styles.infoText}>
                       판독에 사용되지 못한 단어들이 있습니다.

@@ -25,9 +25,11 @@ import {
   products,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts"; // 제품 정보
 import { getAllBookmarkedProductsWithTimestamp } from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
+// server 관련
+import { fetchBookmarks } from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
 
 export default function DicScreenOwn({ route, navigation }) {
-  const { user, id, name, vegTypeName } = useUser();
+  const { jwt } = useUser();
 
   useTabBarVisibility(false);
 
@@ -48,28 +50,27 @@ export default function DicScreenOwn({ route, navigation }) {
   // 북마크 된 항목을 저장하는 변수
   const [bookmarkedProducts, setBookmarkedProducts] = useState([]);
 
+  const fetchBookmarkStatus = async () => {
+    try {
+      const status = await fetchBookmarks(jwt);
+      if (status) {
+        setBookmarkedProducts(status);
+      }
+    } catch (error) {
+      console.error(error.message); // 에러 처리
+    }
+
+    // 상태의 bookmarked 값을 가져와서 설정
+  };
+
+  useEffect(() => {
+    fetchBookmarkStatus();
+  }, []);
+
   // useFocusEffect를 사용하여 화면이 포커스될 때마다 북마크된 제품을 새로 불러옴
   useFocusEffect(
     useCallback(() => {
-      const fetchBookmarkedProducts = async () => {
-        const productIds = products.map((product) => product.id);
-        const bookmarkedProductData =
-          await getAllBookmarkedProductsWithTimestamp(productIds);
-
-        // 타임스탬프를 기준으로 북마크된 제품 정렬 (오래된 순서대로)
-        const sortedBookmarks = bookmarkedProductData.sort(
-          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-        );
-
-        // 정렬된 북마크 ID로 필터링된 제품 목록 가져오기
-        const filteredProducts = sortedBookmarks.map((bookmark) =>
-          products.find((product) => product.id === bookmark.id)
-        );
-
-        setBookmarkedProducts(filteredProducts);
-      };
-
-      fetchBookmarkedProducts();
+      fetchBookmarkStatus();
     }, [])
   );
 
@@ -85,10 +86,9 @@ export default function DicScreenOwn({ route, navigation }) {
       <View
         style={{
           flex: 1,
-          backgroundColor:
-            bookmarkedProducts.length === 0
-              ? Gray_theme.gray_20
-              : Gray_theme.white,
+          backgroundColor: !bookmarkedProducts
+            ? Gray_theme.gray_20
+            : Gray_theme.white,
         }}
       >
         <View style={styles.bookMarkTotal}>
@@ -97,7 +97,7 @@ export default function DicScreenOwn({ route, navigation }) {
             {bookmarkedProducts.length} 개
           </Text>
         </View>
-        {bookmarkedProducts.length === 0 ? (
+        {bookmarkedProducts.length == 0 ? (
           <View
             style={{
               justifyContent: "center",
@@ -116,9 +116,6 @@ export default function DicScreenOwn({ route, navigation }) {
             data={bookmarkedProducts}
             keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
             renderItem={({ item }) => {
-              // 제품의 유형을 저장하는 변수
-              const itemVegTypeName = getVegTypeName(item.veg_type_id);
-              const itemProTypeName = getProTypeName(item.pro_type_id);
               // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
               return (
                 <TouchableWithoutFeedback
@@ -130,16 +127,13 @@ export default function DicScreenOwn({ route, navigation }) {
                   }}
                 >
                   <View style={styles.itemContainer}>
-                    <Image
-                      source={{ uri: item.img_path }}
-                      style={styles.image}
-                    />
+                    <Image source={{ uri: item.imgUrl }} style={styles.image} />
 
                     <View style={styles.textContainer}>
                       {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
                       <View>
                         <Text style={styles.name}>{item.name}</Text>
-                        <Text style={styles.category}>{itemProTypeName}</Text>
+                        <Text style={styles.category}>{item.category}</Text>
                       </View>
                       <View
                         style={{
@@ -148,7 +142,7 @@ export default function DicScreenOwn({ route, navigation }) {
                         }}
                       >
                         <Text style={styles.vegType}>
-                          {itemVegTypeName}
+                          {item.vegType}
                           {/* 아이템의 채식 유형 이름 표시 */}
                         </Text>
                       </View>
@@ -164,7 +158,7 @@ export default function DicScreenOwn({ route, navigation }) {
                             marginBottom: 2,
                           }}
                         />
-                        <Text style={styles.infoText}>{item.rec}</Text>
+                        <Text style={styles.infoText}>{item.recCnt}</Text>
                       </View>
                       <View style={styles.infoContents}>
                         <Octicons
@@ -173,7 +167,9 @@ export default function DicScreenOwn({ route, navigation }) {
                           color={Gray_theme.gray_40}
                           style={{ marginRight: 4 }}
                         />
-                        <Text style={styles.infoText}>{item.review}</Text>
+                        <Text style={styles.infoText}>
+                          {item.recCnt + item.notRecCnt}
+                        </Text>
                       </View>
                     </View>
                   </View>

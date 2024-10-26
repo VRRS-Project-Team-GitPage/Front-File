@@ -2,19 +2,19 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "서버 주소";
+const SERVER_URL = "서버주소";
 
 // 북마크 URL
-const BOOKMARK_URL = `${SERVER_URL}/엔드 포인트`;
+const BOOKMARK_URL = `${SERVER_URL}/엔드포인트`;
 
 // 북마크 등록 URL 생성 함수
 export const getBookmarkUrl = (proId) => {
-  return `${SERVER_URL}/엔드 포인트${proId}`;
+  return `${SERVER_URL}/엔드포인트`;
 };
 
 // 북마크 삭제 URL 생성 함수
 export const deleteBookmarkUrl = (proId) => {
-  return `${SERVER_URL}/엔드 포인트${proId}`;
+  return `${SERVER_URL}/엔드포인트`;
 };
 
 // 북마크 조회 함수
@@ -48,9 +48,7 @@ export const addBookmark = async (id, jwt) => {
     // 에러 처리
     if (error.response) {
       console.error("Server responded with:", error.response.data.message); // 서버 응답 로그
-      throw new Error(
-        error.response.data.message || "북마크를 등록할 수 없습니다."
-      );
+      throw new Error(error);
     } else {
       throw new Error("네트워크 오류가 발생했습니다.");
     }

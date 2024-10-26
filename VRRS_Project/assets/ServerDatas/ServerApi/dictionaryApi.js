@@ -2,29 +2,30 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "서버 주소";
+const SERVER_URL = "서버주소";
 
 // 사전 데이터 URL
 export const getProductData = (productID) => {
-  return `${SERVER_URL}/엔드 포인트${productID}`;
+  return `${SERVER_URL}/엔드포인트`;
 };
 // 인기순 사전 데이터 URL
 export const getProductRankData = (productID) => {
-  return `${SERVER_URL}/엔드 포인트${productID}/엔드 포인트`;
+  return `${SERVER_URL}/엔드포인트`;
 };
 // 사전 상세 패이지 URL 생성 함수
 export const getProductDetailUrl = (productID) => {
-  return `${SERVER_URL}/엔드 포인트${productID}`;
+  return `${SERVER_URL}/엔드포인트`;
 };
 // 사전 리뷰 URL 생성 함수
 export const getProductReviewUrl = (productID) => {
-  return `${SERVER_URL}/엔드 포인트${productID}`;
+  return `${SERVER_URL}/엔드포인트`;
 };
 // 피드백 URL
-const SUBMIT_URL = `${SERVER_URL}/엔드 포인트`;
+const SUBMIT_URL = `${SERVER_URL}/엔드포인트`;
 
 // 사전 내용을 가져오는 함수
 export const fetchDictionaryData = async (jwt, url) => {
+  console.log(url);
   try {
     const response = await axios.get(url, {
       headers: {
@@ -92,7 +93,7 @@ export const fetchReviewData = async (jwt, id) => {
 };
 
 // 제품 피드백 전송 함수
-export const submitFeedback = async (content, jwt) => {
+export const submitFeedback = async (content, type, jwt) => {
   try {
     const response = await axios.post(
       SUBMIT_URL,

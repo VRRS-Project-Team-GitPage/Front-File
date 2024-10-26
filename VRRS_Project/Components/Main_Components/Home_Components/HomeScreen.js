@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { StyleSheet, useWindowDimensions, FlatList } from "react-native";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import React from "react";
 import { useFocusEffect } from "@react-navigation/native";
 // Component 관련
@@ -22,10 +22,7 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 import Octicons from "@expo/vector-icons/Octicons";
 // Server data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import {
-  getProductRankData,
-  fetchDictionaryData,
-} from "../../../assets/ServerDatas/ServerApi/dictionaryApi";
+import { fetchRecommendData } from "../../../assets/ServerDatas/ServerApi/recommendApi";
 
 export default function HomeScreen({ navigation }) {
   // user의 정보를 불러옴
@@ -41,17 +38,11 @@ export default function HomeScreen({ navigation }) {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const productData = await fetchDictionaryData(
-          jwt,
-          getProductRankData(6)
-        );
-        const ownProductData = await fetchDictionaryData(
-          jwt,
-          getProductRankData(vegTypeId)
-        );
+        const productData = await fetchRecommendData(jwt, 6);
+        const ownProductData = await fetchRecommendData(jwt, vegTypeId);
         // 상위 10개 요소만 저장
-        setTopProductData(productData.slice(0, 10)); // 상위 10개
-        setTopOwnProductData(ownProductData.slice(0, 10)); // 상위 10개
+        setTopProductData(productData.totalRank); // 상위 10개
+        setTopOwnProductData(ownProductData.totalRank); // 상위 10개
       } catch (error) {
         console.error(error.message);
       }
@@ -59,6 +50,14 @@ export default function HomeScreen({ navigation }) {
 
     loadData(); // 데이터 불러오기 호출
   }, []);
+
+  // 화면이 포커싱 되었을 때 언제나 모달창 닫기
+  useFocusEffect(
+    useCallback(() => {
+      scrollViewReturn();
+      subScrollViewReturn();
+    }, [])
+  );
 
   const scrollViewRef = useRef(null);
   const flatListRef = useRef(null);
