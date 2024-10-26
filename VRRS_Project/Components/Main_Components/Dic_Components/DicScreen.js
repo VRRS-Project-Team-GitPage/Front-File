@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import { useState, useEffect, useContext } from "react";
 import { useWindowDimensions, StyleSheet, ScrollView } from "react-native";
 import {
@@ -10,7 +10,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useToast } from "react-native-toast-notifications";
 // component 관련
@@ -67,12 +66,6 @@ export default function DicScreen({ route, navigation }) {
       scrollViewRef.current.scrollTo({ x: scrollToPosition, animated: true });
     }
   };
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchData();
-    }, [])
-  );
 
   // [ FlatList의 참조 ]
   const flatListRef = useRef(null);
@@ -189,6 +182,7 @@ export default function DicScreen({ route, navigation }) {
       return data;
     } catch (error) {
       console.error(error.message);
+      showToast("사전 데이터를 불러올 수 없습니다");
     }
   };
 
@@ -546,7 +540,9 @@ export default function DicScreen({ route, navigation }) {
                           color={Gray_theme.gray_40}
                           style={{ marginRight: 4 }}
                         />
-                        <Text style={styles.infoText}>{item.reviewCnt}</Text>
+                        <Text style={styles.infoText}>
+                          {item.recCnt + item.notRecCnt}
+                        </Text>
                       </View>
                     </View>
                   </View>
@@ -656,7 +652,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     paddingVertical: 4,
-    marginLeft: 8,
+    marginLeft: 16,
   },
   name: {
     fontFamily: "Pretendard-SemiBold",

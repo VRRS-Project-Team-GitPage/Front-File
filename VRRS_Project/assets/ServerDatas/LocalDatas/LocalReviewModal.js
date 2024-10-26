@@ -7,7 +7,7 @@ import {
   Image,
 } from "react-native";
 import { StyleSheet } from "react-native";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 // component 관련
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";

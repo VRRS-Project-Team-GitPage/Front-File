@@ -1,6 +1,6 @@
 // 글자 수에 따라 ...을 반환하는 함수
 export const truncateTextByWord = (text, maxLength) => {
-  if (text.length <= maxLength) return text; // 길이가 최대 길이 이하인 경우 그대로 반환
+  if (!text || text.length <= maxLength) return text || ""; // text가 없거나 최대 길이 이하인 경우 그대로 반환
 
   const words = text.split(" "); // 공백을 기준으로 단어 배열로 나눕니다.
   let truncatedText = "";

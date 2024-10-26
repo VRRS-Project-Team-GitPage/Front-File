@@ -49,7 +49,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
     try {
       const data = await fetchProductData(jwt, productID); // 제품 상세 데이터 요청
       const reviewData = await fetchReviewData(jwt, productID); // 제품 리뷰 데이터 요청
-      setReviewCnt(data.reviewCnt);
+      setReviewCnt(data.recCnt + data.notRecCnt);
       setReviews(reviewData.reviews);
       setOwnReview(reviewData.review);
     } catch (error) {
@@ -90,7 +90,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
     try {
       const data = await fetchProductData(jwt, productID); // 제품 데이터
       const reviewData = await fetchReviewData(jwt, productID); // 리뷰 데이터
-      setReviewCnt(data.reviewCnt);
+      setReviewCnt(data.recCnt + data.notRecCnt);
       setReviews(reviewData.reviews);
       setOwnReview(reviewData.review);
     } catch (error) {
@@ -200,9 +200,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
             </View>
             {ownReview ? (
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Text style={styles.writeDate}>
-                  {new Date(ownReview.date).toLocaleDateString()}
-                </Text>
+                <Text style={styles.writeDate}>{ownReview.date}</Text>
                 <Entypo
                   name="dot-single"
                   size={20}
@@ -314,9 +312,7 @@ export default function DicProductReviewScreen({ route, navigation }) {
                       <View
                         style={{ flexDirection: "row", alignItems: "center" }}
                       >
-                        <Text style={styles.writeDate}>
-                          {new Date(item.date).toLocaleDateString()}
-                        </Text>
+                        <Text style={styles.writeDate}>{item.date}</Text>
                         <Entypo
                           name="dot-single"
                           size={20}

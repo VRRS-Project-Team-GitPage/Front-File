@@ -27,7 +27,7 @@ export default function ReportProScreen({ navigation }) {
 
   const reportError = async () => {
     try {
-      await submitFeedback(reportText, jwt);
+      await submitFeedback(feedbackType, reportText, jwt);
       showToast("피드백이 전송되었습니다");
       navigation.goBack();
     } catch (error) {
@@ -38,15 +38,18 @@ export default function ReportProScreen({ navigation }) {
 
   const [duplication, setDuplication] = useState(false);
   const [incorrect, setIncorrect] = useState(false);
+  const [feedbackType, setFeedbackType] = useState("");
 
   handleDupli = () => {
     setDuplication(true);
     setIncorrect(false);
+    setFeedbackType("DUP");
   };
 
   handleInCorrect = () => {
     setDuplication(false);
     setIncorrect(true);
+    setFeedbackType("ERR");
   };
 
   return (

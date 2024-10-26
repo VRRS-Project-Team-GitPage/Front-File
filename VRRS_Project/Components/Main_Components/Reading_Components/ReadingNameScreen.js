@@ -27,14 +27,20 @@ import QuestionModal from "../../../assets/styles/ReuseComponents/Modal/Question
 // design 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
+// server 관련
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
+import { getOCRData } from "../../../assets/ServerDatas/ServerApi/readingApi";
 
 export default function ProNameScreen({ route, navigation }) {
+  const { jwt } = useUser();
+
   // 넘어온 이미지 값
   const { photoUri, triggerSubmit } = route.params || {};
   const { imgUri, triggerSubmitImg } = route.params || {};
   // 사진 로딩 상태 관리
   const [isPhotoLoaded, setIsPhotoLoaded] = useState(false);
   const [isImgLoaded, setIsImgLoaded] = useState(false);
+  // 이미지 저장
   const [checkImage, setCheckImage] = useState();
 
   // 화면 크기를 저장한 변수
@@ -68,11 +74,48 @@ export default function ProNameScreen({ route, navigation }) {
     }
   }, [isPhotoLoaded, isImgLoaded]);
 
+  // 판독 데이터를 저장
+  const [readingData, setReadingData] = useState();
+  const [ingredients, setIngredients] = useState("원재료명");
+
+  // 로딩 화면 지정
+  const [loading, setLoading] = useState(true);
+
+  const fetchOCRData = async (fileName, jwt) => {
+    setLoading(true);
+    try {
+      const data = await getOCRData(fileName, jwt); // submitFileName 함수 호출
+      console.log("Received data from server:", data); // 받아온 데이터 확인
+      // 받아온 데이터를 사용하는 추가 로직 작성 가능
+      if (data) {
+        setReadingData(data);
+      }
+    } catch (error) {
+      console.error("Failed to fetch data from server:", error);
+      throw error;
+    } finally {
+      setLoading(false); // 로딩 완료
+    }
+  };
+
+  useEffect(() => {
+    if (checkImage) {
+      fetchOCRData(checkImage, jwt);
+    }
+  }, [checkImage]);
+
+  useEffect(() => {
+    if (readingData) {
+      console.log(readingData.ingredients);
+      setIngredients(readingData.ingredients);
+    }
+  }, [readingData]);
+
   // BottomSheet를 참조하기 위한 ref
   const bottomSheetRef = useRef(null);
 
   // BottomSheet의 스냅 포인트: 위치 설정
-  const snapPoints = useMemo(() => ["35%", "60%"]);
+  const snapPoints = useMemo(() => ["40%", "80%"]);
 
   // 화면이 focus될 때마다 BottomSheet가 다시 열리도록 설정
   useFocusEffect(
@@ -116,13 +159,24 @@ export default function ProNameScreen({ route, navigation }) {
     );
   };
 
-  // 제품명을 저장
-  const [proName, setProName] = useState("추후 제품명이 작성될 공간입니다.");
-
   const [confirmModal, setConfirmModal] = useState(false);
   const handleConfirmModal = () => {
     setConfirmModal(false);
   };
+
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignContent: "center",
+        }}
+      >
+        <ActivityIndicator size="large" color={Main_theme.main_30} />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -133,16 +187,15 @@ export default function ProNameScreen({ route, navigation }) {
           setConfirmModal(false);
           bottomSheetRef.current.close();
           navigation.navigate("ReadTab", {
-            screen: "IngridientScreen",
+            screen: "Result",
             params: {
               img_path: isPhotoLoaded ? photoUri : imgUri,
-              name: proName,
-              triggerSubmit: isPhotoLoaded,
-              triggerSubmitImg: isImgLoaded,
+              readingData: readingData,
+              triggerSubmit: true,
             },
           });
         }}
-        children={"제품명이 정확히 작성되었나요?"}
+        children={"원재료명이 정확히 작성되었나요?"}
       ></QuestionModal>
 
       {isPhotoLoaded || isImgLoaded ? ( // 사진 로딩 상태에 따른 렌더링 제어
@@ -203,6 +256,7 @@ export default function ProNameScreen({ route, navigation }) {
                 </View>
                 <View style={{ alignItems: "center" }}>
                   <TextInput
+                    multiline={true} // 여러 줄 입력 가능
                     style={{
                       width: windowWidth - 32,
                       backgroundColor: Gray_theme.gray_20,
@@ -211,10 +265,10 @@ export default function ProNameScreen({ route, navigation }) {
                       borderRadius: 10,
                       padding: 16,
                       fontFamily: "Pretendard-Medium",
-                      fontSize: 12,
+                      color: Gray_theme.balck,
                     }}
-                    onChangeText={(text) => setProName(text)}
-                    value={proName}
+                    onChangeText={(text) => setIngredients(text)}
+                    value={ingredients}
                   ></TextInput>
                 </View>
                 <View
@@ -278,7 +332,7 @@ export default function ProNameScreen({ route, navigation }) {
                   marginLeft: 4,
                 }}
               >
-                다음으로
+                결과 확인하기
               </BtnC>
             </View>
           </BottomSheetModal>

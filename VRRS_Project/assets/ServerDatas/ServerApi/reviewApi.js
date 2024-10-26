@@ -2,15 +2,15 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "서버 주소";
+const SERVER_URL = "서버주소";
 
 // 리뷰 등록 URL
-const REVIEW_SUBMIT_URL = `${SERVER_URL}/엔드 포인트`;
+const REVIEW_SUBMIT_URL = `${SERVER_URL}/엔드포인트`;
 // 리뷰 수정 URL
-const REVIEW_UPDATE_URL = `${SERVER_URL}/엔드 포인트`;
+const REVIEW_UPDATE_URL = `${SERVER_URL}/엔드포인트`;
 // 리뷰 삭제 URL 생성 함수
 export const getDeleteReviewkUrl = (proId) => {
-  return `${SERVER_URL}/엔드 포인트${proId}`;
+  return `${SERVER_URL}/엔드포인트`;
 };
 
 // 리뷰 등록 함수

@@ -3,9 +3,10 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "서버 주소";
+const SERVER_URL = "서버주소";
 
-const API_URL = `${SERVER_URL}/엔드 포인트`; // 서버 URL - 추후 실제 URL로 변경 예정
+// 로그인 URL
+const API_URL = `${SERVER_URL}/엔드포인트`;
 
 // 로그인 함수
 export const loginUser = async (username, password) => {
