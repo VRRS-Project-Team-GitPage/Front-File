@@ -205,6 +205,7 @@ export default function IngredientScreen({ route, navigation }) {
                 <View style={{ alignItems: "center" }}>
                   <TextInput
                     ref={textInputRef}
+                    multiline={true} // 여러 줄 입력 가능
                     style={{
                       width: windowWidth - 32,
                       backgroundColor: Gray_theme.gray_20,
