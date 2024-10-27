@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { useState, useEffect, useContext } from "react";
 import { useWindowDimensions, StyleSheet, ScrollView } from "react-native";
 import {
@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useToast } from "react-native-toast-notifications";
 // component 관련
@@ -21,20 +22,17 @@ import Octicons from "@expo/vector-icons/Octicons";
 import MainIcons from "../../../assets/Icons/MainIcons";
 // Data 관련 import
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import {
-  vegTypes,
-  getVegTypeIdByName,
-} from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 이용자 정보
+import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 이용자 정보
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext"; // 검색 정보
 // server 관련 import
 import {
   fetchDictionaryData,
-  getProductData,
-  getProductRankData,
+  PRODUCT_URL,
+  SORTPRODUCT_URL,
 } from "../../../assets/ServerDatas/ServerApi/dictionaryApi";
 
 export default function DicScreen({ route, navigation }) {
-  const { jwt, vegTypeName } = useUser();
+  const { user, jwt, name, vegTypeName } = useUser();
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
@@ -67,6 +65,12 @@ export default function DicScreen({ route, navigation }) {
     }
   };
 
+  useFocusEffect(
+    useCallback(() => {
+      sortProducts();
+    }, [])
+  );
+
   // [ FlatList의 참조 ]
   const flatListRef = useRef(null);
 
@@ -84,10 +88,10 @@ export default function DicScreen({ route, navigation }) {
     if (tabClicked) {
       // 탭이 클릭되었을 때 실행할 로직
       setSearchText("");
-      checkTypeBtn(getVegTypeIdByName(vegTypeName));
+      checkTypeBtn(vegTypeName);
       moveToSelectedButton(vegTypeName);
-      setSortType("등록순");
-      fetchData();
+      selectOption("등록순");
+      sortProducts();
       scrollToTop();
 
       navigation.setParams({ tabClicked: false });
@@ -95,14 +99,15 @@ export default function DicScreen({ route, navigation }) {
   }, [tabClicked]);
 
   // [ 메인 화면으로부터 넘어오는 정보 ]
-  const { type, autoSearch } = route.params || {};
+  const { type, sortOption, autoSearch } = route.params || {};
 
   useEffect(() => {
     if (autoSearch) {
-      setSortType("인기순");
-      checkTypeBtn(getVegTypeIdByName(type));
+      setSearchText("");
+      selectOption(sortOption);
+      checkTypeBtn(type);
       moveToSelectedButton(type);
-      fetchData();
+      sortProducts();
       scrollToTop();
     }
     navigation.setParams({ autoSearch: false });
@@ -125,72 +130,31 @@ export default function DicScreen({ route, navigation }) {
   }, [triggerSubmit]);
 
   // 검색어를 기반으로 제품 필터링
-  const handleOnSubmitEditing = async (query) => {
-    // 초기화 후 데이터를 불러오고 필터링
-    checkTypeBtn(6);
-    moveToSelectedButton("폴로 베지테리언");
-    saveSearchText(query);
-
-    const fetchedData = await fetchData(); // 최신 데이터를 fetchData로부터 직접 가져옴
-    console.log("Fetched data for filtering:", fetchedData);
-
+  const handleOnSubmitEditing = (query) => {
     // 입력된 검색어를 트림하여 앞뒤 공백 제거
     const trimmedQuery = query.trim();
 
     if (trimmedQuery === "") {
-      showToast("검색어를 입력해주세요");
+      setSortedProducts(dropFilter); // 검색어가 없으면 초기 리스트로 복원
     } else {
-      // 새로 필터링을 위해 fetchData 호출
-      const filteredList = fetchedData.filter((product) =>
+      saveSearchText(query);
+      const filteredList = [...dropFilter].filter((product) =>
         product.name.toLowerCase().includes(trimmedQuery.toLowerCase())
       );
-      // 강제로 UI 갱신
-      setTimeout(() => {
-        setSortedProducts(filteredList);
-      }, 0);
+      setSortedProducts(filteredList); // 필터된 리스트 업데이트
+      setSelectedOption("등록순");
+      setChecked("폴로 베지테리언");
+      moveToSelectedButton("폴로 베지테리언");
+      scrollToTop();
     }
   };
 
-  // [ 사전 데이터 정렬 ]
+  // 검색 및 필터에 사용될 변수 모음입니다
   const [sortedProducts, setSortedProducts] = useState([]); // 최종 정렬된 제품 리스트
-  const [sortType, setSortType] = useState("등록순"); // 기본은 '등록순'으로 설정
-  const [checked, setChecked] = useState(6); // 유형 항목 체크에 관한 내용입니다.
-
-  // 선택된 버튼에 따라 제품 리스트를 필터링 하는 함수
-  // btnType: 버튼 유형을 받아오는 변수
-  const handleSortChange = (newSortType) => {
-    setSortType(newSortType); // 정렬 상태 업데이트
-    scrollToTop();
-  };
-
-  const checkTypeBtn = (btnType) => {
-    setChecked(btnType);
-    scrollToTop();
-  };
-
-  const fetchData = async () => {
-    let url = "";
-
-    if (sortType === "인기순") {
-      url = getProductRankData(checked); // 인기순 URL
-    } else {
-      url = getProductData(checked); // 등록순 URL
-    }
-    try {
-      const data = await fetchDictionaryData(jwt, url);
-      setSortedProducts(data); // 가져온 데이터 상태에 저장
-      return data;
-    } catch (error) {
-      console.error(error.message);
-      showToast("사전 데이터를 불러올 수 없습니다");
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, [sortType, checked]);
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
+  const [selectedOption, setSelectedOption] = useState("등록순"); // 선택된 옵션
+  const [dropFilter, setDropFilter] = useState([]); // 드롭 다운 시 정렬된 리스트를 저장합니다.
 
   // [드롭 다운 버튼에 관한 내용입니다.]
 
@@ -199,11 +163,73 @@ export default function DicScreen({ route, navigation }) {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
+  // 옵션 선택 함수
+  const selectOption = (option) => {
+    setSelectedOption(option); // 옵션 선택 시 상태 업데이트
+    setIsDropdownOpen(false); // 옵션 선택 후 드롭다운 닫기
+  };
+
   // 화면 밖을 클릭했을 때 드롭다운 닫는 함수
   const closeDropdown = () => {
     if (isDropdownOpen) {
       setIsDropdownOpen(false);
     }
+  };
+
+  // 드롭 다운 옵션 선택 시마다 정렬하는 함수
+  useEffect(() => {
+    sortProducts();
+  }, [selectedOption]);
+
+  // sortedProducts가 변경될 때마다 필터링
+  useEffect(() => {
+    checkTypeBtn(checked);
+  }, [dropFilter]);
+
+  // 선택된 URL에 따라 데이터를 가져오는 함수
+  const loadDictionaryData = async (url) => {
+    if (jwt) {
+      try {
+        const dictionaryData = await fetchDictionaryData(jwt, url); // 선택된 URL로 사전 데이터 요청
+        // 데이터 상태 업데이트
+        setDropFilter(dictionaryData);
+        setSortedProducts(dictionaryData);
+      } catch (error) {
+        // 에러 메시지를 토스트로 표시
+        showToast(error.message);
+      }
+    }
+  };
+
+  const sortProducts = async () => {
+    if (selectedOption === "등록순") {
+      loadDictionaryData(PRODUCT_URL);
+      return;
+    }
+
+    if (selectedOption === "인기순") {
+      loadDictionaryData(SORTPRODUCT_URL);
+      return;
+    }
+  };
+
+  // 유형 항목 체크에 관한 내용입니다.
+  const [checked, setChecked] = useState("폴로 베지테리언");
+
+  // 선택된 버튼에 따라 제품 리스트를 필터링 하는 함수
+  // btnType: 버튼 유형을 받아오는 변수
+  const checkTypeBtn = (btnType) => {
+    setSearchText("");
+    setChecked(btnType); // 어떤 버튼이 선택되었는지 받아옴
+
+    let filteredList = [...dropFilter];
+
+    if (btnType !== "폴로 베지테리언") {
+      filteredList = filteredList.filter(
+        (product) => product.vegType === btnType
+      );
+    }
+    setSortedProducts(filteredList);
   };
 
   // 개인 사전 안내용 메세지
@@ -248,6 +274,9 @@ export default function DicScreen({ route, navigation }) {
           onChangeText={(text) => setSearchText(text)}
           value={searchText}
           onSubmitEditing={() => {
+            if (searchText === "") {
+              showToast("검색어를 입력해주세요");
+            }
             handleOnSubmitEditing(searchText);
           }}
         />
@@ -273,61 +302,63 @@ export default function DicScreen({ route, navigation }) {
             ref={scrollViewRef}
             style={{ flexDirection: "row" }}
           >
-            {vegTypes.map((type) => {
-              const isSelected = type.id === checked;
-              return (
-                <TouchableOpacity
-                  activeOpacity={0.6}
-                  key={type.id}
-                  onPress={() => {
-                    checkTypeBtn(type.id); // type.id 값을 전달하여 상태 변경
-                    moveToSelectedButton(type.name); // 이름으로 스크롤 이동
-                  }}
-                  onLayout={(event) => {
-                    // 버튼 위치와 너비 저장
-                    const { x, width } = event.nativeEvent.layout;
-                    setButtonLayouts((prevLayouts) => ({
-                      ...prevLayouts,
-                      [type.name]: { x, width },
-                    }));
-                  }}
-                  style={{
-                    borderBottomWidth: 1,
-                    borderColor: Gray_theme.gray_20,
-                  }}
-                >
-                  <View
+            {vegTypes
+              .map((type) => type.name)
+              .map((btnType) => {
+                const isSelected = btnType === checked;
+                return (
+                  <TouchableOpacity
+                    activeOpacity={0.6}
+                    key={btnType}
+                    onPress={() => {
+                      checkTypeBtn(btnType); // 버튼 상태 변경
+                      moveToSelectedButton(btnType); // 해당 버튼으로 스크롤 이동
+                    }}
+                    onLayout={(event) => {
+                      // 버튼이 렌더링될 때 위치와 너비 저장
+                      const { x, width } = event.nativeEvent.layout;
+                      setButtonLayouts((prevLayouts) => ({
+                        ...prevLayouts,
+                        [btnType]: { x, width },
+                      }));
+                    }}
                     style={{
-                      borderBottomWidth: isSelected ? 3 : null,
-                      borderColor: Main_theme.main_30,
-                      paddingHorizontal: 4,
+                      borderBottomWidth: 1,
+                      borderColor: Gray_theme.gray_20,
                     }}
                   >
-                    <Text
+                    <View
                       style={{
-                        color: isSelected
-                          ? Main_theme.main_30
-                          : Gray_theme.gray_40,
-                        fontFamily: isSelected
-                          ? "Pretendard-Bold"
-                          : "Pretendard-Medium",
-                        fontSize: 14,
-                        marginHorizontal: 12,
-                        marginBottom: 12,
-                        alignSelf: "center",
+                        borderBottomWidth: isSelected ? 3 : null,
+                        borderColor: Main_theme.main_30,
+                        paddingHorizontal: 4,
                       }}
                     >
-                      {type.name}
-                    </Text>
-                  </View>
-                  <View
-                    style={{
-                      borderRadius: 3,
-                    }}
-                  ></View>
-                </TouchableOpacity>
-              );
-            })}
+                      <Text
+                        style={{
+                          color: isSelected
+                            ? Main_theme.main_30
+                            : Gray_theme.gray_40,
+                          fontFamily: isSelected
+                            ? "Pretendard-Bold"
+                            : "Pretendard-Medium",
+                          fontSize: 14,
+                          marginHorizontal: 12,
+                          marginBottom: 12,
+                          alignSelf: "center",
+                        }}
+                      >
+                        {btnType}
+                      </Text>
+                    </View>
+                    <View
+                      style={{
+                        borderRadius: 3,
+                      }}
+                    ></View>
+                  </TouchableOpacity>
+                );
+              })}
           </ScrollView>
         </View>
         <View style={styles.firstHeader}>
@@ -383,7 +414,7 @@ export default function DicScreen({ route, navigation }) {
             style={styles.firstBtn}
             activeOpacity={0.8}
           >
-            <Text style={styles.buttonText}>{sortType}</Text>
+            <Text style={styles.buttonText}>{selectedOption}</Text>
             <Octicons
               name="chevron-down"
               size={16}
@@ -395,7 +426,7 @@ export default function DicScreen({ route, navigation }) {
             <View style={styles.dropdownList}>
               <TouchableOpacity
                 onPress={() => {
-                  handleSortChange("등록순");
+                  selectOption("등록순");
                   scrollToTop();
                 }}
               >
@@ -403,12 +434,12 @@ export default function DicScreen({ route, navigation }) {
                   <Text
                     style={[
                       styles.dropdownItem,
-                      sortType === "등록순" && styles.selectedOptionText,
+                      selectedOption === "등록순" && styles.selectedOptionText,
                     ]}
                   >
                     등록순
                   </Text>
-                  {sortType === "등록순" && (
+                  {selectedOption === "등록순" && (
                     <Octicons
                       name="check"
                       size={12}
@@ -419,7 +450,7 @@ export default function DicScreen({ route, navigation }) {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  handleSortChange("인기순");
+                  selectOption("인기순");
                   scrollToTop();
                 }}
               >
@@ -427,12 +458,12 @@ export default function DicScreen({ route, navigation }) {
                   <Text
                     style={[
                       styles.dropdownItem,
-                      sortType === "인기순" && styles.selectedOptionText,
+                      selectedOption === "인기순" && styles.selectedOptionText,
                     ]}
                   >
                     인기순
                   </Text>
-                  {sortType === "인기순" && (
+                  {selectedOption === "인기순" && (
                     <Octicons
                       name="check"
                       size={12}
@@ -540,9 +571,7 @@ export default function DicScreen({ route, navigation }) {
                           color={Gray_theme.gray_40}
                           style={{ marginRight: 4 }}
                         />
-                        <Text style={styles.infoText}>
-                          {item.recCnt + item.notRecCnt}
-                        </Text>
+                        <Text style={styles.infoText}>{item.reviewCnt}</Text>
                       </View>
                     </View>
                   </View>
@@ -652,7 +681,7 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     paddingVertical: 4,
-    marginLeft: 16,
+    marginLeft: 8,
   },
   name: {
     fontFamily: "Pretendard-SemiBold",

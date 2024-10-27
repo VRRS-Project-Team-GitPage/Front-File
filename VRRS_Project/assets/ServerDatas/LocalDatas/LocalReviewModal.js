@@ -8,7 +8,6 @@ import {
 } from "react-native";
 import { StyleSheet } from "react-native";
 import { useEffect } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 // component 관련
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
@@ -19,11 +18,11 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 import Octicons from "@expo/vector-icons/Octicons";
 // data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
+// server 관련
+import { submitReview, updateReview } from "../ServerApi/reviewApi"; // 서버에서 리뷰 불러오는 API 추가
+import { fetchReviewData } from "../ServerApi/dictionaryApi";
 
-// 키 값을 통해 로컬 저장소에 접근
-const REVIEW_KEY = "userReview";
-
-export default function LocalReviewModal({
+export default function ServerOnlyReviewModal({
   visible, // 모달 보임 여부
   setVisible,
   onRequestClose, // 모달 창 해제
@@ -35,14 +34,14 @@ export default function LocalReviewModal({
   setReviewText,
   reviewTime, // 리뷰 작성 시간
   setReviewTime,
-  upLoadReview, // 서버 업로드 여부(리뷰 작성 여부)
-  setUpLoadReview,
   mainUserReview, // 사용자가 작성한 리뷰 저장
   setMainUserReview,
   productID, // 선택한(리뷰를 작성할) 제품 id 값
+  deleteID, // 삭제할 제품 id 값
+  loadReviews,
 }) {
   // user의 정보를 불러옴
-  const { user, id, name, vegTypeName } = useUser();
+  const { jwt } = useUser();
 
   const handleIsRec = () => {
     setIsRec(true);
@@ -54,106 +53,90 @@ export default function LocalReviewModal({
     setIsNotRec(true); // 비추천을 누르면 추천은 해제
   };
 
-  // [로컬에서 리뷰 관리하기]
-  // 추후 이 함수를 사용하여 리뷰 수정하기를 구현하시면 됩니다.
+  // [ 리뷰 관리 함수]
 
-  // 리뷰 저장 함수
-  const saveReview = async () => {
+  // 리뷰 작성 함수 - 서버 연동
+  const handleUpLoad = async () => {
     try {
-      const currentTime = new Date().toISOString(); // 현재 시간을 저장
-      setReviewTime(currentTime); // 상태에도 저장
-
-      const review = {
-        pro_id: productID, // 해당 productID와 연결
-        user_id: id,
-        is_rec: isRec,
+      // 서버로 리뷰 업로드
+      const reviewData = {
+        proId: productID,
         content: reviewText,
-        created_at: currentTime, // 작성 시간 저장
-        upLoadReview: upLoadReview,
+        rec: isRec ? 1 : 0,
       };
 
-      // 기존 리뷰 객체 불러오기
-      const storedReviews = await AsyncStorage.getItem(REVIEW_KEY);
-      const reviewsObject =
-        storedReviews != null ? JSON.parse(storedReviews) : {};
+      // 서버로 리뷰 작성 요청
+      const response = await submitReview(jwt, reviewData);
 
-      // 새로운 productID 리뷰 추가 또는 업데이트
-      reviewsObject[productID] = review;
+      // 서버에서 응답받은 데이터를 상태에 반영
+      const serverReview = response;
 
-      // 업데이트된 리뷰 객체를 다시 AsyncStorage에 저장
-      await AsyncStorage.setItem(REVIEW_KEY, JSON.stringify(reviewsObject));
+      // 응답 데이터를 바탕으로 상태 업데이트
+      setMainUserReview(serverReview);
 
-      // 상태에 저장
-      setMainUserReview(review);
-    } catch (e) {
-      showToast("리뷰 저장 중 오류가 발생하였습니다. :", e);
+      // 리뷰 데이터를 상태에 저장
+      await loadReviews();
+
+      // 성공 메시지
+      showToast("리뷰 작성이 완료되었습니다");
+
+      // 모달 닫기
+      setVisible(false);
+    } catch (error) {
+      showToast("오류가 발생하였습니다");
     }
   };
 
-  // 리뷰 불러오기 함수
-
-  const loadReview = async () => {
+  // 리뷰 수정 함수 - 서버 연동
+  const handleReviewUpdate = async () => {
     try {
-      // 모든 리뷰 객체를 불러옴
-      const storedReviews = await AsyncStorage.getItem(REVIEW_KEY);
-      const reviewsObject =
-        storedReviews != null ? JSON.parse(storedReviews) : {};
+      const reviewData = {
+        proId: productID, // 제품 ID
+        content: reviewText, // 수정된 리뷰 내용
+        rec: isRec ? 1 : 0, // 추천 여부
+      };
 
-      // 현재 productID에 해당하는 리뷰를 불러옴
-      const loadedReview = reviewsObject[productID];
+      // 리뷰 수정 요청 함수 호출
+      const updatedReview = await updateReview(jwt, reviewData);
 
-      // 리뷰 데이터를 불러오면 각 상태에 나눠서 저장
-      if (loadedReview && loadedReview.pro_id === productID) {
-        // productID를 비교
-        setMainUserReview(loadedReview);
-        setReviewTime(loadedReview.created_at); // 작성 시간 복원
-        setUpLoadReview(loadedReview.upLoadReview); // 서버 업로드 여부 복원
-        setReviewText(loadedReview.content); // 저장된 텍스트 복원
-        setIsRec(loadedReview.is_rec); // 추천 여부 복원
-        setIsNotRec(!loadedReview.is_rec); // 비추천 여부 복원
-      } else {
-        // 해당 productID에 맞는 리뷰가 없을 때 초기화
-        setMainUserReview(null);
-        setReviewText("");
-        setIsRec(false);
-        setIsNotRec(false);
-        setReviewTime(null);
-        setUpLoadReview(false);
-      }
-    } catch (e) {
-      showToast("리뷰 불러오기 중 오류가 발생하였습니다. :", e);
+      // 응답 데이터를 바탕으로 상태 업데이트
+      setMainUserReview(updatedReview);
+
+      // 리뷰 데이터를 상태에 저장
+      await loadReviews();
+
+      showToast("리뷰가 수정되었습니다");
+      // 모달 닫기
+      setVisible(false);
+    } catch (error) {
+      showToast("오류가 발생하였습니다");
+      console.log("리뷰 수정 중 오류:", error);
     }
   };
 
-  // 앱 실행 시 리뷰 데이터를 불러옴
-  useEffect(() => {
-    loadReview(); // 컴포넌트가 마운트될 때 데이터를 불러옴
-  }, [productID]); // productID가 변경될 때마다 다시 불러옴
+  // 서버에서 리뷰 불러오기 함수
+  const loadReviewFromServer = async () => {
+    try {
+      // 서버에서 리뷰 데이터 불러오기
+      const serverReview = await fetchReviewData(jwt, productID);
+      const ownReview = serverReview.review;
+      console.log("서버에서 불러온 리뷰: ", serverReview.review);
 
-  // 작성 완료
-  const handleUpLoad = () => {
-    // 리뷰 저장
-    saveReview();
-    // 서버 업로드 상태를 true로 변경
-    setUpLoadReview(true);
-    // 모달 닫기
-    setVisible(false);
-    // 로그 출력
-    console.log(
-      "pro_id:",
-      productID,
-      "user_id:",
-      id,
-      "is_rec:",
-      isRec,
-      "content:",
-      reviewText,
-      "created_at:",
-      reviewTime // 작성 시간 저장
-    );
-    // 완료 메시지 표시
-    showToast("리뷰 작성이 완료되었습니다.");
+      // 리뷰 데이터를 상태에 저장
+      setMainUserReview(ownReview);
+      setReviewTime(ownReview.date);
+      setReviewText(ownReview.content);
+      setIsRec(ownReview.rec);
+      setIsNotRec(!ownReview.rec);
+    } catch (e) {
+      console.log("리뷰 불러오기 중 오류가 발생하였습니다. :", e);
+    }
   };
+
+  // 앱 실행 시 서버에서 리뷰 데이터를 불러옴
+  useEffect(() => {
+    loadReviewFromServer();
+  }, []);
 
   return (
     <Modal
@@ -168,7 +151,9 @@ export default function LocalReviewModal({
           onTouchEnd={(e) => e.stopPropagation()} //메서드는 캡처 Event 및 버블링 단계에서 현재 이벤트의 추가 전파를 방지합니다.
         >
           <View style={styles.modalHeader}>
-            <Text style={styles.modalHeaderText}>리뷰 쓰기</Text>
+            <Text style={styles.modalHeaderText}>
+              {!mainUserReview ? "리뷰 쓰기" : "리뷰 수정하기"}
+            </Text>
             <Octicons
               name="x"
               size={24}
@@ -259,12 +244,12 @@ export default function LocalReviewModal({
                   style={{
                     ...styles.inputLengthText,
                     color:
-                      reviewText.length !== 150
+                      reviewText && reviewText.length !== 150
                         ? Gray_theme.gray_60
                         : Main_theme.main_reverse,
                   }}
                 >
-                  {reviewText.length}
+                  {reviewText ? reviewText.length : 0}
                 </Text>
                 <Text
                   style={{
@@ -288,8 +273,13 @@ export default function LocalReviewModal({
               ) : (
                 <BtnC
                   onPress={() => {
-                    setUpLoadReview(true);
-                    handleUpLoad();
+                    if (!mainUserReview) {
+                      // 리뷰가 없을 때 (새 리뷰 작성)
+                      handleUpLoad();
+                    } else {
+                      // 리뷰가 있을 때 (리뷰 수정)
+                      handleReviewUpdate();
+                    }
                   }}
                 >
                   작성 완료
