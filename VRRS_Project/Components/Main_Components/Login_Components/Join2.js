@@ -1,10 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions } from 'react-native';
-
-import Octicons from '@expo/vector-icons/Octicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
@@ -12,45 +8,63 @@ import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import BtnD from "../../../assets/styles/ReuseComponents/Button/BtnD";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
-// 아래 내용을 추후 로그인 화면에 동일하게 import 하여 사용해주세요
-import { useUser } from "../../../assets/ServerDatas/Users/UserContext"; // 유저의 정보(닉네임, 유형)를 전역적으로 사용
+import Octicons from '@expo/vector-icons/Octicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
 export default function Join2({ navigation }) {
     useTabBarVisibility(false);
     const windowWidth = useWindowDimensions().width;
     const windowHeigh = useWindowDimensions().height;
 
+    const [timer, setTimer] = useState(180); // 3분 (180초)
+    const [isTimerExpired, setIsTimerExpired] = useState(false); // 타이머 만료 여부
+    const [isTimerVisible, setIsTimerVisible] = useState(false);
     
-  // [ 유저의 정보를 저장하는 내용입니다 ]
-  const { signUpUser, id, name, vegTypeName } = useUser();
-  const [emailText, setemailText] = useState("");
-  const [idText, setIdText] = useState("");
-  const [passwordText, setpasswordText] = useState("");
-  
-  // 유저 정보를 저장하는 함수
-  const handleSave = () => {
-    const userData = {
-      // 저장할 내용은 실제 서버에서 받아와 넣어주시면 됩니다.
-      email: emailText,
-      id: idText,
-      password:passwordText
+    // 타이머 
+    useEffect(() => {
+        if (timer > 0) {
+            const interval = setInterval(() => {
+                setTimer((prevTimer) => prevTimer - 1);
+            }, 1000);
+            return () => clearInterval(interval);
+        } else {
+            setIsTimerExpired(true); // 타이머가 0이 되면 만료 처리
+        }
+    }, [timer]);
+
+    const resetTimer = () => {
+        setTimer(180);
+        setIsTimerExpired(false);
     };
-    signUpUser(userData); // 유저 정보를 저장
-  };
 
-  // 최종 로그인 함수 입니다
-  // 로그인 여부에 필요한 로직을 추가하여 사용해주세요
-  // (ex. 서버 내용 불러오기, textInput 확인하기 등)
+    // 초를 분:초로 변환
+    const formatTime = (time) => {
+        const minutes = Math.floor(time / 60);
+        const seconds = time % 60;
+        return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
+    };
 
-    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [emailText, setemailText] = useState("");
+    const [idText, setIdText] = useState("");
+    const [passwordText, setpasswordText] = useState("");
+    const [authCode, setAuthCode] = useState("");
+
     const [isEmailValid, setIsEmailValid] = useState(false);
-    const [isIdValid, setIsIdValid] = useState(false);
-    const [isIdChecked, setIsIdChecked] = useState(false);
     const [isEmailChecked, setIsEmailChecked] = useState(false);
     const [isEmailTouched, setIsEmailTouched] = useState(false);
+    const [isIdValid, setIsIdValid] = useState(false);
+    const [isIdChecked, setIsIdChecked] = useState(false);
     const [isIdTouched, setIsIdTouched] = useState(false);
+    const [isCodeChecked, setIsCodeChecked] = useState(false);
     const [isPasswordValid, setIsPasswordValid] = useState(false);
     const [isPasswordTouched, setIsPasswordTouched] = useState(false);
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    const [clickCount, setClickCount] = useState(0); // 클릭 횟수 상태
+    const [message, setMessage] = useState(''); // 인증 상태 메시지
+    const [messageStyle, setMessageStyle] = useState(null); // 인증 메시지 스타일
+
 
     const validateEmail = (email) => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -83,21 +97,97 @@ export default function Join2({ navigation }) {
         setIsPasswordVisible(!isPasswordVisible);
     };
 
-    const handleLogin = () => {
-        if (isEmailValid && isIdValid && isPasswordValid && isIdChecked && isEmailChecked) {
-            handleSave();
-            navigation.navigate('Join3');
+    const handleCode = () => {
+        fetch('https://chaesigeodi.ddns.net/auth/auth-email', {
+            method: 'POST',
+            body: JSON.stringify({ email: emailText }),
+        })
+            .then(response => {
+                if (response.status === 409) {
+                    alert('이미 사용 중인 이메일입니다.');
+                    throw new Error('Email already exists');
+                }
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.code) {
+                    setIsEmailChecked(true);
+                    setClickCount(prevCount => prevCount + 1); // 클릭 횟수 증가
+                    alert('인증번호 전송 완료');
+
+                    // 타이머 초기화 및 시작
+                    resetTimer();
+                    setIsTimerVisible(true);
+                } else {
+                    alert('입력한 정보를 확인해주세요.');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                if (error.message !== 'Email already exists') {
+                    alert('네트워크 오류입니다.');
+                }
+            });
+    };
+
+    //인증번호 재전송
+    const handleResend = () => {
+        handleCode();
+    }
+
+    //인증번호 확인
+    const handleCodecheck = () => {
+        if (!isTimerExpired && authCode === code) {
+            setIsCodeChecked(true);
+            setMessage('인증 완료');
+            setMessageStyle(styles.helperText);
+        } else {
+            setMessage('만료되거나 잘못된 인증번호입니다.');
+            setMessageStyle(styles.warningText);
+        }
+    }
+
+    // 아이디 중복 확인
+    const handleOverlap = () => {
+        fetch('https://chaesigeodi.ddns.net/auth/check-username', {
+            method: 'POST',
+            body: JSON.stringify({ username: idText }),
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.exists) {
+                    setMessage('사용할 수 없는 아이디 입니다.');
+                    setMessageStyle(styles.warningText);
+                } else {
+                    setIsIdChecked(true);
+                    setMessage('사용 가능한 아이디 입니다.');
+                    setMessageStyle(styles.helperText);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('네트워크 오류입니다.'); // 네트워크 오류 메시지
+            });
+    };
+
+    //계정 생성 완료
+    const handleConfirm = () => {
+        if (isEmailValid && isIdValid && isPasswordValid && isIdChecked && isEmailChecked && isCodeChecked) {
+            navigation.navigate('Join3',{
+                email: emailText,
+                username: idText,
+                password: passwordText});
         } else {
             alert('입력한 정보를 확인해주세요.');
         }
-    };
-    const handleCode = () => {
-        setIsEmailChecked(true);
-        alert('인증번호 전송 완료');
-    };
-    const handleOverlap = () => {
-        setIsIdChecked(true);
-        alert('중복확인 완료');
     };
 
     return (
@@ -153,14 +243,52 @@ export default function Join2({ navigation }) {
                     placeholderTextColor={Gray_theme.gray_40}
                 />
                 <View style={styles.overlapButton}>
-                    <BtnD onPress={handleCode} disabled={!isEmailValid}>인증번호 전송</BtnD>
+                    <BtnD onPress={clickCount > 0 ? handleResend : handleCode} disabled={!isEmailValid}>
+                        {clickCount > 0 ? '재전송' : '인증번호 전송'}
+                    </BtnD>
                 </View>
                 <View style={{ height: 24 }}>
-                    {isEmailTouched && isEmailChecked ? (
-                        <Text style={styles.helperText}>인증되었습니다.</Text>
-                    ) : isEmailTouched && !isEmailValid ? (
+                    {isEmailTouched && !isEmailValid && (
                         <Text style={styles.warningText}>유효한 이메일을 입력해주세요.</Text>
-                    ) : null}
+                    )}
+                </View>
+            </View>
+
+            <View style={styles.inputContainer}>
+                <View style={{ flexDirection: 'row' }}>
+                    <Text style={styles.label}>인증번호 입력</Text>
+                    <FontAwesome5
+                        name="star-of-life"
+                        size={8}
+                        color={Main_theme.main_30}
+                        style={styles.cPoint}
+                    />
+                </View>
+                <TextInput
+                    style={{ ...styles.input, marginRight: 100 }}
+                    placeholder="이메일을 먼저 입력하세요"
+                    keyboardType="default"
+                    value={authCode}
+                    onChangeText={(code) => {
+                        setAuthCode(code);
+                        setIsCodeChecked(false);
+                    }}
+                    placeholderTextColor={Gray_theme.gray_40}
+                />
+                <View style={styles.overlapButton2}>
+                    <BtnD onPress={handleCodecheck}>확인</BtnD>
+                </View>
+
+                <View style={{ height: 24 }}>
+                    {isTimerVisible && (
+                        <Text style={{
+                            fontSize: 12,
+                            color: Main_theme.main_reverse,
+                            left: 4
+                        }}>남은 시간 {formatTime(timer)}</Text>)}
+                    <Text style={[{ fontSize: 12 }, messageStyle]}>
+                        {message}
+                    </Text>
                 </View>
             </View>
 
@@ -190,11 +318,9 @@ export default function Join2({ navigation }) {
                     <BtnD onPress={handleOverlap} disabled={!isIdValid}>중복확인</BtnD>
                 </View>
                 <View style={{ height: 24 }}>
-                    {isIdTouched && isIdChecked ? (
-                        <Text style={styles.helperText}>사용할 수 있는 아이디입니다.</Text>
-                    ) : isIdTouched && !isIdValid ? (
-                        <Text style={styles.warningText}>아이디는 6-12자의 영문자, 숫자만 사용이 가능합니다.</Text>
-                    ) : null}
+                    <Text style={[{ fontSize: 12 }, messageStyle]}>
+                        {message}
+                    </Text>
                 </View>
             </View>
 
@@ -238,8 +364,8 @@ export default function Join2({ navigation }) {
                 </View>
             </View>
 
-            <View style={{ ...styles.button, top: windowHeigh -36 }}>
-                <BtnC onPress={handleLogin}>다음</BtnC>
+            <View style={{ ...styles.button, top: windowHeigh - 36 }}>
+                <BtnC onPress={handleConfirm}>다음</BtnC>
             </View>
         </SafeAreaView>
     );
@@ -314,6 +440,12 @@ const styles = StyleSheet.create({
     overlapButton: {
         position: 'absolute',
         right: 8,
+        bottom: 32,
+        paddingHorizontal: 16,
+    },
+    overlapButton2: {
+        position: 'absolute',
+        right: 108,
         bottom: 32,
         paddingHorizontal: 16,
     },

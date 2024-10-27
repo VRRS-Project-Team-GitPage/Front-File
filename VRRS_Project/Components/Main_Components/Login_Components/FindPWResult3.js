@@ -12,7 +12,7 @@ export default function FindPWResult3({ navigation }) {
     useTabBarVisibility(false);
 
     const handleConfirm = () => {
-        navigation.navigate('Log'); // 'Log' 화면으로 이동
+        navigation.navigate('Login_Main'); // 'Log' 화면으로 이동
     };
 
     return (
@@ -24,7 +24,7 @@ export default function FindPWResult3({ navigation }) {
             </View>
 
             <View style={styles.button}>
-                <BtnC onPress={handleConfirm}>변경하기</BtnC>
+                <BtnC onPress={handleConfirm}>로그인하러 가기</BtnC>
             </View>
         </SafeAreaView>
     );

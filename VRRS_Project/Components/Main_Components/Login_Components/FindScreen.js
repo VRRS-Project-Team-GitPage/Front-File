@@ -8,17 +8,20 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
+// createMaterialTopTabNavigator 오류창 숨기기
+import { LogBox } from 'react-native';
+LogBox.ignoreLogs(['Warning: A props object containing a "key" prop is being spread into JSX']);
 
 const Tab = createMaterialTopTabNavigator();
 export default function FindScreen({ navigation, route }) {
    useTabBarVisibility(false);
 
     const [currentTab, setCurrentTab] = useState('아이디 찾기');
-  
+
     return (
       <SafeAreaView style={styles.container}>
         <BackHeader onPress={() => navigation.goBack()}>{currentTab}</BackHeader>
-  
+
         <Tab.Navigator
           initialRouteName={route.params?.initial || 'FindID'}  // 여기서 초기 화면 설정
           screenOptions={{

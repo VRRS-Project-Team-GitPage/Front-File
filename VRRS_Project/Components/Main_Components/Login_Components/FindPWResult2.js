@@ -25,11 +25,28 @@ export default function FindPWResult2({ navigation }) {
         setIsPasswordVisible2(!isPasswordVisible2);
     };
 
-    const handleLogin = () => {
-        if (newPassword === confirmPassword&& newPassword !=='' && confirmPassword!=='') {
-            Alert.alert("성공", "비밀번호가 변경되었습니다.");
+    const handleFindPW = () => {
+        if (newPassword === confirmPassword && newPassword !== '' && confirmPassword !== '') {
+            fetch('https://chaesigeodi.ddns.net/auth/reset-password', {
+                method: 'PUT',
+                body: JSON.stringify({username: request.username,password: newPassword}),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response;
+            })
+            .then(() => {
+                Alert.alert("성공", "비밀번호가 변경되었습니다."); // 성공 메시지
+                navigation.navigate('FindPWr3');
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                Alert.alert("오류", "비밀번호 변경에 실패했습니다."); // 실패 메시지
+            });
         } else {
-            Alert.alert("오류", "비밀번호가 일치하지 않습니다.");
+            Alert.alert("오류", "비밀번호가 일치하지 않습니다."); // 비밀번호 불일치 알림
         }
     };
 
@@ -91,7 +108,7 @@ export default function FindPWResult2({ navigation }) {
                 </View>
             </View>
             <View style={styles.button}>
-                <BtnC onPress={handleLogin}>변경하기</BtnC>
+                <BtnC onPress={handleFindPW}>변경하기</BtnC>
             </View>
         </SafeAreaView>
     );

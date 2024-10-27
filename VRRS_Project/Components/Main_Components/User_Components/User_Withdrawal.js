@@ -7,6 +7,7 @@ import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader
 import BtnD from "../../../assets/styles/ReuseComponents/Button/BtnD";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Octicons from '@expo/vector-icons/Octicons';
 
 export default function User_Withdrawal({ navigation }) {
@@ -15,7 +16,7 @@ export default function User_Withdrawal({ navigation }) {
     const [modalVisible, setModalVisible] = useState(false);
     const [isMenuSelected, setIsMenuSelected] = useState(false); // 메뉴 선택 여부를 추적하는 상태
 
-    const handleLogin = () => {
+    const handleWithdrawal = async () => {
         if (!isMenuSelected) {
             Alert.alert('', '탈퇴하기 전에 필수 항목을 읽어주세요.',
                 [
@@ -23,13 +24,34 @@ export default function User_Withdrawal({ navigation }) {
                 ],
             );
         } else {
-            Alert.alert('탈퇴 완료', '탈퇴가 완료 되었습니다.',
+            Alert.alert('신중히 선택하세요!', '탈퇴하시겠습니까?',
                 [
-                    { text: '확인', onPress: () => { }, style: 'cancel' },
-                ],
+                    {
+                        text: '확인',
+                        onPress: async () => {
+                            try {
+                                await AsyncStorage.removeItem('your_jwt_token');
+                                Alert.alert('탈퇴 완료', '탈퇴가 완료되었습니다.',
+                                    [
+                                        { text: '확인', onPress: () => navigation.navigate("HomeTab", { screen: "Home" }), style: 'cancel' },
+                                    ]);
+                            } catch (error) {
+                                console.error('Error removing token:', error);
+                                Alert.alert('오류', '탈퇴 처리 중 오류가 발생했습니다.');
+                            }
+                        },
+                    },
+                    {
+                        text: '취소',
+                        onPress: () => { }, // 취소 시 아무것도 하지 않음
+                        style: 'cancel',
+                    },
+                ]
             );
         }
     };
+
+
     const openModal = () => {
         setModalVisible(true);
         setIsMenuSelected(true); // 메뉴가 선택되면 true로 설정
@@ -66,8 +88,9 @@ export default function User_Withdrawal({ navigation }) {
                     탈퇴 시 위 내용에 동의한 것으로 간주합니다.
                 </Text>
                 <BtnD
-                    onPress={handleLogin}
+                    onPress={handleWithdrawal}
                     containerStyle={{ backgroundColor: 'red', borderColor: 'red', height: 48 }}
+                    disabled={!isMenuSelected}
                 >
                     탈퇴하기
                 </BtnD>

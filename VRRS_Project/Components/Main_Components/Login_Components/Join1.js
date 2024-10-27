@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Octicons from '@expo/vector-icons/Octicons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
+
+import Octicons from '@expo/vector-icons/Octicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 export default function Join1({ navigation }) {
     useTabBarVisibility(false);
@@ -25,7 +25,7 @@ export default function Join1({ navigation }) {
         if (termsAgree && privacyAgree) {
             navigation.navigate('Join2');
         } else {
-            Alert.alert('필수 항목에 모두 동의해 주세요.'); // 경고 메시지
+            Alert.alert('필수 항목에 모두 동의해 주세요.');
         }
     };
 

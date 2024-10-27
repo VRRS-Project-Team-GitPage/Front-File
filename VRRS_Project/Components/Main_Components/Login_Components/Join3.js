@@ -2,45 +2,22 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import Octicons from '@expo/vector-icons/Octicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import DropDown from "../../../assets/styles/ReuseComponents/Button/DropDown";
 
+import Octicons from '@expo/vector-icons/Octicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 // Data 관련
 import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
-// 아래 내용을 추후 로그인 화면에 동일하게 import 하여 사용해주세요
-import { useUser } from "../../../assets/ServerDatas/Users/UserContext"; // 유저의 정보(닉네임, 유형)를 전역적으로 사용
 
-export default function Join3({ navigation }) {
+export default function Join3({ route, navigation }) {
     useTabBarVisibility(false);
     const windowWidth = useWindowDimensions().width;
     const windowHeigh = useWindowDimensions().height;
-
-
-    // [ 유저의 정보를 저장하는 내용입니다 ]
-    const { signUpUser, id, name, vegTypeName } = useUser();
-    const [nameText, setNameText] = useState("");
-
-    // 유저 정보를 저장하는 함수
-    const handleSave = () => {
-        const userData = {
-            // 저장할 내용은 실제 서버에서 받아와 넣어주시면 됩니다.
-            name: nameText,
-            veg_type_id: value,
-        };
-        signUpUser(userData); // 유저 정보를 저장
-    };
-
-    // 최종 로그인 함수 입니다
-    // 로그인 여부에 필요한 로직을 추가하여 사용해주세요
-    // (ex. 서버 내용 불러오기, textInput 확인하기 등)
-    const [isNicknameTouched, setIsNicknameTouched] = useState(false);
 
     // DropDown에 사용될 변수 및 내용입니다
     const [open, setOpen] = useState(false);
@@ -51,13 +28,46 @@ export default function Join3({ navigation }) {
             .map((item) => ({ label: item.name, value: item.id }))
     );
 
-    const handleLogin = () => {
+    const { username, email, password } = route.params;
+    const [nameText, setNameText] = useState("");
+    const [isNicknameTouched, setIsNicknameTouched] = useState(false);
+
+    // 정보 입력 및 회원가입 완료
+    const handleConfirm = () => {
+        // 사용자 정보가 모두 유효한지 확인
         if (!nameText.trim() && value === 'none') {
             alert('입력한 정보를 확인해주세요.');
-        } else {
-            handleSave(); // 유저 정보를 저장
-            navigation.navigate('Joinr');
+            return; // 유효성 검사 실패 시 종료
         }
+    
+        fetch('https://chaesigeodi.ddns.net/auth/join', {
+            method: 'POST',
+            body: JSON.stringify({
+                username,
+                email,
+                password,
+                nickname: nameText,
+                vegTypeId: value,
+            }),
+        })
+        .then(response => {
+            if (response.status === 400) {
+                alert('입력한 정보를 확인해주세요.');
+                return;
+            }
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(() => {
+            // 필요한 경우, response로부터의 data 처리
+            navigation.navigate('Joinr');
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert('네트워크 오류입니다.'); // 네트워크 오류 메시지
+        });
     };
 
     return (
@@ -147,7 +157,7 @@ export default function Join3({ navigation }) {
 
             {/* 다음 버튼 */}
             <View style={{ ...styles.button, top: windowHeigh - 36 }}>
-                <BtnC onPress={handleLogin}>다음</BtnC>
+                <BtnC onPress={handleConfirm}>다음</BtnC>
             </View>
         </SafeAreaView>
     );

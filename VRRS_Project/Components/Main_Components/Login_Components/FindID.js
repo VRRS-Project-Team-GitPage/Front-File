@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Gray_theme,Main_theme } from "../../../assets/styles/Theme_Colors";
+import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
 export default function FindID({ navigation }) {
@@ -14,13 +14,33 @@ export default function FindID({ navigation }) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     setIsEmailValid(emailRegex.test(email));
   };
+
   const handleFindID = () => {
-    if (isEmailValid) {
-      alert(`아이디 찾기 요청이 전송되었습니다: ${email}`);
-      navigation.navigate('FindIDr');
-    } else {
-      alert('입력한 정보를 확인해주세요.');
-    }
+    fetch('https://chaesigeodi.ddns.net/auth/find/username', {
+      method: 'POST',
+      body: JSON.stringify({ email: email }), // JSON 형식으로 수정
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.username) {  // 응답이 username 필드를 포함할 경우
+          alert(`아이디가 성공적으로 조회되었습니다.`);
+          // 이메일과 아이디를 결과 화면에 전달
+          navigation.navigate('FindIDr', { username: data.username, email: email });
+        } else {
+          alert('아이디를 찾을 수 없습니다. 입력한 정보를 확인해주세요.');
+          // 이메일과 아이디를 결과 화면에 전달
+          navigation.navigate('FindIDr', { email: email });
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        alert('네트워크 오류입니다'); // 네트워크 오류 메시지
+      });
   };
 
   return (
@@ -44,11 +64,13 @@ export default function FindID({ navigation }) {
           keyboardType="email-address"
           placeholderTextColor={Gray_theme.gray_40}
         />
-        {isEmailTouched && (!isEmailValid || email === '') ? (
-          <Text style={styles.warningText}>유효한 이메일을 입력해주세요.</Text>
-        ) : isEmailTouched && isEmailValid ? (
-          <Text> </Text>
-        ) : null}
+        <View style={{ height: 16 }}>
+          {isEmailTouched && (!isEmailValid || email === '') ? (
+            <Text style={styles.warningText}>유효한 이메일을 입력해주세요.</Text>
+          ) : isEmailTouched && isEmailValid ? (
+            <Text> </Text>
+          ) : null}
+        </View>
       </View>
       <View style={styles.btnContainer}>
         <BtnC onPress={handleFindID}>확인</BtnC>
@@ -93,9 +115,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   warningText: {
-      fontSize: 12,
-      fontFamily: 'Pretendard-Regular',
-      color: Main_theme.main_reverse,
-      marginTop: 4,
+    fontSize: 12,
+    fontFamily: 'Pretendard-Regular',
+    color: Main_theme.main_reverse,
+    marginTop: 4,
   },
 });

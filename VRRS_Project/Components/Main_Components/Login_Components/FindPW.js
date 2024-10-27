@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Gray_theme,Main_theme } from "../../../assets/styles/Theme_Colors";
+import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
 export default function FindPW({ navigation }) {
@@ -23,14 +23,30 @@ export default function FindPW({ navigation }) {
     const idRegex = /^[a-zA-Z0-9]{6,12}$/;
     setIsIdValid(idRegex.test(id));
   };
-
   const handleFindPW = () => {
-    if (isEmailValid && isIdValid) {
-      alert(`비밀번호 재설정 요청이 전송되었습니다: ${email}`);
-      navigation.navigate('FindPWr1');
-    } else {
-      alert('입력한 정보를 확인해주세요.');
-    }
+    fetch('https://chaesigeodi.ddns.net/auth/find/password', {
+      method: 'POST',
+      body: JSON.stringify({ email: email, id: id }), // JSON 형식으로 수정
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.Code) {
+          alert(`입력하신 이메일로 인증번호가 전송되었습니다: ${email}`);
+          navigation.navigate('FindPWr1',{authCode:Code,email: email, id: id});
+        } else {
+          alert('입력한 정보를 확인해주세요.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        alert('네트워크 오류입니다'); // 네트워크 오류 메시지
+
+      });
   };
 
   return (
@@ -53,12 +69,13 @@ export default function FindPW({ navigation }) {
           }}
           keyboardType="email-address"
           placeholderTextColor={Gray_theme.gray_40}
-        />
-        {isEmailTouched && (!isEmailValid || email === '') ? (
-          <Text style={styles.warningText}>유효한 이메일을 입력해주세요.</Text>
-        ) : isEmailTouched && isEmailValid ? (
-          <Text> </Text>
-        ) : null}
+        /><View style={{ height: 16 }}>
+          {isEmailTouched && (!isEmailValid || email === '') ? (
+            <Text style={styles.warningText}>유효한 이메일을 입력해주세요.</Text>
+          ) : isEmailTouched && isEmailValid ? (
+            <Text> </Text>
+          ) : null}
+        </View>
       </View>
       <View style={styles.inputContainer}>
         <TextInput
@@ -73,7 +90,7 @@ export default function FindPW({ navigation }) {
           }}
           keyboardType="default" // or 'ascii-capable'
           placeholderTextColor={Gray_theme.gray_40}
-        /><View style={{ height: 24 }}>
+        /><View style={{ height: 16 }}>
           {isIdTouched && isIdChecked ? (
             <Text> </Text>
           ) : isIdTouched && !isIdValid ? (
@@ -125,9 +142,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   warningText: {
-      fontSize: 12,
-      fontFamily: 'Pretendard-Regular',
-      color: Main_theme.main_reverse,
-      marginTop: 4,
+    fontSize: 12,
+    fontFamily: 'Pretendard-Regular',
+    color: Main_theme.main_reverse,
+    marginTop: 4,
   },
 });

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput} from 'react-native';
+import React, { useState,useEffect } from 'react';
+import { View, Text, StyleSheet, TextInput, useWindowDimensions,Alert } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
@@ -7,16 +7,54 @@ import Xheader from "../../../assets/styles/ReuseComponents/Header/xheader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export default function User_Feedback({ navigation }) {
   useTabBarVisibility(false);
+  const windowWidth = useWindowDimensions().width;
+  const windowHeigh = useWindowDimensions().height;
+
   const [feedback, setFeedback] = useState('');
   const maxLength = 250;
+  const [token, setToken] = useState(''); // JWT 토큰 상태
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const storedToken = await AsyncStorage.getItem('your_jwt_token'); // AsyncStorage에서 JWT 토큰 가져오기
+      setToken(storedToken);
+    };
+
+    fetchToken();
+  }, []);
 
   const handleSubmit = () => {
-    // 제출 버튼 클릭 시 실행할 로직
-    console.log('제출된 피드백:', feedback);
-    alert("제출되었습니다.\n소중한 의견 감사합니다." );
-    setFeedback('');
+    fetch('https://chaesigeodi.ddns.net/feedback/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({ feedback: feedback }),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          console.log('제출된 피드백:', feedback);
+          Alert.alert("제출되었습니다.\n소중한 의견 감사합니다.");
+          setFeedback('');
+        } else {
+          Alert.alert('오류', '피드백 제출에 실패했습니다.');
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        Alert.alert('네트워크 오류입니다'); // 네트워크 오류 메시지
+      });
   };
 
   return (
@@ -52,7 +90,7 @@ export default function User_Feedback({ navigation }) {
         <Text style={styles.charCount}>{feedback.length}/{maxLength}자</Text>
       </View>
       {/* 제출 버튼 */}
-      <View style={styles.button}>
+      <View style={{ ...styles.button, top: windowHeigh - 36 }}>
         <BtnC onPress={handleSubmit}>제출하기</BtnC>
       </View>
     </SafeAreaView>
@@ -65,27 +103,27 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
   },
   headerContainer: {
-    marginTop:32,
+    marginTop: 32,
     paddingHorizontal: 24,
   },
   inputContainer: {
-    marginTop:32,
+    marginTop: 32,
     paddingHorizontal: 16,
   },
 
   headerText: {
     fontSize: 24,
-    fontWeight: 'Pretendard-Semibold',
+    fontFamily: 'Pretendard-SemiBold',
     marginBottom: 16,
   },
   subText: {
     fontSize: 12,
-    fontWeight: 'Pretendard-Medium',
+    fontFamily: 'Pretendard-Medium',
     color: Gray_theme.gray_60,
   },
   textInput: {
     height: 130,
-    color:Gray_theme.balck,
+    color: Gray_theme.balck,
     backgroundColor: Gray_theme.gray_20,
     borderColor: Gray_theme.gray_40,
     borderWidth: 1,
@@ -97,7 +135,7 @@ const styles = StyleSheet.create({
   charCount: {
     alignSelf: 'flex-end',
     fontSize: 12,
-    fontWeight: 'Pretendard-Medium',
+    fontFamily: 'Pretendard-Medium',
     color: Gray_theme.gray_60,
   },
   button: {

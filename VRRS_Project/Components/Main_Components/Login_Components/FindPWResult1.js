@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Alert,} from 'react-native';
+import { View, Text, StyleSheet, TextInput, Alert, } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -14,19 +14,25 @@ export default function FindPWResult1({ navigation }) {
 
     const [timer, setTimer] = useState(180); // 3분 (180초)
     const [isTimerExpired, setIsTimerExpired] = useState(false); // 타이머 만료 여부
+    const { authCode: receivedAuthCode, email, id } = route.params; // params에서 값 받기
     const [authCode, setAuthCode] = useState(''); // 인증번호 상태
-  
+
     // 타이머 
     useEffect(() => {
-      if (timer > 0) {
-        const interval = setInterval(() => {
-          setTimer((prevTimer) => prevTimer - 1);
-        }, 1000);
-        return () => clearInterval(interval);
-      } else {
-        setIsTimerExpired(true); // 타이머가 0이 되면 만료 처리
-      }
+        if (timer > 0) {
+            const interval = setInterval(() => {
+                setTimer((prevTimer) => prevTimer - 1);
+            }, 1000);
+            return () => clearInterval(interval);
+        } else {
+            setIsTimerExpired(true); // 타이머가 0이 되면 만료 처리
+        }
     }, [timer]);
+
+    const resetTimer = () => {
+        setTimer(180);
+        setIsTimerExpired(false);
+    };
 
     // 초를 분:초로 변환
     const formatTime = (time) => {
@@ -37,16 +43,39 @@ export default function FindPWResult1({ navigation }) {
 
     // 재전송 버튼
     const handleResend = () => {
-        alert(`재전송 완료`);
+        fetch('https://chaesigeodi.ddns.net/auth/find/password', {
+            method: 'POST',
+            body: JSON.stringify({ email: email, id: id }), // JSON 형식으로 수정
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.Code) {
+                    alert(`재전송되었습니다: ${email}`);
+                    resetTimer();
+                } else {
+                    alert('입력한 정보를 확인해주세요.');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('네트워크 오류입니다'); // 네트워크 오류 메시지
+
+            });
+
     };
 
-    const handleLogin = () => {
-      if (!isTimerExpired&&authCode==='123') {
-        alert('인증번호 입력 완료');
-        navigation.navigate('FindPWr2');
-      } else {
-        Alert.alert('인증 오류', '만료되거나 잘못된 인증번호입니다.');
-      }
+    const handleFindPW = () => {
+        if (!isTimerExpired && authCode === receivedAuthCode) {
+            alert('인증번호 입력 완료');
+            navigation.navigate('FindPWr2');
+        } else {
+            Alert.alert('인증 오류', '만료되거나 잘못된 인증번호입니다.');
+        }
     };
 
     return (
@@ -58,14 +87,14 @@ export default function FindPWResult1({ navigation }) {
             >인증번호 입력
             </BackHeader>
             <Text style={styles.description}>이메일로 인증 번호가 전송되었습니다.{"\n"}전송받은 인증 번호를 입력해주세요.</Text>
-            <Text style={styles.email}>shinhan123@gmail.com</Text>
+            <Text style={styles.email}>{email}</Text>
 
             {/* 인증번호 입력 필드 */}
             <View style={styles.inputSection}>
                 <TextInput
                     style={styles.input}
                     placeholder="인증번호 입력"
-                    keyboardType="numeric"
+                    keyboardType="default"
                     value={authCode}
                     onChangeText={setAuthCode}
                 />
@@ -79,7 +108,7 @@ export default function FindPWResult1({ navigation }) {
 
             {/* 확인 버튼 */}
             <View style={styles.Button}>
-                <BtnC onPress={handleLogin}>확인</BtnC>
+                <BtnC onPress={handleFindPW}>확인</BtnC>
             </View>
 
         </SafeAreaView>
@@ -96,7 +125,7 @@ const styles = StyleSheet.create({
         fontFamily: 'Pretendard-SemiBold',
         textAlign: 'flex-start',
         color: Gray_theme.balck,
-        marginTop:24,
+        marginTop: 24,
         marginBottom: 16,
         paddingHorizontal: 24,
     },
@@ -123,7 +152,7 @@ const styles = StyleSheet.create({
     },
     resendButton: {
         position: 'absolute',
-        right: 8, 
+        right: 8,
         top: 8,
         paddingHorizontal: 16,
     },
@@ -133,7 +162,7 @@ const styles = StyleSheet.create({
         marginBottom: 44,
         paddingHorizontal: 24,
     },
-    Button:{
+    Button: {
         paddingHorizontal: 16,
     }
 });
