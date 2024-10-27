@@ -1,6 +1,6 @@
-import React, { useCallback, useLayoutEffect, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { useState, useEffect } from "react";
-import { useWindowDimensions, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import {
   View,
   Text,
@@ -11,31 +11,18 @@ import {
 import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // component 관련
-import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // design 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 // Data 관련 import
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import {
-  getAllProducts,
-  getVegTypeName,
-  getProTypeName,
-  products,
-} from "../../../assets/ServerDatas/Dummy/dummyProducts"; // 제품 정보
-import { getAllBookmarkedProductsWithTimestamp } from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
 // server 관련
 import { fetchBookmarks } from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
 
 export default function DicScreenOwn({ route, navigation }) {
   const { jwt } = useUser();
-
-  useTabBarVisibility(false);
-
-  // 화면 크기를 저장한 변수
-  const windowWidth = useWindowDimensions().width;
-  const windowHeigh = useWindowDimensions().height;
 
   // FlatList의 참조
   const flatListRef = useRef(null);
@@ -58,6 +45,7 @@ export default function DicScreenOwn({ route, navigation }) {
       }
     } catch (error) {
       console.error(error.message); // 에러 처리
+      showToast("오류가 발생하였습니다");
     }
 
     // 상태의 bookmarked 값을 가져와서 설정
@@ -179,6 +167,11 @@ export default function DicScreenOwn({ route, navigation }) {
           />
         )}
       </View>
+      <View
+        style={{
+          marginBottom: 60,
+        }}
+      ></View>
     </SafeAreaView>
   );
 }

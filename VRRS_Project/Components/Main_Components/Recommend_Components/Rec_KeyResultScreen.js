@@ -40,9 +40,7 @@ export default function Rec_keyResultScreen({ navigation, route }) {
       if (!data || data.length === 0) {
         setRecommendProduct(null);
       } else {
-        // 배열에서 무작위 인덱스를 선택
-        const randomIndex = Math.floor(Math.random() * data.length);
-        setRecommendProduct(data[randomIndex]);
+        setRecommendProduct(data);
       }
     } catch (error) {
       console.error(error.message);
