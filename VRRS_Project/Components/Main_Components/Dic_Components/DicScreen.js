@@ -132,7 +132,6 @@ export default function DicScreen({ route, navigation }) {
     saveSearchText(query);
 
     const fetchedData = await fetchData(); // 최신 데이터를 fetchData로부터 직접 가져옴
-    console.log("Fetched data for filtering:", fetchedData);
 
     // 입력된 검색어를 트림하여 앞뒤 공백 제거
     const trimmedQuery = query.trim();
@@ -144,7 +143,7 @@ export default function DicScreen({ route, navigation }) {
       const filteredList = fetchedData.filter((product) =>
         product.name.toLowerCase().includes(trimmedQuery.toLowerCase())
       );
-      // 강제로 UI 갱신
+      // 시간차 데이터 업데이트
       setTimeout(() => {
         setSortedProducts(filteredList);
       }, 0);

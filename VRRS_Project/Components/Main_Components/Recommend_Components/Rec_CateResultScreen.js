@@ -24,15 +24,11 @@ export default function Rec_CateResultScreen({ navigation, route }) {
     const loadData = async () => {
       try {
         const data = await fetchCategoryData(jwt, selectedCategories);
-        console.log(data);
-
         if (!data || data.length === 0) {
           setRecommendProduct(null);
         } else {
           // 배열에서 무작위 인덱스를 선택
-          const randomIndex = Math.floor(Math.random() * data.length);
-          setRecommendProduct(data[randomIndex]);
-          console.log(data[randomIndex].imgUrl);
+          setRecommendProduct(data);
         }
       } catch (error) {
         console.error(error.message);

@@ -1,7 +1,7 @@
 import React from "react";
 import { useState, useEffect, useCallback } from "react";
 import { ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
-import { View, Text, Image, ScrollView, FlatList } from "react-native";
+import { View, Text, Image, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 // design 관련
@@ -27,6 +27,7 @@ import {
   removeBookmark,
 } from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
 import { fetchBookmarks } from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 
 export default function DicProductScreen({ navigation, route }) {
   // user의 정보를 불러옴
@@ -110,9 +111,11 @@ export default function DicProductScreen({ navigation, route }) {
         setIsBookmarked(data.bookmark); // 제품 북마크 여부
       } else {
         console.warn("Product data is undefined.");
+        showToast("사전 데이터가 없습니다");
       }
     } catch (error) {
       console.error("Failed to load product data:", error.message);
+      showToast("오류가 발생하였습니다");
     }
   };
 
@@ -128,6 +131,7 @@ export default function DicProductScreen({ navigation, route }) {
       }
     } catch (error) {
       console.error("Failed to load review data:", error.message);
+      showToast("오류가 발생하였습니다");
     }
   };
 
@@ -180,6 +184,7 @@ export default function DicProductScreen({ navigation, route }) {
       }
     } catch (error) {
       console.error("북마크 상태 업데이트 중 에러 발생:", error.message);
+      showToast("오류가 발생하였습니다");
       // 에러 발생 시 이전 상태로 되돌림
       setIsBookmarked(!newStatus);
     }
@@ -203,7 +208,9 @@ export default function DicProductScreen({ navigation, route }) {
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => {
-              navigation.navigate("reportPro");
+              navigation.navigate("reportPro", {
+                productID: product.id,
+              });
             }}
           >
             <MaterialIcons name="error" size={24} color={Gray_theme.gray_40} />

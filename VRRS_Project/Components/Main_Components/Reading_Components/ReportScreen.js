@@ -10,17 +10,27 @@ import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // assets 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
+// server 관련
+import { submitFeedback } from "../../../assets/ServerDatas/ServerApi/dictionaryApi";
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 
 export default function ReportScreen({ navigation }) {
+  const { jwt } = useUser();
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
 
   const [reportText, setReportText] = useState("");
 
-  const reportError = () => {
-    console.log("report", reportText);
-    navigation.goBack();
+  const reportError = async () => {
+    try {
+      await submitFeedback("RD", reportText, jwt);
+      showToast("피드백이 전송되었습니다");
+      navigation.goBack();
+    } catch (error) {
+      console.error("Failed to submit feedback:", error);
+      showToast("오류가 발생하였습니다");
+    }
   };
 
   return (
