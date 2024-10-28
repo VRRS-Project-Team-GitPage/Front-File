@@ -24,6 +24,7 @@ import { useToast } from "react-native-toast-notifications";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import QuestionModal from "../../../assets/styles/ReuseComponents/Modal/QuestionModal";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 // design 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
@@ -76,23 +77,39 @@ export default function ProNameScreen({ route, navigation }) {
 
   // 판독 데이터를 저장
   const [readingData, setReadingData] = useState();
-  const [ingredients, setIngredients] = useState("원재료명");
+
+  // 판독 데이터 가공
+  const [exists, setExists] = useState();
+  const [fullBracket, setFullBracket] = useState();
+  const [ingredients, setIngredients] = useState("판독된 내용이 없습니다");
+  const [reportNum, setReportNum] = useState();
+  const [check, setCheck] = useState(); // 가공 완료 여부
 
   // 로딩 화면 지정
   const [loading, setLoading] = useState(true);
+  // 오류 코드 상태 변수 및 기본값 설정
+  const [errorMessageCode, setErrorMessageCode] = useState(null);
 
   const fetchOCRData = async (fileName, jwt) => {
     setLoading(true);
+    setErrorMessageCode(null); // 요청 시작 시 오류 메시지 코드 초기화
     try {
-      const data = await getOCRData(fileName, jwt); // submitFileName 함수 호출
-      console.log("Received data from server:", data); // 받아온 데이터 확인
-      // 받아온 데이터를 사용하는 추가 로직 작성 가능
+      const data = await getOCRData(fileName, jwt); // OCR 데이터 가져오기
       if (data) {
         setReadingData(data);
       }
     } catch (error) {
-      console.error("Failed to fetch data from server:", error);
-      throw error;
+      // 상태 코드에 따라 오류 메시지 코드 설정
+      if (error.message === "400") {
+        setErrorMessageCode(1); // 올바른 이미지를 등록해주세요
+        showToast("판독할 텍스트가 없습니다", { duration: 3000 });
+      } else if (error.message === "422") {
+        setErrorMessageCode(2); // 사진을 분석하지 못했습니다. 다시 촬영해주세요
+        showToast("사진을 다시 촬영해주세요", { duration: 3000 });
+      } else {
+        setErrorMessageCode(3); // 오류가 발생하였습니다
+        showToast("알 수 없는 오류가 발생했습니다", { duration: 3000 });
+      }
     } finally {
       setLoading(false); // 로딩 완료
     }
@@ -106,8 +123,15 @@ export default function ProNameScreen({ route, navigation }) {
 
   useEffect(() => {
     if (readingData) {
-      console.log(readingData.ingredients);
-      setIngredients(readingData.ingredients);
+      setExists(readingData.exists || false); // 초기값 설정
+      setFullBracket(readingData.fullBracket || false);
+      setIngredients(readingData.ingredients || "판독된 내용이 없습니다");
+      setReportNum(readingData.reportNum || "");
+
+      console.log("판독된 제품 여부 : ", readingData.exists);
+      console.log("판독된 충족 여부 : ", readingData.fullBracket);
+      console.log("판독된 원재료 : ", readingData.ingredients);
+      console.log("판독된 품목 번호 : ", readingData.reportNum);
     }
   }, [readingData]);
 
@@ -146,17 +170,31 @@ export default function ProNameScreen({ route, navigation }) {
 
   const toast = useToast();
   const handleToast = () => {
-    toast.show(
-      "실제 내용과 인식된 내용이 다를 경우 수정할 수 있어요. 정확한 결과를 위해 실제 제품명과 다르다면 수정해주세요.",
-      {
-        type: "custom",
-        duration: 3000,
-        placement: "bottom",
-        style: styles.toastStyle,
-        textStyle: styles.toastFont,
-        animationType: "slide-in",
-      }
-    );
+    {
+      readingData && readingData.ingredients
+        ? toast.show(
+            "실제 내용과 인식된 내용이 다를 경우 수정할 수 있어요. 정확한 결과를 위해 실제 제품명과 다르다면 수정해주세요.",
+            {
+              type: "custom",
+              duration: 3000,
+              placement: "bottom",
+              style: styles.toastStyle,
+              textStyle: styles.toastFont,
+              animationType: "slide-in",
+            }
+          )
+        : toast.show(
+            "사진에 원재료명이 없거나 사진을 인식하지 못했어요. 사진의 경우 세로로 가까이서 찍어주세요.",
+            {
+              type: "custom",
+              duration: 3000,
+              placement: "bottom",
+              style: styles.toastStyle,
+              textStyle: styles.toastFont,
+              animationType: "slide-in",
+            }
+          );
+    }
   };
 
   const [confirmModal, setConfirmModal] = useState(false);
@@ -184,16 +222,21 @@ export default function ProNameScreen({ route, navigation }) {
         visible={confirmModal}
         onRequestClose={handleConfirmModal}
         onPress={() => {
-          setConfirmModal(false);
-          bottomSheetRef.current.close();
-          navigation.navigate("ReadTab", {
-            screen: "Result",
-            params: {
-              img_path: isPhotoLoaded ? photoUri : imgUri,
-              readingData: readingData,
-              triggerSubmit: true,
-            },
-          });
+          if (check) {
+            setConfirmModal(false);
+            bottomSheetRef.current.close();
+            navigation.navigate("ReadTab", {
+              screen: "Result",
+              params: {
+                img_path: isPhotoLoaded ? photoUri : imgUri,
+                reportNum: reportNum,
+                ingredients: ingredients,
+                exists: exists,
+                fullBracket: fullBracket,
+                triggerSubmit: true,
+              },
+            });
+          }
         }}
         children={"원재료명이 정확히 작성되었나요?"}
       ></QuestionModal>
@@ -240,7 +283,7 @@ export default function ProNameScreen({ route, navigation }) {
                       marginBottom: 16,
                     }}
                   >
-                    제품명을 확인해주세요.
+                    원재료명을 확인해주세요.
                   </Text>
                   <Octicons
                     name="x"
@@ -255,22 +298,63 @@ export default function ProNameScreen({ route, navigation }) {
                   />
                 </View>
                 <View style={{ alignItems: "center" }}>
-                  <TextInput
-                    multiline={true} // 여러 줄 입력 가능
-                    style={{
-                      width: windowWidth - 32,
-                      backgroundColor: Gray_theme.gray_20,
-                      borderWidth: 1,
-                      borderColor: Gray_theme.gray_60,
-                      borderRadius: 10,
-                      padding: 16,
-                      fontFamily: "Pretendard-Medium",
-                      color: Gray_theme.balck,
-                    }}
-                    onChangeText={(text) => setIngredients(text)}
-                    value={ingredients}
-                  ></TextInput>
+                  {readingData && readingData.ingredients ? (
+                    <TextInput
+                      multiline={true} // 여러 줄 입력 가능
+                      style={{
+                        width: windowWidth - 32,
+                        ...styles.errorText,
+                      }}
+                      onChangeText={(text) => setIngredients(text)}
+                      value={ingredients}
+                    ></TextInput>
+                  ) : (
+                    <View>
+                      {errorMessageCode === 1 && (
+                        <Text
+                          style={{
+                            width: windowWidth - 32,
+                            ...styles.errorText,
+                          }}
+                        >
+                          올바른 이미지를 등록해주세요.
+                        </Text>
+                      )}
+                      {errorMessageCode === 2 && (
+                        <Text
+                          style={{
+                            width: windowWidth - 32,
+                            ...styles.errorText,
+                          }}
+                        >
+                          사진을 분석하지 못했습니다. 다시 촬영해주세요.
+                        </Text>
+                      )}
+                      {errorMessageCode === 3 && (
+                        <Text
+                          style={{
+                            width: windowWidth - 32,
+                            ...styles.errorText,
+                          }}
+                        >
+                          오류가 발생하였습니다.
+                        </Text>
+                      )}
+
+                      {readingData && !readingData.ingredients && (
+                        <Text
+                          style={{
+                            width: windowWidth - 32,
+                            ...styles.errorText,
+                          }}
+                        >
+                          올바른 이미지를 등록해주세요.
+                        </Text>
+                      )}
+                    </View>
+                  )}
                 </View>
+
                 <View
                   style={{
                     marginTop: 8,
@@ -298,7 +382,9 @@ export default function ProNameScreen({ route, navigation }) {
                         color: Gray_theme.gray_60,
                       }}
                     >
-                      실제 내용과 다르다면?
+                      {readingData && readingData.ingredients
+                        ? "실제 내용과 다르다면?"
+                        : "분석 결과가 없다면?"}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -323,17 +409,34 @@ export default function ProNameScreen({ route, navigation }) {
               >
                 {isPhotoLoaded ? "다시 촬영하기" : "다시 선택하기"}
               </Btn>
-              <BtnC
-                onPress={() => {
-                  setConfirmModal(true);
-                }}
-                style={{
-                  flex: 1,
-                  marginLeft: 4,
-                }}
-              >
-                결과 확인하기
-              </BtnC>
+              {readingData && readingData.ingredients ? (
+                <BtnC
+                  onPress={() => {
+                    setCheck(true);
+                    setConfirmModal(true);
+                  }}
+                  style={{
+                    flex: 1,
+                    marginLeft: 4,
+                  }}
+                >
+                  결과 확인하기
+                </BtnC>
+              ) : (
+                <BtnC
+                  onPress={() => {
+                    showToast("확인할 내용이 없습니다");
+                  }}
+                  style={{
+                    backgroundColor: Gray_theme.gray_40,
+                    borderColor: Gray_theme.gray_40,
+                    flex: 1,
+                    marginLeft: 4,
+                  }}
+                >
+                  결과 확인하기
+                </BtnC>
+              )}
             </View>
           </BottomSheetModal>
         </ImageBackground>
@@ -377,6 +480,15 @@ const styles = StyleSheet.create({
 
   textC: {
     fontFamily: "Pretendard-SemiBold",
+    color: Gray_theme.balck,
+  },
+  errorText: {
+    backgroundColor: Gray_theme.gray_20,
+    borderWidth: 1,
+    borderColor: Gray_theme.gray_60,
+    borderRadius: 10,
+    padding: 16,
+    fontFamily: "Pretendard-Medium",
     color: Gray_theme.balck,
   },
   toastStyle: {

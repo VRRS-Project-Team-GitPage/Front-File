@@ -9,10 +9,9 @@ import {
   FlatList,
   Button,
 } from "react-native";
-import { StyleSheet, useWindowDimensions } from "react-native";
+import { StyleSheet } from "react-native";
 import React from "react";
 import { useEffect, useState, useRef } from "react";
-import { useFocusEffect } from "@react-navigation/native";
 import * as ImageManipulator from "expo-image-manipulator";
 // assets 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -24,26 +23,30 @@ import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHead
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import TouchableScale from "../../../assets/styles/ReuseComponents/TouchableScale";
 import IngredientModal from "./IngredientModal/IngredientModal";
+import UnidentifiablesModal from "./unidentifiablesModal/unidentifiablesModal";
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
+import { truncateTextByWord } from "../../../assets/styles/ReuseComponents/truncateTextByWord";
 // Data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import {
-  getAllProducts,
-  getProTypeName,
-  getVegTypeName,
-} from "../../../assets/ServerDatas/Dummy/dummyProducts";
+import { getAllProducts } from "../../../assets/ServerDatas/Dummy/dummyProducts";
 // server 관련
 import { submitProductData } from "../../../assets/ServerDatas/ServerApi/readingApi";
 
 export default function ReadingResultScreen({ navigation, route }) {
   // user의 정보를 불러옴
-  const { jwt, name, vegTypeId, vegTypeName } = useUser();
+  const { jwt, name, vegTypeId } = useUser();
 
   // 넘어온 데이터
-  const { img_path, readingData } = route.params || {};
+  const {
+    img_path,
+    reportNum,
+    ingredients,
+    exists,
+    fullBracket,
+    triggerSubmit,
+  } = route.params || {};
 
   const [checkImage, setCheckImage] = useState(); // 이미지 저장
-  const [checkData, setCheckData] = useState(); // OCR 정보 저장
 
   // 이미지 리사이징 함수
   const resizeImage = async (imageUri) => {
@@ -87,31 +90,20 @@ export default function ReadingResultScreen({ navigation, route }) {
     }
   };
 
-  // 이미지가 로드되었을 때, 비율을 유지한 채로 리사이즈
-  useEffect(() => {
-    if (img_path || readingData) {
-      console.log("넘어온 값: ", readingData);
-      setCheckData(readingData);
-      resizeImage(img_path).then((resizedUri) => {
-        setCheckImage(resizedUri);
-      });
-    }
-  }, [img_path, readingData]);
-
   const [isLoading, setLoading] = useState(false);
   const [result, setResult] = useState();
 
   // 데이터 전송 함수
   const handleReadingData = async () => {
     setLoading(true);
-    if (checkData) {
+    if (triggerSubmit) {
       try {
         const response = await submitProductData(
-          checkData.reportNum,
+          reportNum,
           vegTypeId,
-          checkData.ingredients,
-          checkData.exists,
-          checkData.fullBracket,
+          ingredients,
+          exists,
+          fullBracket,
           jwt
         );
         console.log("판독 결과", response);
@@ -123,11 +115,18 @@ export default function ReadingResultScreen({ navigation, route }) {
       }
     }
   };
+
+  // 데이터가 넘어왔을 때 이미지 리사이징 및 판독
   useEffect(() => {
-    if (checkData) {
+    if (triggerSubmit) {
+      console.log("넘어온 값: ", ingredients);
+      resizeImage(img_path).then((resizedUri) => {
+        setCheckImage(resizedUri);
+      });
       handleReadingData();
+      navigation.setParams({ triggerSubmitImg: false });
     }
-  }, [checkData]);
+  }, [triggerSubmit]);
 
   // 판독 가능 여부를 저장
   const [readingPossible, setReadingPossible] = useState(false);
@@ -139,20 +138,31 @@ export default function ReadingResultScreen({ navigation, route }) {
   // 섭취 불가능 원재료명 저장
   const [nonConsumables, setNonConsumables] = useState([]);
   // 판독 불가 원재료명 저장
-  const [unidentifiables, setUnidentifiables] = useState();
+  const [unidentifiables, setUnidentifiables] = useState([]);
   // 섭취 가능할 때 제품이 사전에 있는지 여부를 저장
   const [inDictionary, setInDictionary] = useState(true);
+  // 제품 id를 저장
+  const [proId, setProId] = useState();
   // 추천 제품 항목 저장
   const [recommendations, setRecommendations] = useState();
 
   useEffect(() => {
     if (result) {
-      setReadingPossible(true); // 값이 넘어왔을 경우 판독 가능
-      setResultPossible(!result.nonConsumables ? true : false); // 섭취 불가능 여부에 따라 가능 불가능 판단
+      if (result.ingredients === result.unidentifiables) {
+        setReadingPossible(false); // 값이 넘어왔을 경우 판독 가능
+      } else {
+        setReadingPossible(true); // 값이 넘어왔을 경우 판독 가능
+      }
+    }
+  }, []);
+  useEffect(() => {
+    if (result) {
+      setResultPossible(result.nonConsumables.length == 0 ? true : false); // 섭취 불가능 여부에 따라 가능 불가능 판단
       setConsumables(result.consumables ? result.consumables : []);
       setNonConsumables(result.nonConsumables ? result.nonConsumables : []);
       setUnidentifiables(result.unidentifiables ? result.unidentifiables : []);
       setInDictionary(result.proId ? true : false);
+      setProId(result.proId ? result.proId : result.proId);
       setRecommendations(result.recommendations);
     }
   }, [result]);
@@ -197,16 +207,39 @@ export default function ReadingResultScreen({ navigation, route }) {
     setVisible(!visible);
   };
 
+  // 판독 불가 목록 확인 모달창 제어
+  const [unidentifiablesVisible, setUnidentifiablesVisible] = useState(false);
+
   return (
     <SafeAreaView style={styles.container}>
       <IngredientModal
         visible={visible}
         onRequestClose={handleVisible}
         onPress={() => {
-          navigation.navigate("Report");
+          navigation.navigate("Report", {
+            ingredients: ingredients,
+            reportNum: reportNum ? reportNum : "",
+          });
+
           handleVisible();
         }}
-        ingredientText={readingData.ingredients}
+        consumables={consumables}
+        nonConsumables={nonConsumables}
+      />
+      <UnidentifiablesModal
+        visible={unidentifiablesVisible}
+        onRequestClose={() => {
+          setUnidentifiablesVisible(false);
+        }}
+        onPress={() => {
+          navigation.navigate("Report", {
+            ingredients: ingredients,
+            reportNum: reportNum ? reportNum : "",
+          });
+
+          setUnidentifiablesVisible(false);
+        }}
+        unidentifiables={unidentifiables}
       />
       <NomalHeader
         onPress={() => {
@@ -265,7 +298,7 @@ export default function ReadingResultScreen({ navigation, route }) {
             style={{
               ...styles.infoTextContainer,
               backgroundColor: readingPossible
-                ? unidentifiables
+                ? unidentifiables.length !== 0
                   ? Gray_theme.gray_40
                   : Main_theme.main_20
                 : Gray_theme.gray_40,
@@ -273,7 +306,7 @@ export default function ReadingResultScreen({ navigation, route }) {
           >
             {readingPossible ? (
               <View>
-                {unidentifiables ? ( // 판독 불가능 원재료명이 있는 경우
+                {unidentifiables.length !== 0 ? ( // 판독 불가능 원재료명이 있는 경우
                   <Text
                     style={{
                       ...styles.userTypebg,
@@ -300,7 +333,7 @@ export default function ReadingResultScreen({ navigation, route }) {
             )}
             {readingPossible ? (
               <View>
-                {unidentifiables ? (
+                {unidentifiables.length !== 0 ? (
                   <View>
                     <Text style={styles.infoText}>
                       판독에 사용되지 못한 단어들이 있습니다.
@@ -314,6 +347,9 @@ export default function ReadingResultScreen({ navigation, route }) {
                         flexDirection: "row",
                         alignItems: "center",
                         marginTop: 12,
+                      }}
+                      onPress={() => {
+                        setUnidentifiablesVisible(true);
                       }}
                     >
                       <Octicons
@@ -361,7 +397,9 @@ export default function ReadingResultScreen({ navigation, route }) {
             style={styles.checkIngre}
             onPress={() => {
               if (readingPossible) {
-                setVisible(true);
+                if (consumables && nonConsumables) {
+                  setVisible(true);
+                }
               } else {
                 showToast("확인할 원재료명이 없습니다");
               }
@@ -386,6 +424,17 @@ export default function ReadingResultScreen({ navigation, route }) {
                 {inDictionary ? (
                   <View style={styles.recListContainer}>
                     <TouchableOpacity
+                      onPress={() => {
+                        navigation.navigate("DicTab", {
+                          screen: "DicList", // DicList로 먼저 이동
+                        });
+
+                        setTimeout(() => {
+                          navigation.navigate("ProductInfo", {
+                            id: proId,
+                          }); // DicList에서 ProductInfo로 이동
+                        }, 0); // DicList가 렌더링된 후 ProductInfo로 이동
+                      }}
                       activeOpacity={0.8}
                       style={styles.inDictionaryBtn}
                     >
@@ -425,7 +474,8 @@ export default function ReadingResultScreen({ navigation, route }) {
                       style={styles.ocBtn}
                       onPress={() => {
                         navigation.navigate("Upload", {
-                          name: name_pro,
+                          ingredients: ingredients,
+                          reportNum: reportNum ? reportNum : "",
                         });
                       }}
                     >
@@ -458,89 +508,63 @@ export default function ReadingResultScreen({ navigation, route }) {
                 )}
               </View>
             ) : null}
-            <View style={styles.otherContentsC}>
-              <View style={styles.otherContentsTitle}>
-                <Text style={{ ...styles.ocTitle }}>이런 제품은 어떠세요?</Text>
+            {recommendations.length !== 0 ? (
+              <View style={styles.otherContentsC}>
+                <View style={styles.otherContentsTitle}>
+                  <Text style={{ ...styles.ocTitle }}>
+                    이런 제품은 어떠세요?
+                  </Text>
+                </View>
+                <View style={styles.mainDicContainer}>
+                  <FlatList
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                    data={recommendations} // 상태로 관리되는 제품 데이터를 사용
+                    keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
+                    renderItem={({ item }) => {
+                      // 일치할 경우에만 해당 아이템을 렌더링
+                      return (
+                        <View style={styles.itemContainer}>
+                          <TouchableScale
+                            onPress={() => {
+                              const productID = item.id;
+                              navigation.navigate("DicTab", {
+                                screen: "DicList", // DicList로 먼저 이동
+                              });
+
+                              setTimeout(() => {
+                                navigation.navigate("ProductInfo", {
+                                  id: productID,
+                                }); // DicList에서 ProductInfo로 이동
+                              }, 0); // DicList가 렌더링된 후 ProductInfo로 이동
+                            }}
+                          >
+                            <Image
+                              source={{ uri: item.imgUrl }}
+                              style={styles.image}
+                            />
+
+                            <View style={styles.textContainer}>
+                              {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                              <Text style={styles.name}>
+                                {truncateTextByWord(item.name, 8)}
+                              </Text>
+                              <Text style={styles.category}>
+                                {item.category}
+                              </Text>
+                              <Text style={styles.vegType}>
+                                {item.vegType}
+                                {/* 아이템의 채식 유형 이름 표시 */}
+                              </Text>
+                            </View>
+                          </TouchableScale>
+                        </View>
+                      );
+                    }}
+                  />
+                </View>
               </View>
-              <View style={styles.mainDicContainer}>
-                <FlatList
-                  horizontal={true}
-                  showsHorizontalScrollIndicator={false}
-                  data={filterList.slice(0, 50)} // 상태로 관리되는 제품 데이터를 사용
-                  keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
-                  renderItem={({ item }) => {
-                    const itemVegTypeName = getVegTypeName(item.veg_type_id);
-                    if (itemVegTypeName !== vegTypeName) {
-                      return null;
-                    }
-                    // 일치할 경우에만 해당 아이템을 렌더링
-                    return (
-                      <View style={styles.itemContainer}>
-                        <TouchableScale
-                          onPress={() => {
-                            const productID = item.id;
-                            navigation.navigate("DicTab", {
-                              screen: "DicList", // DicList로 먼저 이동
-                            });
-
-                            setTimeout(() => {
-                              navigation.navigate("ProductInfo", {
-                                id: productID,
-                              }); // DicList에서 ProductInfo로 이동
-                            }, 0); // DicList가 렌더링된 후 ProductInfo로 이동
-                          }}
-                        >
-                          <Image
-                            source={{ uri: item.img_path }}
-                            style={styles.image}
-                          />
-
-                          <View style={styles.textContainer}>
-                            {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
-                            <Text style={styles.name}>{item.name}</Text>
-                            <Text style={styles.category}>
-                              {getProTypeName(item.pro_type_id)}
-                            </Text>
-                            <Text style={styles.vegType}>
-                              {itemVegTypeName}
-                              {/* 아이템의 채식 유형 이름 표시 */}
-                            </Text>
-                          </View>
-                        </TouchableScale>
-                      </View>
-                    );
-                  }}
-                />
-              </View>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-              }}
-            >
-              <Button
-                title="섭취 가능/사전 등록"
-                onPress={() => {
-                  setResultPossible(true);
-                  setInDictionary(true);
-                }}
-              ></Button>
-              <Button
-                title="섭취 가능/사전 미등록"
-                onPress={() => {
-                  setResultPossible(true);
-                  setInDictionary(false);
-                }}
-              ></Button>
-              <Button
-                title="섭취 불가능"
-                onPress={() => {
-                  setResultPossible(false);
-                  setInDictionary(false);
-                }}
-              ></Button>
-            </View>
+            ) : null}
           </View>
         ) : (
           <View
@@ -673,6 +697,7 @@ const styles = StyleSheet.create({
   // 유사 제품 추천 - 추천 사전 목록
   mainDicContainer: {
     marginTop: 4,
+    paddingHorizontal: 12,
   },
   itemContainer: {
     marginRight: 10,

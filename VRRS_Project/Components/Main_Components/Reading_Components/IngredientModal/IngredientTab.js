@@ -7,7 +7,7 @@ import { Gray_theme, Main_theme } from "../../../../assets/styles/Theme_Colors";
 
 const Tab = createMaterialTopTabNavigator();
 
-export default function IngredientTab({ ingredientText }) {
+export default function IngredientTab({ consumables, nonConsumables }) {
   return (
     <Tab.Navigator
       screenOptions={{
@@ -18,7 +18,7 @@ export default function IngredientTab({ ingredientText }) {
       <Tab.Screen
         name="FirstTab"
         component={FirstTab}
-        initialParams={{ ingredientText }}
+        initialParams={{ consumables }}
         options={{
           title: "섭취 가능",
           tabBarLabelStyle: {
@@ -37,7 +37,7 @@ export default function IngredientTab({ ingredientText }) {
       <Tab.Screen
         name="SecondTab"
         component={SecondTab}
-        initialParams={{ ingredientText }}
+        initialParams={{ nonConsumables }}
         options={{
           title: "섭취 불가능",
 

@@ -1,56 +1,56 @@
 // 서버에서 판독 관련 내용을 저장한 파일입니다.
 import axios from "axios";
-import * as ImageManipulator from "expo-image-manipulator";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL ="서버주소";
 
+const SERVER_URL = "서버_주소";
 // OCR URL
-const OCR_URL = `${SERVER_URL}`;
-
+const OCR_URL = "OCR_주소";
 // reading URL
-const READING_URL = `${SERVER_URL}`;
+const READING_URL = "판독_주소";
+// 제품 업로드 URL
+const UPLOAD_URL = "업로드_주소";
 
 // 북마크 등록 URL 생성 함수
 export const getBookmarkUrl = (proId) => {
-  return `${SERVER_URL}`;
+  return `${SERVER_URL}/bookmark/insert?proId=${proId}`;
 };
 
 
 // OCR 등록 함수
-
 export const getOCRData = async (fileUri, jwt) => {
   try {
     // fileUri가 유효한지 확인
     if (typeof fileUri !== "string" || !fileUri) {
       throw new Error("Invalid file URI");
     }
-    // 이미지 크기 줄이기 (예: 50%로 축소)
-    const manipulatedImage = await ImageManipulator.manipulateAsync(
-      fileUri,
-      [{ resize: { width: 1000 } }], // 너비를 1000px로 줄이고 비율 유지
-      { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG } // 압축 수준과 형식 설정
-    );
 
-    // formData 생성 및 리사이즈한 파일 추가
+    // formData 생성 및 파일 추가
     const formData = new FormData();
     formData.append("file", {
-      uri: manipulatedImage.uri, // 리사이즈된 이미지 URI
-      name: "ocr_image.jpg", // 서버에 저장될 파일 이름
-      type: "image/jpeg", // 이미지 파일 형식
+      uri: fileUri,
+      name: "ocr_image.jpg",
+      type: "image/jpeg",
     });
 
-    const response = await axios.post(OCR_URL, formData, {
+    // fetch를 사용해 multipart/form-data 요청 보내기
+    const response = await fetch(OCR_URL, {
+      method: "POST",
       headers: {
-        "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${jwt}`, // JWT 토큰 추가
       },
+      body: formData,
     });
 
-    return response.data; // 서버에서 반환하는 데이터
+    if (!response.ok) {
+      // 상태 코드에 따라 에러 던짐
+      throw new Error(response.status.toString());
+    }
+
+    const data = await response.json();
+    return data; // 서버에서 반환된 데이터
   } catch (error) {
-    console.error("OCR submission error:", error);
-    throw error;
+    throw error; // 상태 코드만 던짐
   }
 };
 
@@ -86,5 +86,37 @@ export const submitProductData = async (
   } catch (error) {
     console.error("Failed to submit data:", error);
     throw error;
+  }
+};
+
+// 제품 업로드 함수
+export const uploadProductData = async (image, jsonData, jwt) => {
+  try {
+    const formData = new FormData();
+
+    formData.append("file", {
+      uri: image.uri,
+      type: "image/jpeg",
+      name: "product_image.jpg",
+    });
+
+    formData.append("jsonData", JSON.stringify(jsonData));
+
+    console.log("FormData 내용:", formData._parts);
+
+    const response = await axios.post(UPLOAD_URL, formData, {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 409) {
+      return { success: false, message: "이미 등록된 제품입니다." };
+    } else {
+      throw error;
+    }
   }
 };

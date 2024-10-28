@@ -2,20 +2,15 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "서버주소";
+const SERVER_URL = "서버_주소";
 
 // 북마크 URL
-const BOOKMARK_URL = `${SERVER_URL}`;
+const BOOKMARK_URL = `북마크_주소`;
 
 // 북마크 등록 URL 생성 함수
-export const getBookmarkUrl = (proId) => {
-  return `${SERVER_URL}`;
-};
-
+export const getBookmarkUrl = "등록_함수";
 // 북마크 삭제 URL 생성 함수
-export const deleteBookmarkUrl = (proId) => {
-  return `${SERVER_URL}`;
-};
+export const deleteBookmarkUrl = "생성_함수";
 
 // 북마크 조회 함수
 export const fetchBookmarks = async (jwt) => {

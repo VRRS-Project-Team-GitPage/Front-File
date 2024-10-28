@@ -15,9 +15,12 @@ import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 // server 관련
 import { submitFeedback } from "../../../assets/ServerDatas/ServerApi/dictionaryApi";
 
-export default function ReportProScreen({ navigation }) {
+export default function ReportProScreen({ navigation, route }) {
   // user의 정보를 불러옴
   const { jwt } = useUser();
+
+  // 사전 화면에서 받아온 제품 id
+  const { productID } = route.params || {};
 
   // 화면 크기를 저장한 변수
   const windowWidth = useWindowDimensions().width;
@@ -43,13 +46,13 @@ export default function ReportProScreen({ navigation }) {
   handleDupli = () => {
     setDuplication(true);
     setIncorrect(false);
-    setFeedbackType("DUP");
+    setFeedbackType("DUP : " + productID);
   };
 
   handleInCorrect = () => {
     setDuplication(false);
     setIncorrect(true);
-    setFeedbackType("ERR");
+    setFeedbackType("ERR : " + productID);
   };
 
   return (

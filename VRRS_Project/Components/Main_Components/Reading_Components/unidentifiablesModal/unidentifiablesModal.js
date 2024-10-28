@@ -4,14 +4,12 @@ import { StyleSheet, Modal } from "react-native";
 import { Gray_theme, Main_theme } from "../../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 // component
-import IngredientTab from "./IngredientTab";
 
-export default function IngredientModal({
+export default function UnidentifiablesModal({
   visible,
   onRequestClose,
   onPress,
-  consumables,
-  nonConsumables,
+  unidentifiables,
 }) {
   return (
     <Modal
@@ -36,17 +34,18 @@ export default function IngredientModal({
                   size={24}
                   color={Gray_theme.gray_90}
                 />
-                <Text style={styles.bheaderMainT}>원재료명</Text>
+                <Text style={styles.bheaderMainT}>판독 불가 목록</Text>
               </View>
             </TouchableWithoutFeedback>
             <Text style={styles.bheaderSubT} onPress={onPress}>
               오류 제보하기
             </Text>
           </View>
-          <IngredientTab
-            consumables={consumables}
-            nonConsumables={nonConsumables}
-          />
+          <View style={styles.modalContent}>
+            <Text style={styles.bContentIngredient}>
+              {unidentifiables ? unidentifiables.join(", ") : ""}
+            </Text>
+          </View>
         </View>
       </View>
     </Modal>
@@ -69,7 +68,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: Gray_theme.white,
     width: "100%",
-    height: "50%",
+    height: "30%",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     elevation: 3,
@@ -93,7 +92,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Gray_theme.gray_40,
   },
-  bContent: {
-    flex: 1,
+  modalContent: {
+    paddingHorizontal: 24,
+    marginTop: 12,
+  },
+  bContentIngredient: {
+    marginTop: 24,
+    fontFamily: "Pretendard-Medium",
+    fontSize: 12,
+    color: Gray_theme.gray_60,
   },
 });

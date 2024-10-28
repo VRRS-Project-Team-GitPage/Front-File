@@ -15,7 +15,6 @@ export const getDeleteReviewkUrl = (proId) => {
 // 리뷰 조회 URL
 const REVIEW_VIEW_URL = `${SERVER_URL}`;
 
-
 // 리뷰 등록 함수
 export const submitReview = async (jwt, reviewData) => {
   try {

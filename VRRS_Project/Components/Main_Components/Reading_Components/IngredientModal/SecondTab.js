@@ -4,7 +4,7 @@ import { Gray_theme, Main_theme } from "../../../../assets/styles/Theme_Colors";
 
 export default function SecondTab({ route }) {
   const { vegTypeName } = useUser();
-  const { ingredientText } = route.params;
+  const { nonConsumables } = route.params;
 
   return (
     <View style={styles.modalContainer}>
@@ -13,7 +13,13 @@ export default function SecondTab({ route }) {
         <Text style={styles.bContentMaintInfo}>
           해당 유형이 섭취할 수 없는 재료예요
         </Text>
-        <Text style={styles.bContentIngredient}>{ingredientText}</Text>
+        {nonConsumables.length !== 0 ? (
+          <Text style={styles.bContentIngredient}>
+            {nonConsumables.join(", ")}
+          </Text>
+        ) : (
+          <Text style={styles.bContentIngredient}>항목이 없습니다.</Text>
+        )}
       </View>
     </View>
   );

@@ -3,7 +3,9 @@ import { useUser } from "../../../../assets/ServerDatas/Users/UserContext";
 import { Gray_theme, Main_theme } from "../../../../assets/styles/Theme_Colors";
 
 export default function FirstTab({ route }) {
-  const { ingredientText } = route.params;
+  const { consumables } = route.params;
+
+  console.log("섭취 가능", consumables);
 
   const { vegTypeName } = useUser();
   return (
@@ -13,7 +15,13 @@ export default function FirstTab({ route }) {
         <Text style={styles.bContentMaintInfo}>
           해당 유형이 섭취할 수 있는 재료예요
         </Text>
-        <Text style={styles.bContentIngredient}>{ingredientText}</Text>
+        {consumables.length !== 0 ? (
+          <Text style={styles.bContentIngredient}>
+            {consumables.join(", ")}
+          </Text>
+        ) : (
+          <Text style={styles.bContentIngredient}>항목이 없습니다.</Text>
+        )}
       </View>
     </View>
   );

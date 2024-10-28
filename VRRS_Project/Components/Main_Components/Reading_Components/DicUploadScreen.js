@@ -4,7 +4,6 @@ import { StyleSheet, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // 사용자 갤러리 접근 관련 import
 import * as ImagePicker from "expo-image-picker";
-import DropDownPicker from "react-native-dropdown-picker";
 // assets 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
@@ -19,12 +18,16 @@ import DropDown from "../../../assets/styles/ReuseComponents/Button/DropDown";
 import { categories } from "../../../assets/ServerDatas/Dummy/dummyProductCate";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
+// server 관련
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
+import { uploadProductData } from "../../../assets/ServerDatas/ServerApi/readingApi";
 
 export default function DicUploadScreen({ navigation, route }) {
+  const { jwt, vegTypeId } = useUser();
+  const { ingredients, reportNum } = route.params || {};
+
   const windowWidth = useWindowDimensions().width;
   const windowHeigh = useWindowDimensions().height;
-
-  const { name } = route.params || {};
 
   // 1개의 이미지 업로드
   const [productImages, setProductImages] = useState([]);
@@ -55,27 +58,51 @@ export default function DicUploadScreen({ navigation, route }) {
     setProductImages(productImages.filter((img) => img.id !== id)); // 선택한 이미지 삭제
   };
 
-  const [proName, setProName] = useState(name);
-
+  const [proName, setProName] = useState(); // 제품 이름
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState(
     categories.map((item) => ({ label: item.name, value: item.id }))
   ); // 드롭다운 항목들
 
-  const [productName, setProductName] = useState();
   const [productCategory, setProductCategory] = useState();
 
-  const handleSubmit = () => {
-    console.log(
-      "name:",
-      productName,
-      "images:",
-      productImages,
-      "pro_type_id:",
-      productCategory
-    );
-    navigation.goBack();
+  const handleUpload = async () => {
+    if (!proName || productImages.length === 0 || !value) {
+      showToast("모든 항목을 작성해주세요.");
+      return;
+    }
+
+    const image = productImages[0];
+    const jsonData = {
+      name: proName,
+      ingredients: ingredients,
+      reportNum: reportNum,
+      categoryId: value,
+      vegTypeId: vegTypeId,
+    };
+    console.log(image);
+    console.log(jsonData);
+
+    try {
+      const response = await uploadProductData(image, jsonData, jwt);
+
+      if (
+        response.success === false &&
+        response.message === "이미 등록된 제품입니다."
+      ) {
+        showToast(response.message);
+        navigation.goBack(); // 이전 화면으로 돌아가기
+        return;
+      }
+
+      showToast("제품이 성공적으로 등록되었습니다.");
+      console.log("업로드 성공:", response);
+      navigation.goBack();
+    } catch (error) {
+      showToast("서버 업로드에 실패했습니다.");
+      console.error("업로드 오류:", error);
+    }
   };
 
   return (
@@ -111,9 +138,6 @@ export default function DicUploadScreen({ navigation, route }) {
                     : Gray_theme.gray_50,
                   borderWidth: 1,
                   ...styles.textInput,
-                }}
-                onSubmitEditing={() => {
-                  setProductName(proName);
                 }}
               />
               <Octicons
@@ -212,7 +236,7 @@ export default function DicUploadScreen({ navigation, route }) {
 
       {/* 하단 등록 완료 버튼 */}
       <View style={{ ...styles.btnC, top: windowHeigh - 48 }}>
-        {!productName || productImages.length === 0 || !productCategory ? (
+        {!proName || productImages.length === 0 || !productCategory ? (
           <Btn
             onPress={() => {
               showToast("모든 항목을 작성해주세요");
@@ -221,7 +245,7 @@ export default function DicUploadScreen({ navigation, route }) {
             등록 완료
           </Btn>
         ) : (
-          <BtnC onPress={handleSubmit}>등록 완료</BtnC>
+          <BtnC onPress={handleUpload}>등록 완료</BtnC>
         )}
       </View>
     </SafeAreaView>
