@@ -12,7 +12,7 @@ export default function FindPWResult3({ navigation }) {
     useTabBarVisibility(false);
 
     const handleConfirm = () => {
-        navigation.navigate('Login_Main'); // 'Log' 화면으로 이동
+        navigation.navigate('login'); // 'Log' 화면으로 이동
     };
 
     return (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, Alert } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
@@ -13,14 +13,15 @@ import Octicons from '@expo/vector-icons/Octicons';
 
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
+import { updateUser } from '../../../assets/ServerDatas/ServerApi/authApi';
 
-export default function User_ModifyScreen({ navigation }) {
+export default function User_UpdateScreen({ navigation }) {
     useTabBarVisibility(false);
+    // user의 정보를 불러옴
+    const { name, vegTypeName, jwt } = useUser();
 
-    const { user, name, vegTypeName } = useUser();
-
-    const [vegType, setVegType] = useState(null);
     const [nickname, setNickname] = useState(name);
+    const [vegType, setVegType] = useState(null);
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState(
         vegTypes
@@ -35,8 +36,16 @@ export default function User_ModifyScreen({ navigation }) {
         }
     }, [vegTypeName, items]);
 
-    const handleModify = () => {
-        alert(`닉네임 : ${nickname} 채식 유형 : ${vegType}`);
+    const handleUpdate = async () => {
+        try {
+            await updateUser(jwt, nickname, vegType);
+            console.log("수정:", nickname, vegType,);
+            Alert.alert("정보 수정 완료", "사용자 정보가 성공적으로 수정되었습니다."); // 성공 메시지
+            navigation.goBack(); // 이전 화면으로 돌아가기
+        } catch (error) {
+            console.error("Failed to update info:", error);
+            Alert.alert("오류", "정보 수정에 실패했습니다.");
+        }
     };
 
     return (
@@ -81,7 +90,7 @@ export default function User_ModifyScreen({ navigation }) {
             </View>
             <View style={styles.buttonContainer}>
                 <View style={styles.button}>
-                    <Btn onPress={handleModify}>확인</Btn>
+                    <Btn onPress={handleUpdate}>확인</Btn>
                 </View>
             </View>
         </SafeAreaView>

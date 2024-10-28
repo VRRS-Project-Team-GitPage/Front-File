@@ -29,7 +29,7 @@ export default function UserScreen({ navigation }) {
         </Text>
         <TouchableOpacity style={styles.vegTypeBox}
           onPress={() => {
-            navigation.navigate("User_Modify");
+            navigation.navigate("User_Update");
           }}>
           
           <Image source={MainIcons.user_profile} style={{ width: 72, height: 72 }} />

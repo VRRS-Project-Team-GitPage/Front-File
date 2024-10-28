@@ -1,9 +1,8 @@
 
-import React, { useCallback, useLayoutEffect, useRef } from "react";
-import { useState, useEffect, useContext } from "react";
-import { useWindowDimensions, StyleSheet, ScrollView, Button, Modal } from "react-native";
+import React from "react";
+import { useState, useEffect } from "react";
+import { StyleSheet, Modal } from "react-native";
 import { View, Text, TextInput, FlatList, Image, TouchableOpacity, TouchableWithoutFeedback, } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // design 관련 import
@@ -16,107 +15,64 @@ import BtnD from "../../../assets/styles/ReuseComponents/Button/BtnD";
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 // Data 관련 import
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 이용자 정보
-import { getAllReviews, reviews, getAllProducts, getVegTypeName, getProTypeName, products } from "../../../assets/ServerDatas/Dummy/dummyReviews";
+import { updateReview, deleteReview, viewReview } from "../../../assets/ServerDatas/ServerApi/reviewApi";
 
 export default function User_ReviewScreen({ navigation }) {
   useTabBarVisibility(false);
 
+  const { jwt } = useUser();
+  const [reviews, setReviews] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const handleLogout = () => {
-    setModalVisible(false);
-    navigation.navigate("HomeTab", { screen: "Home" });// 로그아웃 시 이동할 화면
-  };
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [reviewVal, setReviewVal] = useState('');
+  const [maxLength] = useState(200); // 최대 글자 수
 
-  const [DeletemodalVisible, setDeleteModalVisible] = useState(false);
-  const handleDelete = () => {
-    setDeleteModalVisible(false);
-    navigation.navigate("HomeTab", { screen: "Home" });// 로그아웃 시 이동할 화면
-  };
-  const [reviewVal, setreivew] = useState('');
-  const maxLength = 50;
-
-  const { user } = useUser(); // user 정보를 가져옴
-  const [productData, setProductData] = useState([]);
-  const [sortedProducts, setSortedProducts] = useState([]);
-  const [reviewtData, setReviewtData] = useState([]);
-  const [sortedReviews, setSortedReviews] = useState([]);
-  // 컴포넌트 마운트 시 데이터 로드
+  // 리뷰 가져오기
   useEffect(() => {
-    console.log(user);
-    // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
-    const reviews = getAllReviews();
-    setReviewtData(reviews);
+    const fetchData = async () => {
+      try {
+        const data = await viewReview(jwt);
+        setReviews(data); // 가져온 리뷰 데이터를 설정
+      } catch (error) {
+        console.error('리뷰 조회 오류:', error);
+      }
+    };
+    fetchData();
   }, []);
-  // 필터된 제품 리스트를 저장하는 변수
-  const [filterList, setFilterList] = useState([]);
-  useEffect(() => {
-    if (reviewtData.length > 0) {
-      filterUserType();
-    }
-  }, [reviewtData]);
 
-  const filterUserType = () => {
-    let sortedList = [...reviews];
-    sortedList.sort(
-      (a, b) => new Date(b.created_at) - new Date(a.created_at)
-    );
-
-    setFilterList(sortedList);
-  };
-
-  //--------------------------------
-  // 검색 및 필터에 사용될 변수 모음입니다
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
-
-  // 화면 밖을 클릭했을 때 드롭다운 닫기
-  const closeDropdown = () => {
-    if (isDropdownOpen) {
-      setIsDropdownOpen(false);
-    }
-  };
-  // 화면 크기를 저장한 변수
-  const windowWidth = useWindowDimensions().width;
-  const windowHeigh = useWindowDimensions().height;
-
-  // 화면이 포커싱 될 때 하단바 유지
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      tabBarStyle: {
-        display: "flex", // 탭바가 다시 나타나도록 설정
-        height: 60,
-        borderTopStartRadius: 20,
-        borderTopEndRadius: 20,
-        position: "absolute",
-      },
-    });
-  }, [navigation]);
-
-  // FlatList의 참조
-  const flatListRef = useRef(null);
-
-  // 항목 스크롤을 맨 처음으로 돌리는 함수
-  const scrollToTop = () => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+  // 리뷰 수정 핸들러
+  const handleUpdate = async () => {
+    try {
+      // 리뷰 수정 요청
+      await updateReview(jwt, reviewData);
+      setModalVisible(false);
+      // 데이터 다시 가져오기
+      const updatedData = await viewReview(jwt);
+      setReviews(updatedData);
+    } catch (error) {
+      console.error('리뷰 수정 오류:', error);
+      showToast("리뷰 수정 중 오류가 발생하였습니다.");
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      return () => {
-        scrollToTop();
-      };
-    }, [])
-  );
+  // 리뷰 삭제 핸들러
+  const handleDelete = async (jwt, proId) => {
+    try {
+      await deleteReview(jwt, proId);
+      setDeleteModalVisible(false);
+      showToast("리뷰가 삭제되었습니다.");
+      // 리뷰 목록 새로고침
+      const updatedData = await viewReview(jwt);
+      setReviews(updatedData);
+    } catch (error) {
+      console.error("리뷰 삭제 실패:", error);
+      showToast("리뷰 삭제 중 오류가 발생하였습니다.");
+    }
+  };
 
   return (
-    <SafeAreaView
-      style={styles.container}
-      onTouchEndCapture={() => {
-        closeDropdown();
-      }}
-    >
+    <SafeAreaView style={styles.container}>
       <BackHeader
         onPress={() => {
           navigation.goBack();
@@ -126,132 +82,136 @@ export default function User_ReviewScreen({ navigation }) {
       <View style={{ flex: 1 }}>
         <View style={styles.title}>
           <Text style={styles.titleText}>
-            내가 작성한 후기 총 {sortedReviews.length}개
+            내가 작성한 후기 총 {reviews.length}개
           </Text>
         </View>
-        {sortedReviews.length === 0 ? (
-          <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              marginTop: 120,
-            }}
-          >
-            <Image
-              source={MainIcons.fail}
-              style={{ width: 120, height: 120 }}
-            ></Image>
-            <Text
-              style={{
-                marginTop: 16,
-                color: Main_theme.main_50,
-                fontFamily: "Pretendard-Bold",
-              }}
-            >
-              작성한 후기가 없어요...
-            </Text>
-            <Text
-              style={{
-                marginBottom: 24,
-                color: Main_theme.main_50,
-                fontFamily: "Pretendard-Bold",
-              }}
-            >
-              후기를 입력해주세요.
-            </Text>
+        {loading ? ( // 로딩 중일 때 표시할 부분
+          <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+            <Text style={{ color: "gray" }}>로딩 중...</Text>
           </View>
-        ) : (
-          <FlatList
-            ref={flatListRef}
-            style={{ paddingHorizontal: 8 }}
-            showsVerticalScrollIndicator={false}
-            data={products}
-            keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
-            renderItem={({ item }) => {
-              // 제품의 유형을 저장하는 변수
-              const itemVegTypeName = getVegTypeName(item.veg_type_id);
-              const itemProTypeName = getProTypeName(item.pro_type_id);
-              // 버튼 여부와 제품의 유형을 비교하는 로직 추가하기
-              return (
-                <TouchableWithoutFeedback
-                  onPress={() => {
-                    const productID = item.id;
-                    navigation.navigate("ProductInfo", {
-                      id: productID,
-                    });
-                  }}
-                >
-                  <View style={styles.allContainer}>
-                    <View style={styles.Container1}>
-                      <View style={styles.itemNameContainer}>
-                        <Octicons name="chevron-left" size={18} color="gray" style={styles.icon} />
-                        <Text style={styles.name}>{item.name}</Text>
-                      </View>
-                      <View style={styles.btnContainer}>
-                        <BtnD
-                          onPress={() => setModalVisible(true)}
-                          containerStyle={{ backgroundColor: "#F5F5F5", borderColor: "#F5F5F5", width: 42, height: 26 }}
-                          textStyle={{ fontSize: 10, fontFamily: 'Pretendard-SemiBold', color: "#757575" }}
-                        >
-                          수정
-                        </BtnD>
-                        <Text>  </Text>
-                        <BtnD
-                          onPress={() => setDeleteModalVisible(true)}
-                          containerStyle={{ backgroundColor: "#F5F5F5", borderColor: "#F5F5F5", width: 42, height: 26 }}
-                          textStyle={{ fontSize: 10, fontFamily: 'Pretendard-SemiBold', color: "#757575" }}
-                        >
-                          삭제
-                        </BtnD>
-                      </View>
-                    </View>
-
-                    <View style={styles.Container2}>
-                      <Image
-                        source={MainIcons.user_profile}
-                        style={styles.image}
-                      />
-
-                      <View style={styles.iteminfoContainer}>
-                        {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
-                        <View style={styles.userinfoContainer}>
-                          <Text style={styles.name}>{name || "이름이 없습니다."}</Text>
-                          <Text style={styles.vegType}>
-                            {itemVegTypeName}
-                            {/* 아이템의 채식 유형 이름 표시 */}
-                          </Text>
+        ) :
+          reviews.length === 0 ? (
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                marginTop: 120,
+              }}
+            >
+              <Image
+                source={MainIcons.fail}
+                style={{ width: 120, height: 120 }}
+              ></Image>
+              <Text
+                style={{
+                  marginTop: 16,
+                  color: Main_theme.main_50,
+                  fontFamily: "Pretendard-Bold",
+                }}
+              >
+                작성한 후기가 없어요...
+              </Text>
+              <Text
+                style={{
+                  marginBottom: 24,
+                  color: Main_theme.main_50,
+                  fontFamily: "Pretendard-Bold",
+                }}
+              >
+                후기를 입력해주세요.
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              style={{ paddingHorizontal: 8 }}
+              showsVerticalScrollIndicator={false}
+              data={reviews}
+              keyExtractor={(item) => item.id.toString()} // 각 제품의 고유 키 설정
+              renderItem={({ item }) => {
+                return (
+                  <TouchableWithoutFeedback
+                    onPress={() => {
+                      const productID = item.id;
+                      navigation.navigate("ProductInfo", {
+                        id: productID,
+                      });
+                    }}
+                  >
+                    <View style={styles.allContainer}>
+                      <View style={styles.Container1}>
+                        <View style={styles.itemNameContainer}>
+                          <Octicons name="chevron-left" size={18} color="gray" style={styles.icon} />
+                          <Text style={styles.name}>{item.name}</Text>
                         </View>
-                        <View style={styles.opinionContainer}>
-                          <Octicons
-                            name="thumbsup"
-                            size={16}
-                            color={Gray_theme.gray_40}
-                            style={{
-                              marginRight: 4,
-                              marginBottom: 2,
+                        <View style={styles.btnContainer}>
+                          <BtnD
+                            onPress={() => {
+                              setSelectedReview(item);
+                              setReviewVal(item.review); // 기존 리뷰 내용 불러오기
+                              setModalVisible(true);
                             }}
-                          />
-                          <Text style={styles.opinionText}>{item.rec}</Text>
-                        </View>
-
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "space-between",
-                          }}
-                        >
+                            containerStyle={{ backgroundColor: "#F5F5F5", borderColor: "#F5F5F5", width: 42, height: 26 }}
+                            textStyle={{ fontSize: 10, fontFamily: 'Pretendard-SemiBold', color: "#757575" }}
+                          >
+                            수정
+                          </BtnD>
+                          <Text>  </Text>
+                          <BtnD
+                            onPress={() => {
+                              setSelectedReview(item);
+                              setDeleteModalVisible(true);
+                            }}
+                            containerStyle={{ backgroundColor: "#F5F5F5", borderColor: "#F5F5F5", width: 42, height: 26 }}
+                            textStyle={{ fontSize: 10, fontFamily: 'Pretendard-SemiBold', color: "#757575" }}
+                          >
+                            삭제
+                          </BtnD>
                         </View>
                       </View>
+
+                      <View style={styles.Container2}>
+                        <Image
+                          source={{ uri: item.imgUrl }}
+                          style={styles.image}
+                        />
+
+                        <View style={styles.iteminfoContainer}>
+                          {/* 제품 이름, 카테고리, 원재료, 채식 유형 표시 */}
+                          <View style={styles.userinfoContainer}>
+                            <Text style={styles.name}>{item.userName || "이름이 없습니다."}</Text>
+                            <Text style={styles.vegType}>{item.vegType}</Text>
+                          </View>
+                          <View style={styles.opinionContainer}>
+                            <Octicons
+                              name="thumbsup"
+                              size={16}
+                              color={Gray_theme.gray_40}
+                              style={{
+                                marginRight: 4,
+                                marginBottom: 2,
+                              }}
+                            />
+                            <Text style={styles.opinionText}>{item.recCnt}</Text>
+                          </View>
+
+                          <View
+                            style={{
+                              flexDirection: "row",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                          </View>
+                        </View>
+                      </View>
+                      <View style={styles.Container3}>
+                        <Text style={styles.reviewText}>{item.review}</Text>
+                      </View>
                     </View>
-                    <View style={styles.Container3}>
-                      <Text style={styles.reviewText}>리뷰요</Text>
-                    </View>
-                  </View>
-                </TouchableWithoutFeedback>
-              );
-            }}
-          />
-        )}
+                  </TouchableWithoutFeedback>
+                );
+              }}
+            />
+          )}
       </View>
       {/* Modal */}
       <Modal
@@ -293,19 +253,19 @@ export default function User_ReviewScreen({ navigation }) {
                 multiline={true}
                 maxLength={maxLength}
                 value={reviewVal}
-                onChangeText={(text) => setreivew(text)}
+                onChangeText={(text) => setReviewVal(text)}
               />
               <Text style={styles.charCount}>{reviewVal.length}/{maxLength}자</Text>
             </View>
             <View style={styles.button}>
-              <Btn onPress={handleLogout}>수정 완료</Btn>
+              <Btn onPress={handleUpdate}>수정 완료</Btn>
             </View>
           </View>
         </View>
       </Modal>
       <Modal
         transparent={true}
-        visible={DeletemodalVisible}
+        visible={deleteModalVisible}
         animationType="fade"
         onRequestClose={() => setDeleteModalVisible(false)}
       >
@@ -320,6 +280,7 @@ export default function User_ReviewScreen({ navigation }) {
             <Text style={styles.modalText}>이 후기를 삭제할까요?</Text>
             <View style={styles.button}>
               <Btn onPress={handleDelete}>삭제 완료</Btn>
+
             </View>
           </View>
         </View>

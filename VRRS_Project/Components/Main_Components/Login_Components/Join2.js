@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions,Alert } from 'react-native';
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
@@ -11,6 +11,9 @@ import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBa
 import Octicons from '@expo/vector-icons/Octicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+
+import { emailUser } from '../../../assets/ServerDatas/ServerApi/authApi';
+import { checkidUser } from '../../../assets/ServerDatas/ServerApi/authApi';
 
 export default function Join2({ navigation }) {
     useTabBarVisibility(false);
@@ -97,23 +100,49 @@ export default function Join2({ navigation }) {
         setIsPasswordVisible(!isPasswordVisible);
     };
 
-    const handleCode = () => {
-        fetch('https://chaesigeodi.ddns.net/auth/auth-email', {
-            method: 'POST',
-            body: JSON.stringify({ email: emailText }),
-        })
-            .then(response => {
-                if (response.status === 409) {
-                    alert('이미 사용 중인 이메일입니다.');
-                    throw new Error('Email already exists');
-                }
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.code) {
+    // const handleCode = () => {
+    //     fetch('https://chaesigeodi.ddns.net/auth/auth-email', {
+    //         method: 'POST',
+    //         body: JSON.stringify({ email: emailText }),
+    //     })
+    //         .then(response => {
+    //             if (response.status === 409) {
+    //                 alert('이미 사용 중인 이메일입니다.');
+    //                 throw new Error('Email already exists');
+    //             }
+    //             if (!response.ok) {
+    //                 throw new Error('Network response was not ok');
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             if (data.code) {
+    //                 setIsEmailChecked(true);
+    //                 setClickCount(prevCount => prevCount + 1); // 클릭 횟수 증가
+    //                 alert('인증번호 전송 완료');
+
+    //                 // 타이머 초기화 및 시작
+    //                 resetTimer();
+    //                 setIsTimerVisible(true);
+    //             } else {
+    //                 alert('입력한 정보를 확인해주세요.');
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error:', error);
+    //             if (error.message !== 'Email already exists') {
+    //                 alert('네트워크 오류입니다.');
+    //             }
+    //         });
+    // };
+
+    // 이메일 인증번호 전송
+    const handleCode= async () => {
+        try {
+            const data = await emailUser({email:emailText});
+
+            if (data && data.code) {
+                // 응답에 code 필드가 있는 경우
                     setIsEmailChecked(true);
                     setClickCount(prevCount => prevCount + 1); // 클릭 횟수 증가
                     alert('인증번호 전송 완료');
@@ -121,16 +150,14 @@ export default function Join2({ navigation }) {
                     // 타이머 초기화 및 시작
                     resetTimer();
                     setIsTimerVisible(true);
-                } else {
-                    alert('입력한 정보를 확인해주세요.');
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                if (error.message !== 'Email already exists') {
-                    alert('네트워크 오류입니다.');
-                }
-            });
+            } else {
+                // code 필드가 없는 경우 (인증번호 보내기 실패)
+                Alert.alert("조회 실패", '입력한 정보를 확인해주세요.');
+            }
+        } catch (error) {
+            console.error('Email already exists:', error);
+            Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
+        }
     };
 
     //인증번호 재전송
@@ -140,7 +167,7 @@ export default function Join2({ navigation }) {
 
     //인증번호 확인
     const handleCodecheck = () => {
-        if (!isTimerExpired && authCode === code) {
+        if (!isTimerExpired && authCode === data.code) {
             setIsCodeChecked(true);
             setMessage('인증 완료');
             setMessageStyle(styles.helperText);
@@ -150,33 +177,52 @@ export default function Join2({ navigation }) {
         }
     }
 
+    // // 아이디 중복 확인
+    // const handleOverlap = () => {
+    //     fetch('https://chaesigeodi.ddns.net/auth/check-username', {
+    //         method: 'POST',
+    //         body: JSON.stringify({ username: idText }),
+    //     })
+    //         .then(response => {
+    //             if (!response.ok) {
+    //                 throw new Error('Network response was not ok');
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             if (data.exists) {
+    //                 setMessage('사용할 수 없는 아이디 입니다.');
+    //                 setMessageStyle(styles.warningText);
+    //             } else {
+    //                 setIsIdChecked(true);
+    //                 setMessage('사용 가능한 아이디 입니다.');
+    //                 setMessageStyle(styles.helperText);
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error:', error);
+    //             alert('네트워크 오류입니다.'); // 네트워크 오류 메시지
+    //         });
+    // };
+    
     // 아이디 중복 확인
-    const handleOverlap = () => {
-        fetch('https://chaesigeodi.ddns.net/auth/check-username', {
-            method: 'POST',
-            body: JSON.stringify({ username: idText }),
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.exists) {
-                    setMessage('사용할 수 없는 아이디 입니다.');
-                    setMessageStyle(styles.warningText);
-                } else {
-                    setIsIdChecked(true);
-                    setMessage('사용 가능한 아이디 입니다.');
-                    setMessageStyle(styles.helperText);
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert('네트워크 오류입니다.'); // 네트워크 오류 메시지
-            });
-    };
+    const handleOverlap= async () => {
+        try {
+            const data = await checkidUser({username:idText});
+
+            if (data) {
+                setIsIdChecked(true);
+                setMessage('사용 가능한 아이디 입니다.');
+                setMessageStyle(styles.helperText);
+            } else {
+                setMessage('사용할 수 없는 아이디 입니다.');
+                setMessageStyle(styles.warningText);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
+        }
+    }
 
     //계정 생성 완료
     const handleConfirm = () => {

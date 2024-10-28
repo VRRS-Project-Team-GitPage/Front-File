@@ -9,7 +9,8 @@ import Octicons from '@expo/vector-icons/Octicons';
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 
-export default function FindPWResult2({ navigation }) {
+import { resetpwUser } from '../../../assets/ServerDatas/ServerApi/authApi';
+export default function FindPWResult2({ route, navigation }) {
 
     useTabBarVisibility(false);
 
@@ -25,31 +26,48 @@ export default function FindPWResult2({ navigation }) {
         setIsPasswordVisible2(!isPasswordVisible2);
     };
 
-    const handleFindPW = () => {
-        if (newPassword === confirmPassword && newPassword !== '' && confirmPassword !== '') {
-            fetch('https://chaesigeodi.ddns.net/auth/reset-password', {
-                method: 'PUT',
-                body: JSON.stringify({username: request.username,password: newPassword}),
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response;
-            })
-            .then(() => {
+    // const handleFindPW = () => {
+    //     if (newPassword === confirmPassword && newPassword !== '' && confirmPassword !== '') {
+    //         fetch('https://chaesigeodi.ddns.net/auth/reset-password', {
+    //             method: 'PUT',
+    //             body: JSON.stringify({username: request.username,password: newPassword}),
+    //         })
+    //         .then(response => {
+    //             if (!response.ok) {
+    //                 throw new Error('Network response was not ok');
+    //             }
+    //             return response;
+    //         })
+    //         .then(() => {
+    //             Alert.alert("성공", "비밀번호가 변경되었습니다."); // 성공 메시지
+    //             navigation.navigate('FindPWr3');
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error:', error);
+    //             Alert.alert("오류", "비밀번호 변경에 실패했습니다."); // 실패 메시지
+    //         });
+    //     } else {
+    //         Alert.alert("오류", "비밀번호가 일치하지 않습니다."); // 비밀번호 불일치 알림
+    //     }
+    // };
+    const { id: username } = route.params; // params에서 값 받기
+
+    const handleFindPW = async () => {
+        try {
+            await resetpwUser(username, password);
+
+            if (newPassword === confirmPassword && newPassword !== '' && confirmPassword !== '') {
+                console.log("수정:", username, password);
                 Alert.alert("성공", "비밀번호가 변경되었습니다."); // 성공 메시지
                 navigation.navigate('FindPWr3');
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                Alert.alert("오류", "비밀번호 변경에 실패했습니다."); // 실패 메시지
-            });
-        } else {
-            Alert.alert("오류", "비밀번호가 일치하지 않습니다."); // 비밀번호 불일치 알림
+            } else {
+                Alert.alert("오류", "비밀번호가 일치하지 않습니다."); // 비밀번호 불일치 알림
+            }
+        } catch (error) {
+            console.error("Failed to update password:", error);
+            Alert.alert("오류", "비밀번호 변경에 실패했습니다.");
         }
     };
-
     return (
         <SafeAreaView style={styles.container}>
             <BackHeader

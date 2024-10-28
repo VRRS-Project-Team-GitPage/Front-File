@@ -7,11 +7,14 @@ import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader
 import BtnD from "../../../assets/styles/ReuseComponents/Button/BtnD";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Octicons from '@expo/vector-icons/Octicons';
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
+import { withdrawalUser } from '../../../assets/ServerDatas/ServerApi/authApi';
 
 export default function User_Withdrawal({ navigation }) {
     useTabBarVisibility(false);
+    // user의 정보를 불러옴
+    const { jwt } = useUser();
 
     const [modalVisible, setModalVisible] = useState(false);
     const [isMenuSelected, setIsMenuSelected] = useState(false); // 메뉴 선택 여부를 추적하는 상태
@@ -30,10 +33,10 @@ export default function User_Withdrawal({ navigation }) {
                         text: '확인',
                         onPress: async () => {
                             try {
-                                await AsyncStorage.removeItem('your_jwt_token');
+                                await withdrawalUser(jwt);
                                 Alert.alert('탈퇴 완료', '탈퇴가 완료되었습니다.',
                                     [
-                                        { text: '확인', onPress: () => navigation.navigate("HomeTab", { screen: "Home" }), style: 'cancel' },
+                                        { text: '확인', onPress: () => navigation.navigate('Login_Start'), style: 'cancel' },
                                     ]);
                             } catch (error) {
                                 console.error('Error removing token:', error);
@@ -50,7 +53,6 @@ export default function User_Withdrawal({ navigation }) {
             );
         }
     };
-
 
     const openModal = () => {
         setModalVisible(true);

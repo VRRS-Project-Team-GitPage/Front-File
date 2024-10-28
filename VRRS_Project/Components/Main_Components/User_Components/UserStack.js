@@ -2,12 +2,14 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import User_Main from "./UserScreen";
-import User_Modify from "./User_ModifyScreen";
+import User_Update from "./User_UpdateScreen";
 import User_Review from "./User_ReviewScreen";
 import User_Dic from "./User_DicScreen";
 import User_Feedback from "./User_Feedback";
 import User_Logout from "./User_Logout";
 import User_Withdrawal from "./User_Withdrawal";
+import Login_Main from "../Login_Components/LoginScreen";
+import Login_Start from "../Login_Components/MainStartScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -20,8 +22,8 @@ export default function UserStack() {
         options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
-        name="User_Modify"
-        component={User_Modify}
+        name="User_Update"
+        component={User_Update}
        options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
@@ -47,6 +49,16 @@ export default function UserStack() {
       <Stack.Screen
         name="User_Withdrawal"
         component={User_Withdrawal}
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="Login_Main"
+        component={Login_Main}
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="Login_Start"
+        component={Login_Start}
         options={{ headerShown: false }}
       ></Stack.Screen>
     </Stack.Navigator>

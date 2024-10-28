@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import FindID from '../Login_Components/FindID';
-import FindPW from '../Login_Components/FindPW';
+import FindID from './FindID';
+import FindPW from './FindPW';
 import { View, StyleSheet } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 

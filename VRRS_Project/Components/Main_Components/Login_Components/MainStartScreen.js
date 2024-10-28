@@ -2,10 +2,10 @@ import { View, Text, Image } from "react-native";
 import { StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 // design 관련
-import { Gray_theme, Main_theme } from "../../assets/styles/Theme_Colors";
-import MainIcons from "../../assets/Icons/MainIcons";
+import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
+import MainIcons from "../../../assets/Icons/MainIcons";
 // component 관련
-import BtnC from "../../assets/styles/ReuseComponents/Button/BtnC";
+import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
 export default function MainStartScrren({ navigation }) {
   return (

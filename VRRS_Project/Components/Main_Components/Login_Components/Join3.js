@@ -13,6 +13,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 // Data 관련
 import { vegTypes } from "../../../assets/ServerDatas/Dummy/dummyVegTypes";
+import { joinUser } from '../../../assets/ServerDatas/ServerApi/authApi';
 
 export default function Join3({ route, navigation }) {
     useTabBarVisibility(false);
@@ -32,44 +33,65 @@ export default function Join3({ route, navigation }) {
     const [nameText, setNameText] = useState("");
     const [isNicknameTouched, setIsNicknameTouched] = useState(false);
 
+    // // 정보 입력 및 회원가입 완료
+    // const handleConfirm = () => {
+    //     // 사용자 정보가 모두 유효한지 확인
+    //     if (!nameText.trim() && value === 'none') {
+    //         alert('입력한 정보를 확인해주세요.');
+    //         return; // 유효성 검사 실패 시 종료
+    //     }
+
+    //     fetch('https://chaesigeodi.ddns.net/auth/join', {
+    //         method: 'POST',
+    //         body: JSON.stringify({
+    //             username,
+    //             email,
+    //             password,
+    //             nickname: nameText,
+    //             vegTypeId: value,
+    //         }),
+    //     })
+    //         .then(response => {
+    //             if (response.status === 400) {
+    //                 alert('입력한 정보를 확인해주세요.');
+    //                 return;
+    //             }
+    //             if (!response.ok) {
+    //                 throw new Error('Network response was not ok');
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(() => {
+    //             // 필요한 경우, response로부터의 data 처리
+    //             navigation.navigate('Joinr');
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error:', error);
+    //             alert('네트워크 오류입니다.'); // 네트워크 오류 메시지
+    //         });
+    // };
+
     // 정보 입력 및 회원가입 완료
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         // 사용자 정보가 모두 유효한지 확인
         if (!nameText.trim() && value === 'none') {
             alert('입력한 정보를 확인해주세요.');
             return; // 유효성 검사 실패 시 종료
+        } else {
+            try {
+                await joinUser({
+                    username,
+                    email,
+                    password,
+                    nickname: nameText,
+                    vegTypeId: value});
+                navigation.navigate('Joinr');
+            } catch (error) {
+                console.error("Failed to join:", error);
+                Alert.alert("오류", "회원가입에 실패했습니다.");
+            }
         }
-    
-        fetch('https://chaesigeodi.ddns.net/auth/join', {
-            method: 'POST',
-            body: JSON.stringify({
-                username,
-                email,
-                password,
-                nickname: nameText,
-                vegTypeId: value,
-            }),
-        })
-        .then(response => {
-            if (response.status === 400) {
-                alert('입력한 정보를 확인해주세요.');
-                return;
-            }
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(() => {
-            // 필요한 경우, response로부터의 data 처리
-            navigation.navigate('Joinr');
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-            alert('네트워크 오류입니다.'); // 네트워크 오류 메시지
-        });
     };
-
     return (
         <SafeAreaView style={styles.container}>
             <BackHeader

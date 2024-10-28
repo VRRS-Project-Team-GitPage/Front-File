@@ -2,16 +2,19 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "서버주소";
+const SERVER_URL ="서버주소";
 
 // 리뷰 등록 URL
-const REVIEW_SUBMIT_URL = `${SERVER_URL}/엔드포인트`;
+const REVIEW_SUBMIT_URL = `${SERVER_URL}`;
 // 리뷰 수정 URL
-const REVIEW_UPDATE_URL = `${SERVER_URL}/엔드포인트`;
+const REVIEW_UPDATE_URL = `${SERVER_URL}`;
 // 리뷰 삭제 URL 생성 함수
 export const getDeleteReviewkUrl = (proId) => {
-  return `${SERVER_URL}/엔드포인트`;
+  return `${SERVER_URL}`;
 };
+// 리뷰 조회 URL
+const REVIEW_VIEW_URL = `${SERVER_URL}`;
+
 
 // 리뷰 등록 함수
 export const submitReview = async (jwt, reviewData) => {
@@ -69,5 +72,21 @@ export const deleteReview = async (jwt, proId) => {
     return response.data; // 성공적인 응답 반환
   } catch (error) {
     throw new Error("리뷰 삭제 중 오류가 발생했습니다: " + error.message);
+  }
+};
+
+// 리뷰 조회 함수
+export const viewReview = async (jwt) => {
+  try {
+    const response = await axios.get(REVIEW_VIEW_URL, {
+      headers: {
+        Authorization: `Bearer ${jwt}`, // JWT 토큰을 헤더에 포함
+      },
+    });
+
+    return response.data; // 서버에서 받은 데이터 반환
+  } catch (error) {
+    console.error("리뷰 조회 오류:", error);
+    throw error; // 오류를 호출하는 곳으로 전달
   }
 };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme, } from "../../../assets/styles/Theme_Colors";
@@ -7,16 +7,36 @@ import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader
 import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import Octicons from '@expo/vector-icons/Octicons';
 
 export default function User_Logout({ navigation }) {
     useTabBarVisibility(false);
 
-    const [modalVisible, setModalVisible] = useState(false);
+    const USER_STORAGE_KEY = "logged_in_user";
 
-    const handleLogout = () => {
+    const [modalVisible, setModalVisible] = useState(false);
+    
+    // 네비게이션 리셋을 위한 함수
+    const restart = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login_Main' }], // 초기 화면으로 이동할 경로 설정
+        });
+    };
+    const handleLogout = async () => {
         setModalVisible(false);
-        navigation.navigate("HomeTab",{screen:"Home"});// 로그아웃 시 이동할 화면
+        try {
+            AsyncStorage.clear();
+            restart();
+            Alert.alert(
+                '로그아웃 완료',
+                '로그아웃되었습니다.'
+            );
+        } catch (error) {
+            console.error('Error removing token:', error);
+            Alert.alert('오류', '로그아웃 처리 중 오류가 발생했습니다.');
+        }
     };
 
     const handleWithdrawal = () => {
@@ -109,13 +129,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 8,
         right: 8,
-        padding:8,
+        padding: 8,
     },
     modalText: {
         fontSize: 16,
         fontFamily: "Pretendard-Medium",
         textAlign: 'center',
-        marginBottom:40,
+        marginBottom: 40,
     },
     button: {
         width: '100%',

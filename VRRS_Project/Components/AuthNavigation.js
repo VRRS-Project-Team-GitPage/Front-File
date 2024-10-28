@@ -3,7 +3,7 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { useAuth } from "../assets/ServerDatas/ReuseDatas/AuthProvider";
 // 앱 전제 Stakc
-import LoginTestStack from "./LoginTest_Components/LoginTestStack"; // 추후 실제 로그인 Stack으로 변경해주세요
+import LoginStack from "./Main_Components/Login_Components/LoginStack";
 import Main_BottomBar from "./Main_Components/Main_BottomBar";
 
 const Stack = createNativeStackNavigator();
@@ -21,7 +21,8 @@ export default function AuthNavigation() {
         <Stack.Screen name="appMain" component={Main_BottomBar}></Stack.Screen>
       ) : (
         // 추후 component에 실제 로그인 Stakc을 넣어주셔야 합니다
-        <Stack.Screen name="appLogin" component={LoginTestStack}></Stack.Screen>
+        <Stack.Screen name="UserStack" component={LoginStack}></Stack.Screen>
+        
       )}
     </Stack.Navigator>
   );

@@ -9,12 +9,14 @@ import BtnD from "../../../assets/styles/ReuseComponents/Button/BtnD";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 
-export default function FindPWResult1({ navigation }) {
+import { findpwUser } from '../../../assets/ServerDatas/ServerApi/authApi';
+
+export default function FindPWResult1({ route, navigation }) {
     useTabBarVisibility(false);
 
     const [timer, setTimer] = useState(180); // 3분 (180초)
     const [isTimerExpired, setIsTimerExpired] = useState(false); // 타이머 만료 여부
-    const { authCode: receivedAuthCode, email, id } = route.params; // params에서 값 받기
+    const { authCode: code, email: email, id:username } = route.params; // params에서 값 받기
     const [authCode, setAuthCode] = useState(''); // 인증번호 상태
 
     // 타이머 
@@ -41,38 +43,57 @@ export default function FindPWResult1({ navigation }) {
         return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
     };
 
+    // // 재전송 버튼
+    // const handleResend = () => {
+    //     fetch('https://chaesigeodi.ddns.net/auth/find/password', {
+    //         method: 'POST',
+    //         body: JSON.stringify({ email: email, id: id }), // JSON 형식으로 수정
+    //     })
+    //         .then(response => {
+    //             if (!response.ok) {
+    //                 throw new Error('Network response was not ok');
+    //             }
+    //             return response.json();
+    //         })
+    //         .then(data => {
+    //             if (data.Code) {
+    //                 alert(`재전송되었습니다: ${email}`);
+    //                 resetTimer();
+    //             } else {
+    //                 alert('입력한 정보를 확인해주세요.');
+    //             }
+    //         })
+    //         .catch((error) => {
+    //             console.error('Error:', error);
+    //             alert('네트워크 오류입니다'); // 네트워크 오류 메시지
+
+    //         });
+
+    // };
+
     // 재전송 버튼
-    const handleResend = () => {
-        fetch('https://chaesigeodi.ddns.net/auth/find/password', {
-            method: 'POST',
-            body: JSON.stringify({ email: email, id: id }), // JSON 형식으로 수정
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.Code) {
-                    alert(`재전송되었습니다: ${email}`);
-                    resetTimer();
-                } else {
-                    alert('입력한 정보를 확인해주세요.');
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-                alert('네트워크 오류입니다'); // 네트워크 오류 메시지
+    const handleResend = async () => {
+        try {
+            const data = await findpwUser(email, username);
 
-            });
-
+            if (data && data.code) {
+                // 응답에 code 필드가 있는 경우
+                Alert.alert("전송 완료", `재전송되었습니다: ${email}`);
+                resetTimer();
+            } else {
+                // code 필드가 없는 경우 (인증번호 보내기 실패)
+                Alert.alert("조회 실패", '입력한 정보를 확인해주세요.');
+            }
+        } catch (error) {
+            console.error("Failed to find PW:", error);
+            Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
+        }
     };
-
+      
     const handleFindPW = () => {
-        if (!isTimerExpired && authCode === receivedAuthCode) {
+        if (!isTimerExpired && authCode === code) {
             alert('인증번호 입력 완료');
-            navigation.navigate('FindPWr2');
+            navigation.navigate('FindPWr2',{id:username});
         } else {
             Alert.alert('인증 오류', '만료되거나 잘못된 인증번호입니다.');
         }

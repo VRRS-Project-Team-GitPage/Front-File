@@ -10,7 +10,7 @@ export default function JoinResult({ navigation }) {
     useTabBarVisibility(false);
 
     const handleConfirm = () => {
-        navigation.navigate('Login_Main');
+        navigation.navigate('login');
     };
 
     return (

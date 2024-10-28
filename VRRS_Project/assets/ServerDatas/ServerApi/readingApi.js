@@ -3,18 +3,19 @@ import axios from "axios";
 import * as ImageManipulator from "expo-image-manipulator";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "서버주소";
+const SERVER_URL ="서버주소";
 
 // OCR URL
-const OCR_URL = `${SERVER_URL}/엔드포인트`;
+const OCR_URL = `${SERVER_URL}`;
 
 // reading URL
-const READING_URL = `${SERVER_URL}/엔드포인트`;
+const READING_URL = `${SERVER_URL}`;
 
 // 북마크 등록 URL 생성 함수
 export const getBookmarkUrl = (proId) => {
-  return `${SERVER_URL}/엔드포인트`;
+  return `${SERVER_URL}`;
 };
+
 
 // OCR 등록 함수
 

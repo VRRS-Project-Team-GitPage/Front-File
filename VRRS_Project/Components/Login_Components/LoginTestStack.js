@@ -1,35 +1,37 @@
-// Login Screen과 관련된 하위 페이지를 구현한 Component 입니다.
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-import MainStartScrren from "./MainStartScreen";
-import LoginScreen from "./LoginScreen";
-
-import Find from "./FindScreen";
-import FindID from "./FindID";
-import FindIDr from "./FindIDResult";
-import FindPW from "./FindPW";
-import FindPWr1 from "./FindPWResult1";
-import FindPWr2 from "./FindPWResult2";
-import FindPWr3 from "./FindPWResult3";
-import Join1 from "./Join1";
-import Join2 from "./Join2";
-import Join3 from "./Join3";
-import Joinr from "./JoinResult";
+// component
+import MainStartScrren from "../Main_Components/Login_Components/MainStartScreen";
+import LoginScreen from "../Main_Components/Login_Components/LoginScreen"; // 실제 로그인 화면과 유사하게 구현해두었습니다
+// subcomponent
+import Find from "../Main_Components/Login_Components/FindScreen";
+import FindID from "../Main_Components/Login_Components/FindID";
+import FindIDr from "../Main_Components/Login_Components/FindIDResult";
+import FindPW from "../Main_Components/Login_Components/FindPW";
+import FindPWr1 from "../Main_Components/Login_Components/FindPWResult1";
+import FindPWr2 from "../Main_Components/Login_Components/FindPWResult2";
+import FindPWr3 from "../Main_Components/Login_Components/FindPWResult3";
+import Join1 from "../Main_Components/Login_Components/Join1";
+import Join2 from "../Main_Components/Login_Components/Join2";
+import Join3 from "../Main_Components/Login_Components/Join3";
+import Joinr from "../Main_Components/Login_Components/JoinResult";
 
 const Stack = createNativeStackNavigator();
 
-export default function UserStack() {
+export default function LoginTestStack() {
   return (
-    <Stack.Navigator initialRouteName="main">
-      
+    <Stack.Navigator
+      initialRouteName="main"
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
       <Stack.Screen name="main" component={MainStartScrren}></Stack.Screen>
       <Stack.Screen name="login" component={LoginScreen}></Stack.Screen>
-
       <Stack.Screen
         name="Find"
         component={Find}
-       options={{ headerShown: false }}
+        options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
         name="FindID"

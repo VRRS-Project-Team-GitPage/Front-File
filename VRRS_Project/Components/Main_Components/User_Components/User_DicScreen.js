@@ -1,107 +1,46 @@
-import React, { useLayoutEffect, useRef } from "react";
+import React from "react";
 import { useState, useEffect } from "react";
-import { useWindowDimensions, StyleSheet, ScrollView, Button } from "react-native";
-import { View, Text, FlatList, Image, TouchableWithoutFeedback } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { StyleSheet } from "react-native";
+import { View, Text, FlatList, Image, TouchableWithoutFeedback, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
-import { getAllProducts, getVegTypeName, getProTypeName, products } from "../../../assets/ServerDatas/Dummy/dummyProducts";
-import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
+// component 관련
+import { truncateTextByWord } from "../../../assets/styles/ReuseComponents/truncateTextByWord";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
-
+// design 관련 import
+import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 import MainIcons from "../../../assets/Icons/MainIcons";
+// Data 관련 import
+import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
+import { fetchBookmarks } from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
 
 export default function User_DicScreen({ navigation }) {
     useTabBarVisibility(false);
 
-    const { user } = useUser(); // user 정보를 가져옴
-    const [productData, setProductData] = useState([]);
-    const [sortedProducts, setSortedProducts] = useState([]); // 최종 정렬된 제품 리스트
-    // 컴포넌트 마운트 시 데이터 로드
+    const { jwt, vegTypeName } = useUser();
+
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        console.log(user);
-        // 데이터 관리 파일에서 전체 제품 데이터를 불러와 상태에 저장
-        const products = getAllProducts();
-        setProductData(products);
-    }, []);
-  // 필터된 제품 리스트를 저장하는 변수
-  const [filterList, setFilterList] = useState([]);
-    useEffect(() => {
-        if (productData.length > 0) {
-            filterUserType();
-        }
-    }, [productData]);
+        const loadBookmarks = async () => {
+            try {
+                const data = await fetchBookmarks(jwt); // jwt를 사용해 북마크 조회
+                setProducts(data); // 조회된 북마크 데이터를 상태에 저장
+            } catch (error) {
+                console.error("북마크 로드 오류:", error);
+            } finally {
+                setLoading(false); // 로딩 상태 종료
+            }
+        };
 
-    const filterUserType = () => {
-        let sortedList = [...products];
-        sortedList.sort(
-            (a, b) => new Date(b.created_at) - new Date(a.created_at)
-        );
-    
-        setFilterList(sortedList);
-      };
-
-    // // 데이터 로드 및 필터링
-    // useEffect(() => {
-    //     if (productData.length > 0) {
-    //         // 유저가 등록한 제품만 필터링 및 등록순 정렬
-    //         const filteredProducts = productData
-    //             .filter((product) => product.user_id === user.id)
-    //             .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // 등록순 정렬
-    //         setSortedProducts(filteredProducts);
-    //     }
-    // }, [productData, user]);
-
-    // 검색 및 필터에 사용될 변수 모음입니다
-    const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
-
-    // 화면 밖을 클릭했을 때 드롭다운 닫기
-    const closeDropdown = () => {
-        if (isDropdownOpen) {
-            setIsDropdownOpen(false);
-        }
-    };
-    const windowWidth = useWindowDimensions().width;
-    const windowHeigh = useWindowDimensions().height;
-
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            tabBarStyle: {
-                display: "flex",
-                height: 60,
-                borderTopStartRadius: 20,
-                borderTopEndRadius: 20,
-                position: "absolute",
-            },
-        });
-    }, [navigation]);
-
-    const flatListRef = useRef(null);
-
-    const scrollToTop = () => {
-        if (flatListRef.current) {
-            flatListRef.current.scrollToOffset({ offset: 0, animated: true });
-        }
-    };
-
-    useFocusEffect(
-        React.useCallback(() => {
-            return () => {
-                scrollToTop();
-            };
-        }, [])
-    );
+        loadBookmarks();
+    }, [jwt]);
 
     return (
-        <SafeAreaView
-            style={styles.container}
-            onTouchEndCapture={() => {
-                closeDropdown();
-            }}
-        >
+        <SafeAreaView style={styles.container}>
             <BackHeader
                 onPress={() => {
                     navigation.goBack();
@@ -112,110 +51,116 @@ export default function User_DicScreen({ navigation }) {
             <View style={{ flex: 1 }}>
                 <View style={styles.title}>
                     <Text style={styles.titleText}>
-                        내가 저장한 제품 총 {sortedProducts.length}개
+                        내가 저장한 제품 총 {products.length}개
                     </Text>
                 </View>
-                {sortedProducts.length === 0 ? (
-                    <View
-                        style={{
-                            justifyContent: "center",
-                            alignItems: "center",
-                            marginTop: 120,
-                        }}
-                    >
-                        <Image
-                            source={MainIcons.fail}
-                            style={{ width: 120, height: 120 }}
-                        />
-                        <Text
-                            style={{
-                                marginTop: 16,
-                                color: Main_theme.main_50,
-                                fontFamily: "Pretendard-Bold",
-                            }}
-                        >
-                            저장한 제품이 없어요...
-                        </Text>
-                        <Text
-                            style={{
-                                marginBottom: 24,
-                                color: Main_theme.main_50,
-                                fontFamily: "Pretendard-Bold",
-                            }}
-                        >
-                            제품을 북마크해주세요.
-                        </Text>
+                {loading ? ( // 로딩 중일 때 표시할 부분
+                    <View style={{ justifyContent: "center", alignItems: "center", flex: 1 }}>
+                        <Text style={{ color: "gray" }}>로딩 중...</Text>
                     </View>
-                ) : (
-                    <FlatList
-                        ref={flatListRef}
-                        style={{ paddingHorizontal: 8 }}
-                        showsVerticalScrollIndicator={false}
-                        data={products}
-                        keyExtractor={(item) => item.id.toString()}
-                        renderItem={({ item }) => {
-                            const itemVegTypeName = getVegTypeName(item.veg_type_id);
-                            const itemProTypeName = getProTypeName(item.pro_type_id);
-                            return (
-                                <TouchableWithoutFeedback
-                                    onPress={() => {
-                                        const productID = item.id;
-                                        navigation.navigate("DicTab", {
-                                            screen: "ProductInfo",
-                                            id: productID,
-                                        });
-                                    }}
-                                >
-                                    <View style={styles.itemContainer}>
-                                        <Image
-                                            source={{ uri: item.img_path }}
-                                            style={styles.image}
-                                        />
-                                        <View style={styles.textContainer}>
-                                            <View>
-                                                <Text style={styles.name}>{item.name}</Text>
-                                                <Text style={styles.category}>{itemProTypeName}</Text>
-                                            </View>
-                                            <View
-                                                style={{
-                                                    flexDirection: "row",
-                                                    justifyContent: "space-between",
-                                                }}
-                                            >
-                                                <Text style={styles.vegType}>
-                                                    {itemVegTypeName}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                        <View style={styles.itemInfo}>
-                                            <View style={styles.infoContents}>
-                                                <Octicons
-                                                    name="thumbsup"
-                                                    size={16}
-                                                    color={Gray_theme.gray_40}
+                ) :
+                    products.length === 0 ? ( //북마크한 제품이 없을 때 화면
+                        <View
+                            style={{
+                                justifyContent: "center",
+                                alignItems: "center",
+                                marginTop: 120,
+                            }}
+                        >
+                            <Image
+                                source={MainIcons.fail}
+                                style={{ width: 120, height: 120 }}
+                            />
+                            <Text
+                                style={{
+                                    marginTop: 16,
+                                    color: Main_theme.main_50,
+                                    fontFamily: "Pretendard-Bold",
+                                }}
+                            >
+                                저장한 제품이 없어요...
+                            </Text>
+                            <Text
+                                style={{
+                                    marginBottom: 24,
+                                    color: Main_theme.main_50,
+                                    fontFamily: "Pretendard-Bold",
+                                }}
+                            >
+                                제품을 북마크해주세요.
+                            </Text>
+                        </View>
+                    ) : (
+                        <FlatList
+                            style={{ paddingHorizontal: 8 }}
+                            showsVerticalScrollIndicator={false}
+                            data={products}
+                            keyExtractor={(item) => item.id.toString()}
+                            renderItem={({ item }) => {
+                                return (
+                                    <TouchableWithoutFeedback
+                                        onPress={() => {
+                                            const productID = item.id;
+                                            navigation.navigate("ProductInfo", {
+                                                id: productID,
+                                            });
+                                        }}
+                                    >
+                                        <View style={styles.itemContainer}>
+                                            <Image
+                                                source={{ uri: item.imgUrl }}
+                                                style={styles.image}
+                                            />
+                                            <View style={styles.textContainer}>
+                                                <View>
+                                                    {/* <Text style={styles.name}>{item.name}</Text> */}
+                                                    <Text style={styles.name}>
+                                                        {truncateTextByWord(item.name, 16)}
+                                                    </Text>
+                                                    <Text style={styles.category}>{item.category}</Text>
+                                                </View>
+                                                <View
                                                     style={{
-                                                        marginRight: 4,
-                                                        marginBottom: 2,
+                                                        flexDirection: "row",
+                                                        justifyContent: "space-between",
                                                     }}
-                                                />
-                                                <Text style={styles.infoText}>{item.rec}</Text>
+                                                >
+                                                    <Text style={styles.vegType}>
+                                                        {item.vegType}
+                                                    </Text>
+                                                </View>
                                             </View>
-                                            <View style={styles.infoContents}>
-                                                <Octicons
-                                                    name="comment"
-                                                    size={16}
-                                                    color={Gray_theme.gray_40}
-                                                    style={{ marginRight: 4 }}
-                                                />
-                                                <Text style={styles.infoText}>{item.review}</Text>
+                                            <View style={styles.itemInfo}>
+                                                <View style={styles.infoContents}>
+                                                    <Octicons
+                                                        name="thumbsup"
+                                                        size={16}
+                                                        color={Gray_theme.gray_40}
+                                                        style={{
+                                                            marginRight: 4,
+                                                            marginBottom: 2,
+                                                        }}
+                                                    />
+                                                    <Text style={styles.infoText}>{item.recCnt}</Text>
+                                                </View>
+                                                <View style={styles.infoContents}>
+                                                    <Octicons
+                                                        name="comment"
+                                                        size={16}
+                                                        color={Gray_theme.gray_40}
+                                                        style={{ marginRight: 4 }}
+                                                    />
+                                                    <Text style={styles.infoText}>
+                                                        {item.recCnt + item.notRecCnt}</Text>
+                                                </View>
                                             </View>
                                         </View>
-                                    </View>
-                                </TouchableWithoutFeedback>
-                            );
-                        }}
-                    />
-                )}
+                                    </TouchableWithoutFeedback>
+                                );
+                            }}
+                        />
+                    )
+                }
             </View>
         </SafeAreaView>
     );

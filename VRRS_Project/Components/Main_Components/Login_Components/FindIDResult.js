@@ -51,7 +51,7 @@ export default function FindIDResult({ route, navigation }) {
                 ) : (
                     <>
                         <Text style={styles.titleText}>
-                            <Text style={{ color: Main_theme.main_30 }}>아이디</Text>를 {'\n'}찾지 못했어요!
+                            <Text style={{ color: Main_theme.main_30 }}>아이디</Text>를 {'\n'}찾지 못했어요..
                         </Text>
                         <Text style={styles.subtitleText}>입력한 정보를 확인해주세요.</Text>
                         {/* 사용자 이름 */}

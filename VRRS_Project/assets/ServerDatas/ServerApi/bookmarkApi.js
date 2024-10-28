@@ -5,16 +5,16 @@ import axios from "axios";
 const SERVER_URL = "서버주소";
 
 // 북마크 URL
-const BOOKMARK_URL = `${SERVER_URL}/엔드포인트`;
+const BOOKMARK_URL = `${SERVER_URL}`;
 
 // 북마크 등록 URL 생성 함수
 export const getBookmarkUrl = (proId) => {
-  return `${SERVER_URL}/엔드포인트`;
+  return `${SERVER_URL}`;
 };
 
 // 북마크 삭제 URL 생성 함수
 export const deleteBookmarkUrl = (proId) => {
-  return `${SERVER_URL}/엔드포인트`;
+  return `${SERVER_URL}`;
 };
 
 // 북마크 조회 함수

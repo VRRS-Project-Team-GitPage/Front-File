@@ -4,20 +4,22 @@ import axios from "axios";
 // 서버 IP 주소: 실제 주소로 변경
 const SERVER_URL = "서버주소";
 
+
 // 인기순위 URL을 생성하는 함수
 export const getProductRankUrl = (vegTypeId) => {
-  return `${SERVER_URL}/엔드포인트`;
+  return `${SERVER_URL}`;
 };
 
 // 카테고리 추천 URL을 생성하는 함수
 export const getCategoryUrl = (vegTypeId) => {
-  return `${SERVER_URL}/엔드포인트`;
+  return `${SERVER_URL}`;
 };
 
 // 키워드 추천 URL을 생성하는 함수
 export const getKeywordUrl = (text) => {
-  return `${SERVER_URL}/엔드포인트`;
+  return `${SERVER_URL}`;
 };
+
 
 // 데이터를 불러오는 함수
 export const fetchRecommendData = async (jwt, vegTypeId) => {

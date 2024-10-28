@@ -24,7 +24,7 @@ import {
   getProTypeName,
   products,
 } from "../../../assets/ServerDatas/Dummy/dummyProducts"; // 제품 정보
-import { getAllBookmarkedProductsWithTimestamp } from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
+//import { getAllBookmarkedProductsWithTimestamp } from "../../../assets/ServerDatas/LocalDatas/LocalBookMark";
 // server 관련
 import { fetchBookmarks } from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
 
