@@ -2,6 +2,7 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
+
 const SERVER_URL = "서버_주소";
 // OCR URL
 const OCR_URL = "OCR_주소";
@@ -14,6 +15,7 @@ const UPLOAD_URL = "업로드_주소";
 export const getBookmarkUrl = (proId) => {
   return `${SERVER_URL}/bookmark/insert?proId=${proId}`;
 };
+
 
 // OCR 등록 함수
 export const getOCRData = async (fileUri, jwt) => {

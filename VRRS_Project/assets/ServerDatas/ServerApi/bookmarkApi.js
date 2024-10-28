@@ -11,6 +11,7 @@ const BOOKMARK_URL = `북마크_주소`;
 export const getBookmarkUrl = "등록_함수";
 // 북마크 삭제 URL 생성 함수
 export const deleteBookmarkUrl = "생성_함수";
+
 // 북마크 조회 함수
 export const fetchBookmarks = async (jwt) => {
   try {

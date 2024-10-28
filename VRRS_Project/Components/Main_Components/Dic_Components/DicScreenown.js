@@ -18,6 +18,7 @@ import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
 // Data 관련 import
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
+
 // server 관련
 import { fetchBookmarks } from "../../../assets/ServerDatas/ServerApi/bookmarkApi";
 

@@ -13,6 +13,8 @@ import HomeStack from "./Home_Components/HomeStack";
 import DicStack from "./Dic_Components/DicStack";
 import RecStsck from "./Recommend_Components/RecStack";
 import Readingtack from "./Reading_Components/ReadingStack";
+import UserStack from "./User_Components/UserStack";
+import LoginStack from "./Login_Components/LoginStack";
 
 // navigation Bar를 사용하기 위한 변수
 const Tab = createBottomTabNavigator();
@@ -185,8 +187,34 @@ export default function Main_BottomBar() {
       ></Tab.Screen>
       <Tab.Screen
         name="User"
-        component={UserScreen}
+        component={UserStack}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            // Prevent default action
+            e.preventDefault();
+            // Do something with the `navigation` object
+            navigation.navigate("User", {
+              screen: "User_Main",
+            });
+            //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
+          },
+        })}
+        // name="Login"
+        // component={LoginStack}
+        // listeners={({ navigation }) => ({
+        //   tabPress: (e) => {
+        //     // Prevent default action
+        //     e.preventDefault();
+        //     // Do something with the `navigation` object
+        //     navigation.navigate("Login", {
+        //       screen: "Login_Main",
+        //     });
+        //     //클릭 시 해당 페이지로 이동가능, 아래에 있던 탭이 사라지게 가능하다.
+        //   },
+        // })}
+
         options={{
+          headerShown: false,
           tabBarLabel: "내 정보", //화면에 표시될 텍스트
           tabBarIcon: ({ focused, color }) => {
             //화면에 표시될 아이콘
