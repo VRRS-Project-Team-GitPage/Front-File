@@ -15,52 +15,27 @@ const Stack = createNativeStackNavigator();
 
 export default function UserStack() {
   return (
-    <Stack.Navigator initialRouteName="User">
-      <Stack.Screen
-        name="User_Main"
-        component={User_Main}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="User_Update"
-        component={User_Update}
-       options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="User_Review"
-        component={User_Review}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="User_Dic"
-        component={User_Dic}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
+    <Stack.Navigator
+      initialRouteName="User"
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Stack.Screen name="User_Main" component={User_Main}></Stack.Screen>
+      <Stack.Screen name="User_Update" component={User_Update}></Stack.Screen>
+      <Stack.Screen name="User_Review" component={User_Review}></Stack.Screen>
+      <Stack.Screen name="User_Dic" component={User_Dic}></Stack.Screen>
       <Stack.Screen
         name="User_Feedback"
         component={User_Feedback}
-        options={{ headerShown: false }}
       ></Stack.Screen>
-      <Stack.Screen
-        name="User_Logout"
-        component={User_Logout}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
+      <Stack.Screen name="User_Logout" component={User_Logout}></Stack.Screen>
       <Stack.Screen
         name="User_Withdrawal"
         component={User_Withdrawal}
-        options={{ headerShown: false }}
       ></Stack.Screen>
-      <Stack.Screen
-        name="Login_Main"
-        component={Login_Main}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="Login_Start"
-        component={Login_Start}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
+      <Stack.Screen name="Login_Main" component={Login_Main}></Stack.Screen>
+      <Stack.Screen name="Login_Start" component={Login_Start}></Stack.Screen>
     </Stack.Navigator>
   );
 }

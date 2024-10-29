@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet,Alert } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
-import { findidUser } from '../../../assets/ServerDatas/ServerApi/authApi';
+import { findidUser } from "../../../assets/ServerDatas/ServerApi/authApi";
 
 export default function FindID({ navigation }) {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isEmailTouched, setIsEmailTouched] = useState(false);
 
@@ -18,7 +18,7 @@ export default function FindID({ navigation }) {
   };
 
   // const handleFindID = async () => {
-  //   fetch('https://chaesigeodi.ddns.net/auth/find/username', {
+  //   fetch(url, {
   //     method: 'POST',
   //     body: JSON.stringify({ email: email }), // JSON 형식으로 수정
   //   })
@@ -44,30 +44,37 @@ export default function FindID({ navigation }) {
   //       alert('네트워크 오류입니다'); // 네트워크 오류 메시지
   //     });
   // };
+
   const handleFindID = async () => {
     try {
-        const data = await findidUser(email); // findidUser 함수 호출 및 응답 대기
+      const data = await findidUser(email); // findidUser 함수 호출 및 응답 대기
 
-        if (data && data.username) {
-            // 응답에 username 필드가 있는 경우
-            Alert.alert("아이디 조회 성공", "아이디가 성공적으로 조회되었습니다.");
-            navigation.navigate('FindIDr', { username: data.username, email: email });
-        } else {
-            // username 필드가 없는 경우 (ID 찾기 실패)
-            Alert.alert("조회 실패", "아이디를 찾을 수 없습니다. 입력한 정보를 확인해주세요.");
-            navigation.navigate('FindIDr', { email: email });
-        }
+      if (data && data.username) {
+        // 응답에 username 필드가 있는 경우
+        Alert.alert("아이디 조회 성공", "아이디가 성공적으로 조회되었습니다.");
+        navigation.navigate("FindIDr", {
+          username: data.username,
+          email: email,
+        });
+      } else {
+        // username 필드가 없는 경우 (ID 찾기 실패)
+        Alert.alert(
+          "조회 실패",
+          "아이디를 찾을 수 없습니다. 입력한 정보를 확인해주세요."
+        );
+        navigation.navigate("FindIDr", { email: email });
+      }
     } catch (error) {
-        console.error("Failed to find ID:", error);
-        Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
+      console.error("Failed to find ID:", error);
+      Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
     }
-};
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>
-          아이디를 찾기 위해{'\n'}가입했던 이메일을 입력해주세요.
+          아이디를 찾기 위해{"\n"}가입했던 이메일을 입력해주세요.
         </Text>
       </View>
 
@@ -84,9 +91,11 @@ export default function FindID({ navigation }) {
           keyboardType="email-address"
           placeholderTextColor={Gray_theme.gray_40}
         />
-        <View style={{ height: 16 }}>
-          {isEmailTouched && (!isEmailValid || email === '') ? (
-            <Text style={styles.warningText}>유효한 이메일을 입력해주세요.</Text>
+        <View>
+          {isEmailTouched && (!isEmailValid || email === "") ? (
+            <Text style={styles.warningText}>
+              유효한 이메일을 입력해주세요.
+            </Text>
           ) : isEmailTouched && isEmailValid ? (
             <Text> </Text>
           ) : null}
@@ -105,30 +114,29 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
   },
   titleContainer: {
-    textAlign: 'left',
+    textAlign: "left",
     paddingHorizontal: 24,
     paddingVertical: 24,
   },
   inputContainer: {
-    position: 'relative',
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
+    position: "relative",
+    width: "100%",
+    alignSelf: "center",
+    paddingHorizontal: 24,
   },
   btnContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     paddingVertical: 32,
   },
 
   title: {
     color: Gray_theme.balck,
-    fontFamily: "Pretendard-Medium",
+    fontFamily: "Pretendard-SemiBold",
     fontSize: 16,
   },
   input: {
     height: 48,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: Gray_theme.gray_40,
     fontFamily: "Pretendard-Medium",
@@ -136,8 +144,9 @@ const styles = StyleSheet.create({
   },
   warningText: {
     fontSize: 12,
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: "Pretendard-Medium",
     color: Main_theme.main_reverse,
     marginTop: 4,
+    marginLeft: 4,
   },
 });

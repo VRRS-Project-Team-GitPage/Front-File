@@ -363,7 +363,7 @@ export default function DicScreen({ route, navigation }) {
                     : "Pretendard-SemiBold",
                 }}
               >
-                개인 사전
+                내 사전
               </Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={handleToast}>

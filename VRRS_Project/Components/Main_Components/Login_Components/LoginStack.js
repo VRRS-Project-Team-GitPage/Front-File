@@ -21,66 +21,26 @@ const Stack = createNativeStackNavigator();
 
 export default function UserStack() {
   return (
-    <Stack.Navigator initialRouteName="main">
-      
+    <Stack.Navigator
+      initialRouteName="main"
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
       <Stack.Screen name="main" component={MainStartScrren}></Stack.Screen>
       <Stack.Screen name="login" component={LoginScreen}></Stack.Screen>
 
-      <Stack.Screen
-        name="Find"
-        component={Find}
-       options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="FindID"
-        component={FindID}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="FindIDr"
-        component={FindIDr}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="FindPW"
-        component={FindPW}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="FindPWr1"
-        component={FindPWr1}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="FindPWr2"
-        component={FindPWr2}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="FindPWr3"
-        component={FindPWr3}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="Join1"
-        component={Join1}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="Join2"
-        component={Join2}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="Join3"
-        component={Join3}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
-      <Stack.Screen
-        name="Joinr"
-        component={Joinr}
-        options={{ headerShown: false }}
-      ></Stack.Screen>
+      <Stack.Screen name="Find" component={Find}></Stack.Screen>
+      <Stack.Screen name="FindID" component={FindID}></Stack.Screen>
+      <Stack.Screen name="FindIDr" component={FindIDr}></Stack.Screen>
+      <Stack.Screen name="FindPW" component={FindPW}></Stack.Screen>
+      <Stack.Screen name="FindPWr1" component={FindPWr1}></Stack.Screen>
+      <Stack.Screen name="FindPWr2" component={FindPWr2}></Stack.Screen>
+      <Stack.Screen name="FindPWr3" component={FindPWr3}></Stack.Screen>
+      <Stack.Screen name="Join1" component={Join1}></Stack.Screen>
+      <Stack.Screen name="Join2" component={Join2}></Stack.Screen>
+      <Stack.Screen name="Join3" component={Join3}></Stack.Screen>
+      <Stack.Screen name="Joinr" component={Joinr}></Stack.Screen>
     </Stack.Navigator>
   );
 }

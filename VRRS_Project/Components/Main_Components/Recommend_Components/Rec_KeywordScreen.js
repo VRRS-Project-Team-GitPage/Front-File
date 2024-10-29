@@ -63,7 +63,6 @@ export default function Rec_KeywordScreen({ navigation }) {
                 borderColor: searchText
                   ? Gray_theme.gray_80
                   : Gray_theme.gray_50,
-                borderWidth: 1,
                 ...styles.textInput,
               }}
             />
@@ -101,6 +100,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
   },
   textInput: {
+    borderWidth: 1,
     height: 48,
     borderRadius: 10,
     paddingLeft: 16,

@@ -35,7 +35,7 @@ function SearchScreen({ navigation }) {
   // 하단탭 숨김
   useTabBarVisibility(false);
 
-  // 화면이 포커싱 되었을 때 언제나 모달창 닫기
+  // 화면이 포커싱 되었을 때 언제나 검색창 비움
   useFocusEffect(
     useCallback(() => {
       setSearchText("");
