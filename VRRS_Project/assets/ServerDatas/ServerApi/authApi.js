@@ -2,6 +2,31 @@
 // 해당 파일에 필요한 값을 저장한 후 불러와 사용해주세요
 import axios from "axios";
 
+// 서버 IP 주소: 실제 주소로 변경
+const SERVER_URL ="서버주소";
+
+// 로그인 URL
+const API_URL = `${SERVER_URL}`; 
+
+// ID찾기 URL
+const FINDID_URL = `${SERVER_URL}`;
+// PW찾기 URL
+const FINDPW_URL = `${SERVER_URL}d`;
+// PW재설정 URL
+const RESETPW_URL = `${SERVER_URL}`;
+
+// email 인증 URL
+const EMAIL_URL =  `${SERVER_URL}`;
+// id 중복 확인 URL
+const CHECKID_URL = `${SERVER_URL}`;
+
+// 회원 가입 URL
+const JOIN_URL = `${SERVER_URL}`;
+// 회원 정보 수정 URL
+const UPDATE_URL = `${SERVER_URL}`;
+// 회원 탈퇴 URL
+const WITHDRAWAL_URL = `${SERVER_URL}`;
+
 // 로그인 함수
 export const loginUser = async (username, password) => {
   try {
@@ -108,8 +133,8 @@ export const emailUser = async (email) => {
 export const checkidUser = async (username) => {
   try {
     const response = await axios.post(CHECKID_URL, { username });
-
-    return response.data; // 서버에서 반환하는 데이터
+    
+    return response.data.exists; // 서버 응답에서 exists 필드만 반환
   } catch (error) {
     // 에러 처리
     if (error.response) {
@@ -123,6 +148,7 @@ export const checkidUser = async (username) => {
     }
   }
 };
+
 
 // 회원 정보 수정 함수
 export const updateUser = async (jwt, nickname, vegTypeId) => {

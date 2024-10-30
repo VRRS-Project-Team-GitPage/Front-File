@@ -25,170 +25,147 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
 
 export default function LoginScreen({ navigation }) {
-  const windowWidth = useWindowDimensions().width;
-  const windowHeigh = useWindowDimensions().height;
-  useTabBarVisibility(false);
+    const windowWidth = useWindowDimensions().width;
+    const windowHeigh = useWindowDimensions().height;
+    useTabBarVisibility(false);
 
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [message, setMessage] = useState("");
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+    const [message, setMessage] = useState("");
 
-  // TextInput에 들어갈 내용
-  const [idText, setIdText] = useState("");
-  const [passwordText, setPasswordText] = useState("");
+    // TextInput에 들어갈 내용
+    const [idText, setIdText] = useState("");
+    const [passwordText, setPasswordText] = useState("");
+    const [visible, setVisible] = useState(false);
 
-  // [ 유저의 로그인 정보를 저장하는 내용입니다 ]
-  // 로그인 여부를 저장할 변수로 전역으로 관리합니다.
-  const { isLogin, setIsLogin } = useAuth();
+    // [ 유저의 로그인 정보를 저장하는 내용입니다 ]
+    // 로그인 여부를 저장할 변수로 전역으로 관리합니다.
+    const { isLogin, setIsLogin } = useAuth();
 
-  // 로그인 여부를 저장할 함수입니다.
-  const checkLogin = async () => {
-    try {
-      await AsyncStorage.setItem("isLogin", "true");
-      showToast("로그인 되었습니다");
-      setIsLogin(true);
-    } catch (e) {
-      showToast("로그인에 실패하였습니다");
-    }
-  };
+    // 로그인 여부를 저장할 함수입니다.
+    const checkLogin = async () => {
+        try {
+            await AsyncStorage.setItem("isLogin", "true");
+            showToast("로그인 되었습니다");
+            setIsLogin(true);
+        } catch (e) {
+            showToast("로그인에 실패하였습니다");
+        }
+    };
 
-  // [ 유저의 정보를 저장하는 내용입니다 ]
-  const { signUpUser } = useUser();
+    // [ 유저의 정보를 저장하는 내용입니다 ]
+    const { signUpUser } = useUser();
 
-  // 서버 연동에 필요한 내용
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+    // 서버 연동에 필요한 내용
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-  const loginApi = async () => {
-    setLoading(true);
-    setError(null); // 에러 초기화
+    const loginApi = async () => {
+        setLoading(true);
+        setError(null); // 에러 초기화
 
-    try {
-      const data = await loginUser(idText, passwordText);
-      await signUpUser(data);
-      checkLogin();
-    } catch (error) {
-      setError(error.message); // 에러 메시지 설정
-      showToast(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+        try {
+            const data = await loginUser(idText, passwordText);
+            await signUpUser(data);
+            checkLogin();
+        } catch (error) {
+            setError(error.message); // 에러 메시지 설정
+            showToast(error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-  // 화면이 포커싱 되었을 때 언제나 input창 초기화
-  useFocusEffect(
-    useCallback(() => {
-      setIdText("");
-      setPasswordText("");
-    }, [])
-  );
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(!isPasswordVisible);
+    };
 
-  return (
-    <SafeAreaView style={{ flex: 1, ...styles.container }}>
-      <View style={styles.logoContainer}>
-        <Image
-          source={MainIcons.mainLogo}
-          style={{
-            width: 136,
-            height: 136,
-          }}
-        />
-      </View>
+    return (
+        <SafeAreaView style={{ flex: 1, ...styles.container }}>
+            <View style={styles.logoContainer}>
+                <Image
+                    source={MainIcons.mainLogo}
+                    style={{
+                        width: 136,
+                        height: 136,
+                    }}
+                />
+            </View>
 
-      <View style={styles.inputContainer}>
-        <View style={styles.input}>
-          <View style={styles.icon}>
-            <Octicons name="person" size={18} color={Gray_theme.gray_40} />
-          </View>
-          <TextInput
-            value={idText}
-            onChangeText={(id) => setIdText(id)}
-            placeholder="아이디를 입력해주세요"
-            style={styles.inputText}
-            placeholderTextColor={Gray_theme.gray_40}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
+            <View style={styles.inputContainer}>
+                <View style={styles.input}>
+                    <View style={styles.icon}>
+                        <Octicons name="person" size={18} color="gray" />
+                    </View>
+                    <TextInput
+                        value={idText}
+                        onChangeText={(id) => setIdText(id)}
+                        placeholder="아이디를 입력해주세요"
+                        style={styles.inputText}
+                        placeholderTextColor={Gray_theme.gray_40}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                    />
+                </View>
 
-        <View style={styles.input}>
-          <View style={styles.icon}>
-            <Octicons name="lock" size={18} color={Gray_theme.gray_40} />
-          </View>
-          <TextInput
-            value={passwordText}
-            //onChangeText={setPasswordText}
-            onChangeText={(id) => setPasswordText(id)}
-            placeholder="비밀번호를 입력해주세요"
-            style={styles.inputText}
-            secureTextEntry={!isPasswordVisible}
-            placeholderTextColor={Gray_theme.gray_40}
-            autoCapitalize="none"
-          />
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.icon2}
-            onPressIn={() => {
-              setIsPasswordVisible(true);
-            }}
-            onPressOut={() => {
-              setIsPasswordVisible(false);
-            }}
-          >
-            {isPasswordVisible ? (
-              <Octicons name="eye" size={18} color={Gray_theme.gray_40} />
-            ) : (
-              <Octicons
-                name="eye-closed"
-                size={18}
-                color={Gray_theme.gray_40}
-              />
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
+                <View style={styles.input}>
+                    <View style={styles.icon}>
+                        <Octicons name="lock" size={18} color="gray" />
+                    </View>
+                    <TextInput
+                        value={passwordText}
+                        //onChangeText={setPasswordText}
+                        onChangeText={(id) => setPasswordText(id)}
+                        placeholder="비밀번호를 입력해주세요"
+                        style={styles.inputText}
+                        secureTextEntry={!isPasswordVisible}
+                        placeholderTextColor={Gray_theme.gray_40}
+                        autoCapitalize="none"
+                    />
+                    <TouchableOpacity style={styles.icon2} onPress={togglePasswordVisibility}>
+                        {isPasswordVisible ? (
+                            <Octicons name="eye" size={18} color="gray" />
+                        ) : (
+                            <Octicons name="eye-closed" size={18} color="gray" />
+                        )}
+                    </TouchableOpacity>
+                </View>
+            </View>
 
-      <View style={styles.componentContainer}>
-        <View style={styles.find}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate("Find", { initial: "FindID" })}
-          >
-            <Text style={styles.findText}>아이디 찾기 | </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => navigation.navigate("Find", { initial: "FindPW" })}
-          >
-            <Text style={styles.findText}>비밀번호 찾기</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.button}>
-          {idText === "" || passwordText === "" ? (
-            <BtnC
-              children={"로그인"}
-              onPress={() => {
-                showToast("모든 항목을 작성해주세요");
-              }}
-            ></BtnC>
-          ) : (
-            <BtnC children={"로그인"} onPress={loginApi}></BtnC>
-          )}
-        </View>
-      </View>
+            <View style={styles.componentContainer}>
+                <View style={styles.find}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Find', { initial: 'FindID' })}>
+                        <Text style={styles.findText}>아이디 찾기 | </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('Find', { initial: 'FindPW' })}>
+                        <Text style={styles.findText}>비밀번호 찾기</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.button}>
+                    {idText === "" || passwordText === "" ? (
+                        <BtnC
+                            children={"로그인"}
+                            onPress={() => {
+                                showToast("모든 항목을 작성해주세요");
+                            }}
+                        ></BtnC>
+                    ) : (
+                        <BtnC children={"로그인"} onPress={loginApi}></BtnC>
+                    )}
+                </View>
+            </View>
 
-      <View style={{ ...styles.joinContainer }}>
-        <Text style={styles.infoSignUP}>아직 회원이 아니신가요?</Text>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate("Join1")}
-        >
-          <Text style={styles.signUp}> 회원가입 하기</Text>
-        </TouchableOpacity>
-      </View>
-      {message && <Text style={styles.message}>{message}</Text>}
-    </SafeAreaView>
-  );
-}
+            <View style={{ ...styles.joinContainer, top: windowHeigh - 12 }}>
+                <Text style={{ fontSize: 12 }}>
+                    아직 회원이 아니신가요?
+                </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Join1' )}>
+                    <Text style={{ fontFamily: 'Pretendard-Bold', fontSize: 14, color: Main_theme.main_30 }}> 회원가입하러가기</Text>
+                </TouchableOpacity>
+            </View>
+            {message && <Text style={styles.message}>{message}</Text>}
+        </SafeAreaView>
+    );
+};
 
 const styles = StyleSheet.create({
   container: {

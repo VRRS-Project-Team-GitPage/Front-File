@@ -13,10 +13,10 @@ export default function FindIDResult({ route, navigation }) {
     const { username, email } = route.params;
 
     const handleLogin = () => {
-        navigation.navigate('Login_Main');
+        navigation.navigate('login');
     };
     const handleRetry = () => {
-        navigation.navigate('FindID');
+        navigation.goBack();
     };
 
     return (
@@ -68,27 +68,27 @@ export default function FindIDResult({ route, navigation }) {
                                 marginBottom: 8,
                             }}>입력한 이메일과 일치하는 아이디가 없습니다.</Text>
                         </View>
-                        <View style={styles.button}>
+                        {/* <View style={styles.button}>
                             <BtnC onPress={handleRetry}>다시 입력하기</BtnC>
-                        </View>
+                        </View> */}
                     </>
                 )}
             </View>
 
-            {/* 로그인하러 가기 버튼 */}
+            {/* 로그인하러 가기 버튼
             {username && (
                 <View style={styles.button}>
                     <BtnC onPress={handleLogin}>로그인하러 가기</BtnC>
                 </View>
-            )}
+            )} */}
 
-            {/* <View style={styles.button}>
+            <View style={styles.button}>
                 {username ? (
                     <BtnC onPress={handleLogin}>로그인하러 가기</BtnC>
                 ) : (
                     <BtnC onPress={handleRetry}>다시 입력하기</BtnC>
                 )}
-            </View> */}
+            </View>
 
         </SafeAreaView>
     );
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     idContainer: {
-        paddingHorizontal: 24,
+        paddingHorizontal: 0,
     },
 
     titleText: {
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 16,
         paddingVertical: 24,
-        marginHorizontal: 24,
+        marginHorizontal: 0,
         marginVertical: 24,
     },
     infoLabel: {
