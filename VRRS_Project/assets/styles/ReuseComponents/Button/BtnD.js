@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: Gray_theme.white,
     fontFamily: "Pretendard-SemiBold",
-    fontSize: 14,
+    fontSize: 12,
   },
   // 비활성화된 버튼의 스타일
   BtnDisabledContainer: {
