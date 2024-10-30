@@ -9,7 +9,7 @@ import Main_BottomBar from "./Main_Components/Main_BottomBar";
 const Stack = createNativeStackNavigator();
 
 export default function AuthNavigation() {
-  const { isLogin, setIsLogin } = useAuth();
+  const { isLogin } = useAuth();
 
   return (
     <Stack.Navigator
@@ -20,9 +20,7 @@ export default function AuthNavigation() {
       {isLogin ? (
         <Stack.Screen name="appMain" component={Main_BottomBar}></Stack.Screen>
       ) : (
-        // 추후 component에 실제 로그인 Stakc을 넣어주셔야 합니다
         <Stack.Screen name="UserStack" component={LoginStack}></Stack.Screen>
-        
       )}
     </Stack.Navigator>
   );

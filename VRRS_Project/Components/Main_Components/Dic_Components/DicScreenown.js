@@ -69,15 +69,15 @@ export default function DicScreenOwn({ route, navigation }) {
         onPress={() => {
           navigation.popToTop();
         }}
-      >
-        개인 사전
-      </NomalHeader>
+        children={"내 사전"}
+      ></NomalHeader>
       <View
         style={{
           flex: 1,
-          backgroundColor: !bookmarkedProducts
-            ? Gray_theme.gray_20
-            : Gray_theme.white,
+          backgroundColor:
+            bookmarkedProducts.length == 0
+              ? Gray_theme.gray_20
+              : Gray_theme.white,
         }}
       >
         <View style={styles.bookMarkTotal}>
@@ -89,9 +89,9 @@ export default function DicScreenOwn({ route, navigation }) {
         {bookmarkedProducts.length == 0 ? (
           <View
             style={{
+              flex: 1,
               justifyContent: "center",
               alignItems: "center",
-              marginTop: 120,
             }}
           >
             <Text style={styles.notBokkMarkList}>북마크 한 제품이 없어요</Text>

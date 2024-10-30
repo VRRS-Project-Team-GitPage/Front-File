@@ -1,14 +1,16 @@
+
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
+
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
-import { findidUser } from '../../../assets/ServerDatas/ServerApi/authApi';
+import { findidUser } from "../../../assets/ServerDatas/ServerApi/authApi";
 
 export default function FindID({ navigation }) {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isEmailTouched, setIsEmailTouched] = useState(false);
 
@@ -28,14 +30,12 @@ export default function FindID({ navigation }) {
       navigation.navigate('FindIDr', { email: email });
     }
   };
-  
-
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.titleContainer}>
         <Text style={styles.title}>
-          아이디를 찾기 위해{'\n'}가입했던 이메일을 입력해주세요.
+          아이디를 찾기 위해{"\n"}가입했던 이메일을 입력해주세요.
         </Text>
       </View>
 
@@ -52,9 +52,11 @@ export default function FindID({ navigation }) {
           keyboardType="email-address"
           placeholderTextColor={Gray_theme.gray_40}
         />
-        <View style={{ height: 16 }}>
-          {isEmailTouched && (!isEmailValid || email === '') ? (
-            <Text style={styles.warningText}>유효한 이메일을 입력해주세요.</Text>
+        <View>
+          {isEmailTouched && (!isEmailValid || email === "") ? (
+            <Text style={styles.warningText}>
+              유효한 이메일을 입력해주세요.
+            </Text>
           ) : isEmailTouched && isEmailValid ? (
             <Text> </Text>
           ) : null}
@@ -73,30 +75,29 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
   },
   titleContainer: {
-    textAlign: 'left',
+    textAlign: "left",
     paddingHorizontal: 24,
     paddingVertical: 24,
   },
   inputContainer: {
-    position: 'relative',
-    width: '100%',
-    alignSelf: 'center',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
+    position: "relative",
+    width: "100%",
+    alignSelf: "center",
+    paddingHorizontal: 24,
   },
   btnContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 24,
     paddingVertical: 32,
   },
 
   title: {
     color: Gray_theme.balck,
-    fontFamily: "Pretendard-Medium",
+    fontFamily: "Pretendard-SemiBold",
     fontSize: 16,
   },
   input: {
     height: 48,
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     borderBottomWidth: 1,
     borderBottomColor: Gray_theme.gray_40,
     fontFamily: "Pretendard-Medium",
@@ -104,8 +105,9 @@ const styles = StyleSheet.create({
   },
   warningText: {
     fontSize: 12,
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: "Pretendard-Medium",
     color: Main_theme.main_reverse,
     marginTop: 4,
+    marginLeft: 4,
   },
 });

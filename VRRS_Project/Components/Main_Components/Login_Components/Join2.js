@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions, Alert } from 'react-native';
@@ -8,12 +9,13 @@ import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import BtnD from "../../../assets/styles/ReuseComponents/Button/BtnD";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 
-import Octicons from '@expo/vector-icons/Octicons';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import Octicons from "@expo/vector-icons/Octicons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
-import { emailUser } from '../../../assets/ServerDatas/ServerApi/authApi';
-import { checkidUser } from '../../../assets/ServerDatas/ServerApi/authApi';
+import { emailUser } from "../../../assets/ServerDatas/ServerApi/authApi";
+import { checkidUser } from "../../../assets/ServerDatas/ServerApi/authApi";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 
 export default function Join2({ navigation }) {
     useTabBarVisibility(false);
@@ -456,4 +458,5 @@ const styles = StyleSheet.create({
         marginLeft: 4,
         marginTop: 2
     },
+
 });

@@ -22,7 +22,6 @@ const Stack = createNativeStackNavigator();
 export default function UserStack() {
   return (
     <Stack.Navigator initialRouteName="main">
-
       <Stack.Screen
         name="main"
         component={MainStartScrren}
@@ -88,6 +87,7 @@ export default function UserStack() {
         component={Joinr}
         options={{ headerShown: false }}
       ></Stack.Screen>
+
     </Stack.Navigator>
   );
 }

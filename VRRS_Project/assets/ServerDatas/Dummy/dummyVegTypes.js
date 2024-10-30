@@ -8,7 +8,14 @@ export const vegTypes = [
   { id: 6, name: "폴로 베지테리언" },
 ];
 
+// 채식 유형 이름으로 아이디 찾는 함수
 export const getVegTypeIdByName = (name) => {
   const vegType = vegTypes.find((type) => type.name === name);
   return vegType ? vegType.id : null; // 해당 name의 id 반환, 없으면 null 반환
+};
+
+// 채식 유형 아이디로 이름 찾는 함수
+export const getVegNameIdByType = (id) => {
+  const vegType = vegTypes.find((type) => type.id === id);
+  return vegType ? vegType.name : null; // 해당 name의 id 반환, 없으면 null 반환
 };
