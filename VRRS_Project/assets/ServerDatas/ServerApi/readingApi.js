@@ -2,7 +2,6 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-
 const SERVER_URL = "서버_주소";
 // OCR URL
 const OCR_URL = "OCR_주소";

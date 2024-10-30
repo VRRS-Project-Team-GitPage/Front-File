@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Alert, TouchableOpacity, useWindowDimensions, } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -10,11 +10,13 @@ import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBa
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 
 import { resetpwUser } from '../../../assets/ServerDatas/ServerApi/authApi';
-export default function FindPWResult2({ route, navigation }) {
+export default function FindPWResult2({ route, navigation }) { 
 
     useTabBarVisibility(false);
+    const windowWidth = useWindowDimensions().width;
+    const windowHeigh = useWindowDimensions().height;
 
-    const [newPassword, setNewPassword] = useState('');
+    const [password, setpassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isPasswordVisible1, setIsPasswordVisible1] = useState(false);
     const [isPasswordVisible2, setIsPasswordVisible2] = useState(false);
@@ -25,40 +27,14 @@ export default function FindPWResult2({ route, navigation }) {
     const togglePasswordVisibility2 = () => {
         setIsPasswordVisible2(!isPasswordVisible2);
     };
-
-    // const handleFindPW = () => {
-    //     if (newPassword === confirmPassword && newPassword !== '' && confirmPassword !== '') {
-    //         fetch('https://chaesigeodi.ddns.net/auth/reset-password', {
-    //             method: 'PUT',
-    //             body: JSON.stringify({username: request.username,password: newPassword}),
-    //         })
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error('Network response was not ok');
-    //             }
-    //             return response;
-    //         })
-    //         .then(() => {
-    //             Alert.alert("성공", "비밀번호가 변경되었습니다."); // 성공 메시지
-    //             navigation.navigate('FindPWr3');
-    //         })
-    //         .catch((error) => {
-    //             console.error('Error:', error);
-    //             Alert.alert("오류", "비밀번호 변경에 실패했습니다."); // 실패 메시지
-    //         });
-    //     } else {
-    //         Alert.alert("오류", "비밀번호가 일치하지 않습니다."); // 비밀번호 불일치 알림
-    //     }
-    // };
-    const { id: username } = route.params; // params에서 값 받기
+    const { username } = route.params; // params에서 값 받기
 
     const handleFindPW = async () => {
         try {
-            await resetpwUser(username, password);
 
-            if (newPassword === confirmPassword && newPassword !== '' && confirmPassword !== '') {
+            if (password === confirmPassword && password !== '' && confirmPassword !== '') {
+                await resetpwUser(username, password);
                 console.log("수정:", username, password);
-                Alert.alert("성공", "비밀번호가 변경되었습니다."); // 성공 메시지
                 navigation.navigate('FindPWr3');
             } else {
                 Alert.alert("오류", "비밀번호가 일치하지 않습니다."); // 비밀번호 불일치 알림
@@ -90,8 +66,8 @@ export default function FindPWResult2({ route, navigation }) {
                         <Octicons name="lock" size={18} color="gray" />
                     </View>
                     <TextInput
-                        value={newPassword}
-                        onChangeText={setNewPassword}
+                        value={password}
+                        onChangeText={setpassword}
                         placeholder="새 비밀번호 입력"
                         secureTextEntry={!isPasswordVisible1}
                         style={styles.input}
@@ -125,7 +101,7 @@ export default function FindPWResult2({ route, navigation }) {
                     </TouchableOpacity>
                 </View>
             </View>
-            <View style={styles.button}>
+            <View style={{ ...styles.button, top: windowHeigh - 36 }}>
                 <BtnC onPress={handleFindPW}>변경하기</BtnC>
             </View>
         </SafeAreaView>

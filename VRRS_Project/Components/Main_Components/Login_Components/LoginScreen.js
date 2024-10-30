@@ -56,8 +56,6 @@ export default function LoginScreen({ navigation }) {
 
         try {
             const data = await loginUser(idText, passwordText);
-            // 성공 시 처리 (예: 다른 화면으로 이동)
-            navigation.navigate('Home');
             await signUpUser(data);
             checkLogin();
         } catch (error) {

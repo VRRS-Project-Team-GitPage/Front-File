@@ -3,7 +3,6 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-
 const SERVER_URL ="서버주소";
 
 // 로그인 URL
@@ -12,7 +11,7 @@ const API_URL = `${SERVER_URL}`;
 // ID찾기 URL
 const FINDID_URL = `${SERVER_URL}`;
 // PW찾기 URL
-const FINDPW_URL = `${SERVER_URL}`;
+const FINDPW_URL = `${SERVER_URL}d`;
 // PW재설정 URL
 const RESETPW_URL = `${SERVER_URL}`;
 
@@ -126,7 +125,7 @@ export const checkidUser = async (username) => {
   try {
     const response = await axios.post(CHECKID_URL, { username });
     
-    return response.data; // 서버에서 반환하는 데이터
+    return response.data.exists; // 서버 응답에서 exists 필드만 반환
   } catch (error) {
     // 에러 처리
     if (error.response) {
@@ -138,6 +137,7 @@ export const checkidUser = async (username) => {
     }
   }
 };
+
 
 // 회원 정보 수정 함수
 export const updateUser = async (jwt, nickname, vegTypeId) => {

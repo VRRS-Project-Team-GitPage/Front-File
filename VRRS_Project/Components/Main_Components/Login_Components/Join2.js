@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions,Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, useWindowDimensions, Alert } from 'react-native';
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
@@ -23,7 +23,7 @@ export default function Join2({ navigation }) {
     const [timer, setTimer] = useState(180); // 3분 (180초)
     const [isTimerExpired, setIsTimerExpired] = useState(false); // 타이머 만료 여부
     const [isTimerVisible, setIsTimerVisible] = useState(false);
-    
+
     // 타이머 
     useEffect(() => {
         if (timer > 0) {
@@ -41,6 +41,10 @@ export default function Join2({ navigation }) {
         setIsTimerExpired(false);
     };
 
+    const stopTimer = () => {
+        setTimer(0);
+    };
+
     // 초를 분:초로 변환
     const formatTime = (time) => {
         const minutes = Math.floor(time / 60);
@@ -48,10 +52,10 @@ export default function Join2({ navigation }) {
         return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
     };
 
-    const [emailText, setemailText] = useState("");
-    const [idText, setIdText] = useState("");
+    const [email, setemailText] = useState("");
+    const [username, setusername] = useState("");
     const [passwordText, setpasswordText] = useState("");
-    const [authCode, setAuthCode] = useState("");
+    const [code, setCode] = useState("");
 
     const [isEmailValid, setIsEmailValid] = useState(false);
     const [isEmailChecked, setIsEmailChecked] = useState(false);
@@ -65,8 +69,9 @@ export default function Join2({ navigation }) {
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
     const [clickCount, setClickCount] = useState(0); // 클릭 횟수 상태
-    const [message, setMessage] = useState(''); // 인증 상태 메시지
+    const [messagecode, setMessagecode] = useState(''); // 인증 상태 메시지
     const [messageStyle, setMessageStyle] = useState(null); // 인증 메시지 스타일
+    const [messageid, setMessageid] = useState(''); // 아이디 상태 메시지
 
 
     const validateEmail = (email) => {
@@ -100,65 +105,26 @@ export default function Join2({ navigation }) {
         setIsPasswordVisible(!isPasswordVisible);
     };
 
-    // const handleCode = () => {
-    //     fetch('https://chaesigeodi.ddns.net/auth/auth-email', {
-    //         method: 'POST',
-    //         body: JSON.stringify({ email: emailText }),
-    //     })
-    //         .then(response => {
-    //             if (response.status === 409) {
-    //                 alert('이미 사용 중인 이메일입니다.');
-    //                 throw new Error('Email already exists');
-    //             }
-    //             if (!response.ok) {
-    //                 throw new Error('Network response was not ok');
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(data => {
-    //             if (data.code) {
-    //                 setIsEmailChecked(true);
-    //                 setClickCount(prevCount => prevCount + 1); // 클릭 횟수 증가
-    //                 alert('인증번호 전송 완료');
-
-    //                 // 타이머 초기화 및 시작
-    //                 resetTimer();
-    //                 setIsTimerVisible(true);
-    //             } else {
-    //                 alert('입력한 정보를 확인해주세요.');
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             console.error('Error:', error);
-    //             if (error.message !== 'Email already exists') {
-    //                 alert('네트워크 오류입니다.');
-    //             }
-    //         });
-    // };
-
     // 이메일 인증번호 전송
-    const handleCode= async () => {
+    const handleCode = async () => {
         try {
-            const data = await emailUser({email:emailText});
+            // 이메일 전송 API 호출
+            await emailUser(email);
 
-            if (data && data.code) {
-                // 응답에 code 필드가 있는 경우
-                    setIsEmailChecked(true);
-                    setClickCount(prevCount => prevCount + 1); // 클릭 횟수 증가
-                    alert('인증번호 전송 완료');
+            // 응답이 성공적이면 인증번호 전송 완료로 처리
+            setIsEmailChecked(true);
+            setClickCount(prevCount => prevCount + 1); // 클릭 횟수 증가
+            alert('인증번호 전송 완료');
 
-                    // 타이머 초기화 및 시작
-                    resetTimer();
-                    setIsTimerVisible(true);
-            } else {
-                // code 필드가 없는 경우 (인증번호 보내기 실패)
-                Alert.alert("조회 실패", '입력한 정보를 확인해주세요.');
-            }
+            // 타이머 초기화 및 시작
+            resetTimer();
+            setIsTimerVisible(true);
         } catch (error) {
-            console.error('Email already exists:', error);
+            console.error('Email sending error:', error);
             Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
         }
     };
+
 
     //인증번호 재전송
     const handleResend = () => {
@@ -167,70 +133,44 @@ export default function Join2({ navigation }) {
 
     //인증번호 확인
     const handleCodecheck = () => {
-        if (!isTimerExpired && authCode === data.code) {
+        if (!isTimerExpired && code === code) {
             setIsCodeChecked(true);
-            setMessage('인증 완료');
+            stopTimer();
+            setMessagecode('인증 완료');
             setMessageStyle(styles.helperText);
         } else {
-            setMessage('만료되거나 잘못된 인증번호입니다.');
+            setMessagecode('만료되거나 잘못된 인증번호입니다.');
             setMessageStyle(styles.warningText);
         }
     }
 
-    // // 아이디 중복 확인
-    // const handleOverlap = () => {
-    //     fetch('https://chaesigeodi.ddns.net/auth/check-username', {
-    //         method: 'POST',
-    //         body: JSON.stringify({ username: idText }),
-    //     })
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error('Network response was not ok');
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(data => {
-    //             if (data.exists) {
-    //                 setMessage('사용할 수 없는 아이디 입니다.');
-    //                 setMessageStyle(styles.warningText);
-    //             } else {
-    //                 setIsIdChecked(true);
-    //                 setMessage('사용 가능한 아이디 입니다.');
-    //                 setMessageStyle(styles.helperText);
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             console.error('Error:', error);
-    //             alert('네트워크 오류입니다.'); // 네트워크 오류 메시지
-    //         });
-    // };
-    
     // 아이디 중복 확인
-    const handleOverlap= async () => {
+    const handleOverlap = async () => {
         try {
-            const data = await checkidUser({username:idText});
-
-            if (data) {
+            const exists = await checkidUser(username); // checkidUser 호출하여 exists 값 받아오기
+            if (!exists) {
                 setIsIdChecked(true);
-                setMessage('사용 가능한 아이디 입니다.');
+                setMessageid('사용 가능한 아이디 입니다.');
                 setMessageStyle(styles.helperText);
             } else {
-                setMessage('사용할 수 없는 아이디 입니다.');
+                setMessageid('사용할 수 없는 아이디 입니다.');
                 setMessageStyle(styles.warningText);
             }
         } catch (error) {
             console.error('Error:', error);
             Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
         }
-    }
+    };
+
 
     //계정 생성 완료
     const handleConfirm = () => {
         if (isEmailValid && isIdValid && isPasswordValid && isIdChecked && isEmailChecked && isCodeChecked) {
-            navigation.navigate('Join3',{
-                email: emailText,
-                username: idText,
-                password: passwordText});
+            navigation.navigate('Join3', {
+                email: email,
+                username: username,
+                password: passwordText
+            });
         } else {
             alert('입력한 정보를 확인해주세요.');
         }
@@ -278,7 +218,7 @@ export default function Join2({ navigation }) {
                 <TextInput
                     style={styles.input}
                     placeholder="이메일을 입력하세요"
-                    value={emailText}
+                    value={email}
                     onChangeText={(email) => {
                         setemailText(email);
                         setIsEmailTouched(true);
@@ -314,9 +254,9 @@ export default function Join2({ navigation }) {
                     style={{ ...styles.input, marginRight: 100 }}
                     placeholder="이메일을 먼저 입력하세요"
                     keyboardType="default"
-                    value={authCode}
+                    value={code}
                     onChangeText={(code) => {
-                        setAuthCode(code);
+                        setCode(code);
                         setIsCodeChecked(false);
                     }}
                     placeholderTextColor={Gray_theme.gray_40}
@@ -325,15 +265,14 @@ export default function Join2({ navigation }) {
                     <BtnD onPress={handleCodecheck}>확인</BtnD>
                 </View>
 
-                <View style={{ height: 24 }}>
+                <View style={{ height: 24, left: 4 }}>
                     {isTimerVisible && (
                         <Text style={{
                             fontSize: 12,
                             color: Main_theme.main_reverse,
-                            left: 4
                         }}>남은 시간 {formatTime(timer)}</Text>)}
-                    <Text style={[{ fontSize: 12 }, messageStyle]}>
-                        {message}
+                    <Text style={[messageStyle]}>
+                        {messagecode}
                     </Text>
                 </View>
             </View>
@@ -351,9 +290,9 @@ export default function Join2({ navigation }) {
                 <TextInput
                     style={styles.input}
                     placeholder="아이디를 입력하세요"
-                    value={idText}
+                    value={username}
                     onChangeText={(id) => {
-                        setIdText(id);
+                        setusername(id);
                         setIsIdTouched(true);
                         setIsIdChecked(false);
                         validateId(id);
@@ -363,11 +302,15 @@ export default function Join2({ navigation }) {
                 <View style={styles.overlapButton}>
                     <BtnD onPress={handleOverlap} disabled={!isIdValid}>중복확인</BtnD>
                 </View>
-                <View style={{ height: 24 }}>
-                    <Text style={[{ fontSize: 12 }, messageStyle]}>
-                        {message}
+                <View style={{ height: 28, left: 4 }}>
+                    {isIdTouched && !isIdValid && (
+                        <Text style={styles.warningText}>아이디는 6-12자의 영문 또는 숫자입니다.</Text>
+                    )}
+                    <Text style={[messageStyle]}>
+                        {messageid}
                     </Text>
-                </View>
+                </View> 
+                          
             </View>
 
             <View style={styles.inputContainer}>
@@ -476,12 +419,14 @@ const styles = StyleSheet.create({
         fontFamily: 'Pretendard-Regular',
         color: Main_theme.main_50,
         marginTop: 4,
+        marginleft: 8
     },
     warningText: {
         fontSize: 12,
         fontFamily: 'Pretendard-Regular',
         color: Main_theme.main_reverse,
         marginTop: 4,
+        left: 4
     },
     overlapButton: {
         position: 'absolute',

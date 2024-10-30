@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet,Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -17,51 +17,19 @@ export default function FindID({ navigation }) {
     setIsEmailValid(emailRegex.test(email));
   };
 
-  // const handleFindID = async () => {
-  //   fetch('https://chaesigeodi.ddns.net/auth/find/username', {
-  //     method: 'POST',
-  //     body: JSON.stringify({ email: email }), // JSON 형식으로 수정
-  //   })
-  //     .then(response => {
-  //       if (!response.ok) {
-  //         throw new Error('Network response was not ok');
-  //       }
-  //       return response.json();
-  //     })
-  //     .then(data => {
-  //       if (data.username) {  // 응답이 username 필드를 포함할 경우
-  //         alert(`아이디가 성공적으로 조회되었습니다.`);
-  //         // 이메일과 아이디를 결과 화면에 전달
-  //         navigation.navigate('FindIDr', { username: data.username, email: email });
-  //       } else {
-  //         alert('아이디를 찾을 수 없습니다. 입력한 정보를 확인해주세요.');
-  //         // 이메일과 아이디를 결과 화면에 전달
-  //         navigation.navigate('FindIDr', { email: email });
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error:', error);
-  //       alert('네트워크 오류입니다'); // 네트워크 오류 메시지
-  //     });
-  // };
   const handleFindID = async () => {
     try {
-        const data = await findidUser(email); // findidUser 함수 호출 및 응답 대기
+      const data = await findidUser(email); // findidUser 함수 호출 및 응답 대기
 
-        if (data && data.username) {
-            // 응답에 username 필드가 있는 경우
-            Alert.alert("아이디 조회 성공", "아이디가 성공적으로 조회되었습니다.");
-            navigation.navigate('FindIDr', { username: data.username, email: email });
-        } else {
-            // username 필드가 없는 경우 (ID 찾기 실패)
-            Alert.alert("조회 실패", "아이디를 찾을 수 없습니다. 입력한 정보를 확인해주세요.");
-            navigation.navigate('FindIDr', { email: email });
-        }
+      navigation.navigate('FindIDr', { username: data.username, email: email });
+
     } catch (error) {
-        console.error("Failed to find ID:", error);
-        Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
+      // username 필드가 없는 경우 (ID 찾기 실패)
+      navigation.navigate('FindIDr', { email: email });
     }
-};
+  };
+  
+
 
   return (
     <SafeAreaView style={styles.container}>

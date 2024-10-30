@@ -16,8 +16,8 @@ export default function FindPWResult1({ route, navigation }) {
 
     const [timer, setTimer] = useState(180); // 3분 (180초)
     const [isTimerExpired, setIsTimerExpired] = useState(false); // 타이머 만료 여부
-    const { authCode: code, email: email, id:username } = route.params; // params에서 값 받기
-    const [authCode, setAuthCode] = useState(''); // 인증번호 상태
+    const [code, setCode] = useState(''); // 인증번호 상태
+    const { authCode, email, username, handleFindPW } = route.params; // params에서 값 받기
 
     // 타이머 
     useEffect(() => {
@@ -43,57 +43,23 @@ export default function FindPWResult1({ route, navigation }) {
         return `${minutes}:${seconds < 10 ? `0${seconds}` : seconds}`;
     };
 
-    // // 재전송 버튼
-    // const handleResend = () => {
-    //     fetch('https://chaesigeodi.ddns.net/auth/find/password', {
-    //         method: 'POST',
-    //         body: JSON.stringify({ email: email, id: id }), // JSON 형식으로 수정
-    //     })
-    //         .then(response => {
-    //             if (!response.ok) {
-    //                 throw new Error('Network response was not ok');
-    //             }
-    //             return response.json();
-    //         })
-    //         .then(data => {
-    //             if (data.Code) {
-    //                 alert(`재전송되었습니다: ${email}`);
-    //                 resetTimer();
-    //             } else {
-    //                 alert('입력한 정보를 확인해주세요.');
-    //             }
-    //         })
-    //         .catch((error) => {
-    //             console.error('Error:', error);
-    //             alert('네트워크 오류입니다'); // 네트워크 오류 메시지
-
-    //         });
-
-    // };
-
     // 재전송 버튼
-    const handleResend = async () => {
-        try {
-            const data = await findpwUser(email, username);
-
-            if (data && data.code) {
-                // 응답에 code 필드가 있는 경우
-                Alert.alert("전송 완료", `재전송되었습니다: ${email}`);
-                resetTimer();
-            } else {
-                // code 필드가 없는 경우 (인증번호 보내기 실패)
-                Alert.alert("조회 실패", '입력한 정보를 확인해주세요.');
-            }
-        } catch (error) {
-            console.error("Failed to find PW:", error);
-            Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
+    const handleResend = () => {
+        resetTimer();
+        setCode('');
+        if (handleFindPW) {
+            handleFindPW(); // 전달된 handleFindPW 함수 호출
+            
+        } else {
+            Alert.alert("오류", "재전송 기능을 사용할 수 없습니다.");
         }
     };
-      
-    const handleFindPW = () => {
-        if (!isTimerExpired && authCode === code) {
+
+
+    const handleConfirm = () => {
+        if (!isTimerExpired && code === authCode) {
             alert('인증번호 입력 완료');
-            navigation.navigate('FindPWr2',{id:username});
+            navigation.navigate('FindPWr2', { username });
         } else {
             Alert.alert('인증 오류', '만료되거나 잘못된 인증번호입니다.');
         }
@@ -116,8 +82,10 @@ export default function FindPWResult1({ route, navigation }) {
                     style={styles.input}
                     placeholder="인증번호 입력"
                     keyboardType="default"
-                    value={authCode}
-                    onChangeText={setAuthCode}
+                    value={code}
+                    onChangeText={(code) => {
+                        setCode(code);
+                    }}
                 />
                 <View style={styles.resendButton}>
                     <BtnD onPress={handleResend}>재전송</BtnD>
@@ -129,7 +97,7 @@ export default function FindPWResult1({ route, navigation }) {
 
             {/* 확인 버튼 */}
             <View style={styles.Button}>
-                <BtnC onPress={handleFindPW}>확인</BtnC>
+                <BtnC onPress={handleConfirm}>확인</BtnC>
             </View>
 
         </SafeAreaView>

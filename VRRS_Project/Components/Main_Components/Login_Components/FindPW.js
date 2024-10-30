@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet,Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
@@ -9,7 +9,7 @@ import { findpwUser } from '../../../assets/ServerDatas/ServerApi/authApi';
 
 export default function FindPW({ navigation }) {
   const [email, setEmail] = useState('');
-  const [id, setid] = useState('');
+  const [username, setUsername]=useState('');
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isIdValid, setIsIdValid] = useState(false);
   const [isIdChecked, setIsIdChecked] = useState(false);
@@ -25,46 +25,17 @@ export default function FindPW({ navigation }) {
     const idRegex = /^[a-zA-Z0-9]{6,12}$/;
     setIsIdValid(idRegex.test(id));
   };
-  // const handleFindPW = () => {
-  //   fetch('https://chaesigeodi.ddns.net/auth/find/password', {
-  //     method: 'POST',
-  //     body: JSON.stringify({ email: email, id: id }), // JSON 형식으로 수정
-  //   })
-  //     .then(response => {
-  //       if (!response.ok) {
-  //         throw new Error('Network response was not ok');
-  //       }
-  //       return response.json();
-  //     })
-  //     .then(data => {
-  //       if (data.Code) {
-  //         alert(`입력하신 이메일로 인증번호가 전송되었습니다: ${email}`);
-  //         navigation.navigate('FindPWr1',{authCode:Code,email: email, id: id});
-  //       } else {
-  //         alert('입력한 정보를 확인해주세요.');
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error:', error);
-  //       alert('네트워크 오류입니다'); // 네트워크 오류 메시지
 
-  //     });
-  // };
   const handleFindPW = async () => {
     try {
       const data = await findpwUser(email, username);
 
-      if (data && data.code) {
-        // 응답에 code 필드가 있는 경우
-        Alert.alert("전송 완료",`입력하신 이메일로 인증번호가 전송되었습니다: ${email}`);
-        navigation.navigate('FindPWr1', { authCode: data.code, email: email, id:username });
-      } else {
-        // code 필드가 없는 경우 (인증번호 보내기 실패)
-        Alert.alert("조회 실패",'입력한 정보를 확인해주세요.');
-      }
+      Alert.alert("전송 완료", `입력하신 이메일로 인증번호가 전송되었습니다: ${email}`);
+      navigation.navigate('FindPWr1', { authCode: data.code, email: email, username: username,handleFindPW, });
+
     } catch (error) {
-      console.error("Failed to find PW:", error);
-      Alert.alert("오류", "네트워크 오류입니다. 다시 시도해주세요.");
+      // code 필드가 없는 경우 (인증번호 보내기 실패)
+      Alert.alert("조회 실패", '입력한 정보를 확인해주세요.');
     }
   };
 
@@ -100,9 +71,9 @@ export default function FindPW({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="아이디 입력"
-          value={id}
+          value={username}
           onChangeText={(text) => {
-            setid(text);
+            setUsername(text);
             setIsIdTouched(true);
             setIsIdChecked(false);
             validateId(text);

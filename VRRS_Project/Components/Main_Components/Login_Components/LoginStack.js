@@ -22,14 +22,21 @@ const Stack = createNativeStackNavigator();
 export default function UserStack() {
   return (
     <Stack.Navigator initialRouteName="main">
-      
-      <Stack.Screen name="main" component={MainStartScrren}></Stack.Screen>
-      <Stack.Screen name="login" component={LoginScreen}></Stack.Screen>
 
+      <Stack.Screen
+        name="main"
+        component={MainStartScrren}
+        options={{ headerShown: false }}
+      ></Stack.Screen>
+      <Stack.Screen
+        name="login"
+        component={LoginScreen}
+        options={{ headerShown: false }}>
+      </Stack.Screen>
       <Stack.Screen
         name="Find"
         component={Find}
-       options={{ headerShown: false }}
+        options={{ headerShown: false }}
       ></Stack.Screen>
       <Stack.Screen
         name="FindID"
