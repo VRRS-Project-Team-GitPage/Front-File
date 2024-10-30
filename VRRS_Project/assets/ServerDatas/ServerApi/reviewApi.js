@@ -1,20 +1,6 @@
 // 서버에서 제품의 리뷰 관련 내용을 저장한 파일입니다.
 import axios from "axios";
 
-// 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL ="https://868a-175-192-170-212.ngrok-free.app";
-
-// 리뷰 등록 URL
-const REVIEW_SUBMIT_URL = `${SERVER_URL}/review/submit`;
-// 리뷰 수정 URL
-const REVIEW_UPDATE_URL = `${SERVER_URL}/review/update`;
-// 리뷰 삭제 URL 생성 함수
-export const getDeleteReviewkUrl = (proId) => {
-  return `${SERVER_URL}/review/delete?proId=${proId}`;
-};
-// 리뷰 조회 URL
-const REVIEW_VIEW_URL = `${SERVER_URL}/review/user`;
-
 // 리뷰 등록 함수
 export const submitReview = async (jwt, reviewData) => {
   try {

@@ -1,6 +1,5 @@
-
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert } from 'react-native';
+import React, { useState } from "react";
+import { View, Text, TextInput, StyleSheet, Alert } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -8,6 +7,7 @@ import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
 import { findidUser } from "../../../assets/ServerDatas/ServerApi/authApi";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
 
 export default function FindID({ navigation }) {
   const [email, setEmail] = useState("");
@@ -20,14 +20,17 @@ export default function FindID({ navigation }) {
   };
 
   const handleFindID = async () => {
+    if (email === "") {
+      showToast("이메일을 입력해주새요");
+      return;
+    }
     try {
       const data = await findidUser(email); // findidUser 함수 호출 및 응답 대기
 
-      navigation.navigate('FindIDr', { username: data.username, email: email });
-
+      navigation.navigate("FindIDr", { username: data.username, email: email });
     } catch (error) {
       // username 필드가 없는 경우 (ID 찾기 실패)
-      navigation.navigate('FindIDr', { email: email });
+      navigation.navigate("FindIDr", { email: email });
     }
   };
 
@@ -53,7 +56,7 @@ export default function FindID({ navigation }) {
           placeholderTextColor={Gray_theme.gray_40}
         />
         <View>
-          {isEmailTouched && (!isEmailValid || email === "") ? (
+          {email !== "" && isEmailTouched && !isEmailValid ? (
             <Text style={styles.warningText}>
               유효한 이메일을 입력해주세요.
             </Text>
