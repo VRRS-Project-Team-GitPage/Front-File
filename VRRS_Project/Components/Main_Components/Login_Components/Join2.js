@@ -42,6 +42,7 @@ export default function Join2({ navigation }) {
       return () => clearInterval(interval);
     } else {
       setIsTimerExpired(true); // 타이머가 0이 되면 만료 처리
+      setVerificationCode("");
     }
   }, [timer]);
 
@@ -123,6 +124,7 @@ export default function Join2({ navigation }) {
     try {
       // 이메일 전송 API 호출
       const data = await emailUser(email);
+      console.log(data);
       setVerificationCode(data.code);
 
       // 응답이 성공적이면 인증번호 전송 완료로 처리
@@ -135,12 +137,13 @@ export default function Join2({ navigation }) {
       setIsTimerVisible(true);
     } catch (error) {
       console.error("Email sending error:", error);
-      showToast("오류가 발생했습니다");
+      showToast(error.message);
     }
   };
 
   //인증번호 재전송
   const handleResend = () => {
+    setIsCodeChecked(false); // 코드 인증 초기화
     handleCode();
   };
 
@@ -154,9 +157,9 @@ export default function Join2({ navigation }) {
       setIsCodeChecked(true);
       stopTimer();
       setMessagecode("인증 완료");
-      setMessageStyle(styles.helperText);
+      showToast("인증되었습니다.");
     } else {
-      showToast("만료되거나 잘못된 인증번호입니다");
+      showToast("만료되거나 잘못된 인증번호입니다.");
       setMessageStyle(styles.warningText);
     }
   };
@@ -164,41 +167,47 @@ export default function Join2({ navigation }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const heightAnim = useRef(new Animated.Value(0)).current;
 
+  const [isVisible, setIsVisible] = useState(false);
+  const translateY = useRef(new Animated.Value(-50)).current; // 초기 위치 위로 설정
+
   useEffect(() => {
     if (!isCodeChecked && verificationCode) {
-      // 애니메이션 효과 시작
+      // 나타나는 애니메이션
+      setIsVisible(true);
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 1,
           duration: 300,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
-        Animated.timing(heightAnim, {
-          toValue: 1,
+        Animated.timing(translateY, {
+          toValue: 0, // 제자리로 이동
           duration: 300,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
       ]).start();
     } else {
-      // 애니메이션 효과 종료
+      // 사라지는 애니메이션
       Animated.parallel([
         Animated.timing(fadeAnim, {
           toValue: 0,
           duration: 300,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
-        Animated.timing(heightAnim, {
-          toValue: 0,
+        Animated.timing(translateY, {
+          toValue: -50, // 위로 이동하여 사라짐
           duration: 300,
-          useNativeDriver: false,
+          useNativeDriver: true,
         }),
-      ]).start();
+      ]).start(() => {
+        setTimeout(() => setIsVisible(false), 600); // 100ms 딜레이 후 뷰 숨김
+      });
     }
-  }, [isCodeChecked, verificationCode]);
+  }, [verificationCode]);
 
   const interpolatedHeight = heightAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: [0, 200], // 애니메이션이 실행될 높이 값 (조정 가능)
+    outputRange: [0, 110], // 애니메이션이 실행될 높이 값 (조정 가능)
   });
 
   // 아이디 중복 확인
@@ -218,6 +227,11 @@ export default function Join2({ navigation }) {
       showToast("오류가 발생했습니다");
     }
   };
+
+  // 아이디 input 변화 안내 메시지 초기화
+  useEffect(() => {
+    setMessageid("");
+  }, [username]);
 
   //계정 생성 완료
   const handleConfirm = () => {
@@ -281,58 +295,10 @@ export default function Join2({ navigation }) {
         </View>
       </View>
 
-      <View style={styles.inputContainer}>
-        <View style={{ flexDirection: "row" }}>
-          <Text style={styles.label}>이메일</Text>
-          <FontAwesome5
-            name="star-of-life"
-            size={8}
-            color={Main_theme.main_30}
-            style={styles.cPoint}
-          />
-        </View>
-        <View>
-          <TextInput
-            style={styles.input}
-            placeholder="이메일을 입력하세요"
-            value={email}
-            onChangeText={(email) => {
-              setemailText(email);
-              setIsEmailTouched(true);
-              setIsEmailChecked(false);
-              validateEmail(email);
-            }}
-            keyboardType="email-address"
-            placeholderTextColor={Gray_theme.gray_40}
-          />
-          <View style={styles.overlapButton}>
-            <BtnD
-              onPress={clickCount > 0 ? handleResend : handleCode}
-              disabled={!isEmailValid}
-            >
-              {clickCount > 0 ? "재전송" : "인증번호 전송"}
-            </BtnD>
-          </View>
-        </View>
-        <View style={{ height: 24 }}>
-          {isEmailTouched && !isEmailValid && (
-            <Text style={styles.warningText}>
-              유효한 이메일을 입력해주세요.
-            </Text>
-          )}
-        </View>
-      </View>
-
-      {!isCodeChecked && verificationCode && (
-        <Animated.View
-          style={{
-            ...styles.inputContainer,
-            opacity: fadeAnim,
-            height: interpolatedHeight,
-          }}
-        >
+      <View style={styles.contents}>
+        <View style={styles.inputContainer}>
           <View style={{ flexDirection: "row" }}>
-            <Text style={styles.label}>인증번호 입력</Text>
+            <Text style={styles.label}>이메일</Text>
             <FontAwesome5
               name="star-of-life"
               size={8}
@@ -342,121 +308,178 @@ export default function Join2({ navigation }) {
           </View>
           <View>
             <TextInput
-              style={{ ...styles.input }}
-              placeholder="이메일을 먼저 입력하세요"
-              keyboardType="default"
-              value={code}
-              onChangeText={(code) => {
-                setCode(code);
-                setIsCodeChecked(false);
+              style={styles.input}
+              placeholder="이메일을 입력하세요"
+              value={email}
+              onChangeText={(email) => {
+                setemailText(email);
+                setIsEmailTouched(true);
+                setIsEmailChecked(false);
+                validateEmail(email);
+              }}
+              keyboardType="email-address"
+              placeholderTextColor={Gray_theme.gray_40}
+            />
+            <View style={styles.overlapButton}>
+              <BtnD
+                onPress={clickCount > 0 ? handleResend : handleCode}
+                disabled={!isEmailValid}
+              >
+                {clickCount > 0 ? "재전송" : "인증번호 전송"}
+              </BtnD>
+            </View>
+          </View>
+          <View style={{ height: 24 }}>
+            {!(email === "") && isEmailTouched && !isEmailValid && (
+              <Text style={styles.warningText}>
+                유효한 이메일을 입력해주세요.
+              </Text>
+            )}
+          </View>
+        </View>
+
+        {isVisible && (
+          <Animated.View
+            style={{
+              ...styles.inputContainer,
+              opacity: fadeAnim,
+              transform: [{ translateY }], // 위아래 이동 효과
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Text style={styles.label}>인증번호 입력</Text>
+              <FontAwesome5
+                name="star-of-life"
+                size={8}
+                color={Main_theme.main_30}
+                style={styles.cPoint}
+              />
+            </View>
+            <View>
+              <TextInput
+                style={{ ...styles.input }}
+                placeholder="이메일을 먼저 입력하세요"
+                keyboardType="default"
+                value={code}
+                onChangeText={(code) => {
+                  setCode(code);
+                  setIsCodeChecked(false);
+                }}
+                placeholderTextColor={Gray_theme.gray_40}
+              />
+              <View style={styles.overlapButton}>
+                <BtnD onPress={handleCodecheck}>확인</BtnD>
+              </View>
+            </View>
+            <View style={{ height: 24, left: 4 }}>
+              {isTimerVisible && !isCodeChecked && (
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: Main_theme.main_reverse,
+                  }}
+                >
+                  남은 시간 {formatTime(timer)}
+                </Text>
+              )}
+              {isCodeChecked && (
+                <Text style={styles.helperText}>{messagecode}</Text>
+              )}
+            </View>
+          </Animated.View>
+        )}
+
+        <View style={styles.inputContainer}>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={styles.label}>아이디</Text>
+            <FontAwesome5
+              name="star-of-life"
+              size={8}
+              color={Main_theme.main_30}
+              style={styles.cPoint}
+            />
+          </View>
+          <View>
+            <TextInput
+              style={styles.input}
+              placeholder="아이디를 입력하세요"
+              value={username}
+              onChangeText={(id) => {
+                setusername(id);
+                setIsIdTouched(true);
+                setIsIdChecked(false);
+                validateId(id);
               }}
               placeholderTextColor={Gray_theme.gray_40}
             />
             <View style={styles.overlapButton}>
-              <BtnD onPress={handleCodecheck}>확인</BtnD>
+              <BtnD onPress={handleOverlap} disabled={!isIdValid}>
+                중복확인
+              </BtnD>
             </View>
           </View>
-
-          <View style={{ height: 24, left: 4 }}>
-            {isTimerVisible && !isCodeChecked && (
-              <Text
-                style={{
-                  fontSize: 12,
-                  color: Main_theme.main_reverse,
-                }}
-              >
-                남은 시간 {formatTime(timer)}
+          <View style={{ height: 28, left: 4 }}>
+            {username && isIdTouched && !isIdValid && (
+              <Text style={styles.warningText}>
+                아이디는 6-12자의 영문 또는 숫자입니다.
               </Text>
             )}
-            <Text style={[messageStyle]}>{messagecode}</Text>
+            <Text style={[messageStyle]}>{messageid}</Text>
           </View>
-        </Animated.View>
-      )}
-
-      <View style={styles.inputContainer}>
-        <View style={{ flexDirection: "row" }}>
-          <Text style={styles.label}>아이디</Text>
-          <FontAwesome5
-            name="star-of-life"
-            size={8}
-            color={Main_theme.main_30}
-            style={styles.cPoint}
-          />
         </View>
-        <View>
+
+        <View style={{ ...styles.inputContainer, marginBottom: 4 }}>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={styles.label}>비밀번호</Text>
+            <FontAwesome5
+              name="star-of-life"
+              size={8}
+              color={Main_theme.main_30}
+              style={styles.cPoint}
+            />
+          </View>
           <TextInput
             style={styles.input}
-            placeholder="아이디를 입력하세요"
-            value={username}
-            onChangeText={(id) => {
-              setusername(id);
-              setIsIdTouched(true);
-              setIsIdChecked(false);
-              validateId(id);
+            placeholder="비밀번호를 입력하세요"
+            value={passwordText}
+            onChangeText={(password) => {
+              setpasswordText(password);
+              validatePassword(password);
+              setIsPasswordTouched(true);
             }}
+            secureTextEntry={!isPasswordVisible}
             placeholderTextColor={Gray_theme.gray_40}
           />
-          <View style={styles.overlapButton}>
-            <BtnD onPress={handleOverlap} disabled={!isIdValid}>
-              중복확인
-            </BtnD>
-          </View>
+
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.icon}
+            onPress={togglePasswordVisibility}
+          >
+            {isPasswordVisible ? (
+              <Octicons name="eye" size={18} color={Gray_theme.gray_40} />
+            ) : (
+              <Octicons
+                name="eye-closed"
+                size={18}
+                color={Gray_theme.gray_40}
+              />
+            )}
+          </TouchableOpacity>
         </View>
-        <View style={{ height: 28, left: 4 }}>
-          {username && isIdTouched && !isIdValid && (
-            <Text style={styles.warningText}>
-              아이디는 6-12자의 영문 또는 숫자입니다.
+
+        <View style={{ marginHorizontal: 24, left: 4 }}>
+          {isPasswordTouched && isPasswordValid ? (
+            <Text style={styles.helperText}>
+              사용할 수 있는 비밀번호입니다.
             </Text>
-          )}
-          <Text style={[messageStyle]}>{messageid}</Text>
+          ) : passwordText && isPasswordTouched && !isPasswordValid ? (
+            <Text style={styles.warningText}>
+              비밀번호는 8-20자리의 영문자, 숫자, 특수문자 조합으로 사용이
+              가능합니다.
+            </Text>
+          ) : null}
         </View>
-      </View>
-
-      <View style={{ ...styles.inputContainer, marginBottom: 4 }}>
-        <View style={{ flexDirection: "row" }}>
-          <Text style={styles.label}>비밀번호</Text>
-          <FontAwesome5
-            name="star-of-life"
-            size={8}
-            color={Main_theme.main_30}
-            style={styles.cPoint}
-          />
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="비밀번호를 입력하세요"
-          value={passwordText}
-          onChangeText={(password) => {
-            setpasswordText(password);
-            validatePassword(password);
-            setIsPasswordTouched(true);
-          }}
-          secureTextEntry={!isPasswordVisible}
-          placeholderTextColor={Gray_theme.gray_40}
-        />
-
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={styles.icon}
-          onPress={togglePasswordVisibility}
-        >
-          {isPasswordVisible ? (
-            <Octicons name="eye" size={18} color={Gray_theme.gray_40} />
-          ) : (
-            <Octicons name="eye-closed" size={18} color={Gray_theme.gray_40} />
-          )}
-        </TouchableOpacity>
-      </View>
-
-      <View style={{ marginHorizontal: 24, left: 4 }}>
-        {isPasswordTouched && isPasswordValid ? (
-          <Text style={styles.helperText}>사용할 수 있는 비밀번호입니다.</Text>
-        ) : passwordText && isPasswordTouched && !isPasswordValid ? (
-          <Text style={styles.warningText}>
-            비밀번호는 8-20자리의 영문자, 숫자, 특수문자 조합으로 사용이
-            가능합니다.
-          </Text>
-        ) : null}
       </View>
 
       <View style={{ ...styles.button }}>
@@ -472,7 +495,7 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
   },
   stepContainer: {
-    paddingBottom: 24,
+    paddingVertical: 24,
   },
   stepHeader: {
     fontSize: 28,
@@ -480,7 +503,7 @@ const styles = StyleSheet.create({
     color: Main_theme.main_50,
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 24,
+    marginBottom: 24,
   },
   stepIndicator1: {
     flexDirection: "row",
@@ -502,6 +525,9 @@ const styles = StyleSheet.create({
     fontFamily: "Pretendard-Medium",
     fontSize: 14,
     color: Gray_theme.gray_30,
+  },
+  contents: {
+    marginTop: 24,
   },
   inputContainer: {
     marginBottom: 16,

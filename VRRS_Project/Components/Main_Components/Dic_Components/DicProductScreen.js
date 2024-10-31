@@ -177,9 +177,11 @@ export default function DicProductScreen({ navigation, route }) {
     try {
       if (newStatus) {
         // 북마크 추가
+        showToast("북마크가 등록되었습니다");
         await addBookmark(id, jwt); // jwtToken은 유저의 JWT 토큰
       } else {
         // 북마크 삭제
+        showToast("북마크가 해제되었습니다");
         await removeBookmark(id, jwt);
       }
     } catch (error) {

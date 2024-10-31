@@ -17,6 +17,7 @@ export default function FindPW({ navigation }) {
   const [isIdChecked, setIsIdChecked] = useState(false);
   const [isEmailTouched, setIsEmailTouched] = useState(false);
   const [isIdTouched, setIsIdTouched] = useState(false);
+
   // email 유효성 체크
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,6 +37,7 @@ export default function FindPW({ navigation }) {
     try {
       const data = await findpwUser(email, username);
       showToast("인증번호가 전송되었습니다");
+      console.log(data.code);
 
       navigation.navigate("FindPWr1", {
         authCode: data.code,

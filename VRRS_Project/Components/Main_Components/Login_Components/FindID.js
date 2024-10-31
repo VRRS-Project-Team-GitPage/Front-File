@@ -20,8 +20,8 @@ export default function FindID({ navigation }) {
   };
 
   const handleFindID = async () => {
-    if (email === "") {
-      showToast("이메일을 입력해주새요");
+    if (email !== "" && isEmailTouched && !isEmailValid) {
+      showToast("정확한 이메일을 입력해주새요");
       return;
     }
     try {

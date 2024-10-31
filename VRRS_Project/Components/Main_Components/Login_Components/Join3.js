@@ -216,14 +216,14 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     position: "relative",
-    paddingBottom: 16,
+    paddingBottom: 24,
     paddingHorizontal: 24,
   },
   label: {
     fontSize: 16,
     fontFamily: "Pretendard-Medium",
     marginLeft: 8,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   input: {
     height: 48,
