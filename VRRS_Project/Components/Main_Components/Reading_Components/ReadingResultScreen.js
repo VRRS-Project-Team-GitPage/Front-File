@@ -150,13 +150,9 @@ export default function ReadingResultScreen({ navigation, route }) {
     if (result) {
       if (result.ingredients === result.unidentifiables) {
         setReadingPossible(false); // 값이 넘어왔을 경우 판독 가능
-      } else {
-        setReadingPossible(true); // 값이 넘어왔을 경우 판독 가능
+        return;
       }
-    }
-  }, []);
-  useEffect(() => {
-    if (result) {
+      setReadingPossible(true);
       setResultPossible(result.nonConsumables.length == 0 ? true : false); // 섭취 불가능 여부에 따라 가능 불가능 판단
       setConsumables(result.consumables ? result.consumables : []);
       setNonConsumables(result.nonConsumables ? result.nonConsumables : []);
@@ -209,6 +205,10 @@ export default function ReadingResultScreen({ navigation, route }) {
 
   // 판독 불가 목록 확인 모달창 제어
   const [unidentifiablesVisible, setUnidentifiablesVisible] = useState(false);
+
+  if (isLoading) {
+    <ActivityIndicator color={Main_theme.main_30} size="large" />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

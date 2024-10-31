@@ -137,6 +137,7 @@ export default function Join1({ navigation }) {
         <View style={{ alignItems: "center", justifyContent: "center" }}>
           <Text style={styles.stepHeader}>약관 동의</Text>
         </View>
+
         <View style={styles.stepIndicator1}>
           <MaterialCommunityIcons
             name="numeric-1-circle"
@@ -338,7 +339,7 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
   },
   stepContainer: {
-    paddingBottom: 24,
+    paddingVertical: 24,
   },
   stepHeader: {
     fontSize: 28,
@@ -346,7 +347,7 @@ const styles = StyleSheet.create({
     color: Main_theme.main_50,
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 24,
+    marginBottom: 24,
   },
   stepIndicator1: {
     flexDirection: "row",
@@ -372,13 +373,14 @@ const styles = StyleSheet.create({
 
   // 전체 동의
   checkBoxAContainer: {
+    marginTop: 24,
     height: 60,
     flexDirection: "row",
     alignItems: "center",
     borderRadius: 10,
     backgroundColor: Gray_theme.gray_20,
     marginHorizontal: 16,
-    paddingHorizontal: 10,
+    paddingHorizontal: 12,
   },
   checkBoxContainer: {
     paddingHorizontal: 24,

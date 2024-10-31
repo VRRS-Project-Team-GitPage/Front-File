@@ -52,14 +52,18 @@ export default function DicScreenOwn({ route, navigation }) {
     // 상태의 bookmarked 값을 가져와서 설정
   };
 
-  useEffect(() => {
-    fetchBookmarkStatus();
-  }, []);
+  const fetchTwice = async () => {
+    await fetchBookmarkStatus();
+    setTimeout(() => {
+      fetchBookmarkStatus();
+    }, 100); // 100ms 지연 후 두 번째 호출
+  };
 
   // useFocusEffect를 사용하여 화면이 포커스될 때마다 북마크된 제품을 새로 불러옴
   useFocusEffect(
     useCallback(() => {
-      fetchBookmarkStatus();
+      scrollToTop();
+      fetchTwice();
     }, [])
   );
 
