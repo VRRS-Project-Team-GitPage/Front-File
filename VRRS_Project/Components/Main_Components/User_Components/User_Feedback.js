@@ -29,6 +29,12 @@ export default function User_Feedback({ navigation }) {
   const maxLength = 250;
 
   const handleSubmit = async () => {
+    // 피드백이 비어있는지 확인
+    if (!feedback.trim()) {
+      showToast("피드백을 입력해 주세요."); // 피드백이 비어있을 때 토스트 메시지
+      return; // 함수 종료
+    }
+  
     try {
       await submitFeedback("ECT", feedback, jwt);
       showToast("피드백이 제출되었습니다");
@@ -39,6 +45,7 @@ export default function User_Feedback({ navigation }) {
       Alert.alert("오류", "피드백 제출에 실패했습니다.");
     }
   };
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -124,6 +131,7 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
+    width:"100%",
     paddingHorizontal: 24,
   },
 });

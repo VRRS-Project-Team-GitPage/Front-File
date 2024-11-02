@@ -1,6 +1,30 @@
 // 서버에서 사전 관련 내용을 저장한 파일입니다.
 import axios from "axios";
 
+// 서버 IP 주소: 실제 주소로 변경
+const SERVER_URL = "https://05d5-61-39-35-27.ngrok-free.app";
+
+
+// 사전 데이터 URL
+export const getProductData = (productID) => {
+  return `${SERVER_URL}/product?vegTypeId=${productID}`;
+};
+
+// 인기순 사전 데이터 URL
+export const getProductRankData = (productID) => {
+  return `${SERVER_URL}/product?vegTypeId=${productID}&sort=popularity`;
+};
+// 사전 상세 패이지 URL 생성 함수
+export const getProductDetailUrl = (productID) => {
+  return `${SERVER_URL}/product/${productID}`;
+};
+// 사전 리뷰 URL 생성 함수
+export const getProductReviewUrl = (productID) => {
+  return `${SERVER_URL}/review/product?proId=${productID}`;
+};
+// 피드백 URL
+const SUBMIT_URL = `${SERVER_URL}/feedback/submit`;
+
 // 사전 내용을 가져오는 함수
 export const fetchDictionaryData = async (jwt, url) => {
   console.log(url);

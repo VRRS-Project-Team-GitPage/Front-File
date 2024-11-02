@@ -2,18 +2,22 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "서버_주소";
+const SERVER_URL ="https://05d5-61-39-35-27.ngrok-free.app";
+
 // OCR URL
-const OCR_URL = "OCR_주소";
+const OCR_URL = `${SERVER_URL}/reading/ocr`;
+
 // reading URL
-const READING_URL = "판독_주소";
+const READING_URL = `${SERVER_URL}/reading`;
+
 // 제품 업로드 URL
-const UPLOAD_URL = "업로드_주소";
+const UPLOAD_URL = `${SERVER_URL}/product/submit`;
 
 // 북마크 등록 URL 생성 함수
 export const getBookmarkUrl = (proId) => {
   return `${SERVER_URL}/bookmark/insert?proId=${proId}`;
 };
+
 
 
 // OCR 등록 함수

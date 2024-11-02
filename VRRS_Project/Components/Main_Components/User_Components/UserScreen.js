@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,15 +15,40 @@ import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 export default function UserScreen({ navigation }) {
   // 사용자 정보
   const { user, name, vegTypeName } = useUser();
+
+  useEffect(() => {
+    // 네비게이션이 이동할 때 상태를 초기화하는 코드
+    const unsubscribe = navigation.addListener('focus', () => {
+      // 상태 초기화 로직 (예: 입력 필드 초기화 등)
+      // 예: setUsername('');
+      // 예: setPassword('');
+    });
+
+    return unsubscribe; // 컴포넌트 언마운트 시 리스너 정리
+  }, [navigation]);
+
+
   return (
     <SafeAreaView style={styles.container}>
+
       <BackHeader
         onPress={() => {
           navigation.goBack();
         }}
-      >
-        내 정보
+      >내 정보
       </BackHeader>
+      <TouchableOpacity
+        style={{
+          position: "absolute",
+          right:"8%",
+          top: '7.4%',
+        }}
+        onPress={() => {
+          navigation.navigate("User_Setting");
+        }}
+      >
+        <Octicons name="info" size={18} color="gray" />
+      </TouchableOpacity>
       {/* 상단 섹션 - 사용자 이름 및 채식 유형 */}
       <View style={styles.headerContainer}>
         <View style={styles.mainTitle}>
