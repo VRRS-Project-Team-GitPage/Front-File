@@ -3,6 +3,7 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import User_Main from "./UserScreen";
 import User_Update from "./User_UpdateScreen";
+import User_Setting from "./User_setting";
 import User_Review from "./User_ReviewScreen";
 import User_Dic from "./User_DicScreen";
 import User_Feedback from "./User_Feedback";
@@ -23,6 +24,7 @@ export default function UserStack() {
     >
       <Stack.Screen name="User_Main" component={User_Main}></Stack.Screen>
       <Stack.Screen name="User_Update" component={User_Update}></Stack.Screen>
+      <Stack.Screen name="User_Setting" component={User_Setting}></Stack.Screen>
       <Stack.Screen name="User_Review" component={User_Review}></Stack.Screen>
       <Stack.Screen name="User_Dic" component={User_Dic}></Stack.Screen>
       <Stack.Screen

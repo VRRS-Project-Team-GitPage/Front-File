@@ -1,6 +1,7 @@
 // 서버에서 판독 관련 내용을 저장한 파일입니다.
 import axios from "axios";
 
+
 // OCR 등록 함수
 export const getOCRData = async (fileUri, jwt) => {
   try {
