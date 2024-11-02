@@ -1,24 +1,6 @@
 // 서버에서 판독 관련 내용을 저장한 파일입니다.
 import axios from "axios";
 
-// 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL ="https://05d5-61-39-35-27.ngrok-free.app";
-
-// OCR URL
-const OCR_URL = `${SERVER_URL}/reading/ocr`;
-
-// reading URL
-const READING_URL = `${SERVER_URL}/reading`;
-
-// 제품 업로드 URL
-const UPLOAD_URL = `${SERVER_URL}/product/submit`;
-
-// 북마크 등록 URL 생성 함수
-export const getBookmarkUrl = (proId) => {
-  return `${SERVER_URL}/bookmark/insert?proId=${proId}`;
-};
-
-
 
 // OCR 등록 함수
 export const getOCRData = async (fileUri, jwt) => {
@@ -41,19 +23,23 @@ export const getOCRData = async (fileUri, jwt) => {
       method: "POST",
       headers: {
         Authorization: `Bearer ${jwt}`, // JWT 토큰 추가
+        // Content-Type 생략
       },
       body: formData,
     });
 
     if (!response.ok) {
-      // 상태 코드에 따라 에러 던짐
-      throw new Error(response.status.toString());
+      // 상태 코드에 따라 에러 메시지 추가
+      const errorMessage = `Error ${response.status}: ${response.statusText}`;
+      throw new Error(errorMessage);
     }
 
+    // JSON 응답 데이터 반환
     const data = await response.json();
-    return data; // 서버에서 반환된 데이터
+    return data;
   } catch (error) {
-    throw error; // 상태 코드만 던짐
+    console.error("OCR 요청 에러:", error.message); // 에러 메시지 로그
+    throw error;
   }
 };
 
