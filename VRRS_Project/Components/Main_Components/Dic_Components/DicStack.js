@@ -7,12 +7,18 @@ import DicScreenOwn from "./DicScreenown";
 import ProducInfotScreen from "./DicProductScreen";
 import ReportProScreen from "./ReportProScreen";
 import DicProductReviewScreen from "./DicProductReviewScreen";
+import Any_Stack from "../Anywhere_Components/AnyStack";
 
 const Stack = createNativeStackNavigator();
 
 export default function DicStack() {
   return (
     <Stack.Navigator initialRouteName="DicList">
+      <Stack.Screen
+        name="AnyStack"
+        component={Any_Stack}
+        options={{ headerShown: false }}
+      ></Stack.Screen>
       <Stack.Screen
         name="DicList"
         component={DicScreen}

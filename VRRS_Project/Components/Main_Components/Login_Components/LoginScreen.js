@@ -170,7 +170,7 @@ export default function LoginScreen({ navigation }) {
         </View>
       </View>
 
-      <View style={{ ...styles.joinContainer }}>
+      <View style={{ ...styles.joinContainer, top: windowHeigh -36 }}>
         <Text style={{ fontSize: 12 }}>아직 회원이 아니신가요?</Text>
         <TouchableOpacity
           activeOpacity={0.8}

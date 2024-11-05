@@ -17,9 +17,13 @@ import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBa
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Octicons from "@expo/vector-icons/Octicons";
 
+import { useAuth } from "../../../assets/ServerDatas/ReuseDatas/AuthProvider"; 
+
 export default function User_Logout({ navigation }) {
   useTabBarVisibility(false);
 
+  const { isLogin, setIsLogin } = useAuth();
+  
   const [modalVisible, setModalVisible] = useState(false);
 
   // 네비게이션 리셋을 위한 함수
@@ -33,6 +37,7 @@ export default function User_Logout({ navigation }) {
     setModalVisible(false);
     try {
       AsyncStorage.clear();
+      setIsLogin(false);
       restart();
       Alert.alert("로그아웃 완료", "로그아웃되었습니다.");
     } catch (error) {

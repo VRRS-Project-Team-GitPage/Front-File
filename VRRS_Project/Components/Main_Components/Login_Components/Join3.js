@@ -39,33 +39,42 @@ export default function Join3({ route, navigation }) {
   const { username, email, password } = route.params;
   const [nameText, setNameText] = useState("");
   const [isNicknameTouched, setIsNicknameTouched] = useState(false);
+  const [isNicknameValid, setIsNicknameValid] = useState(false);
 
-  // 정보 입력 및 회원가입 완료
-  const handleConfirm = async () => {
-    if (nameText === "" || !value) {
-      showToast("모든 항목을 작성해주세요");
-      return;
+ // 닉네임 유효성 검사 함수 수정
+const validateNickname = (nickname) => {
+  const isValidLength = nickname.length >= 2 && nickname.length <= 15;
+  setIsNicknameValid(isValidLength);
+  return isValidLength; // 유효성 검사 결과 반환
+};
+
+// handleConfirm 함수 수정
+const handleConfirm = async () => {
+  if (nameText === "" || !value) {
+    showToast("모든 항목을 작성해주세요");
+    return;
+  }
+  // 사용자 정보가 모두 유효한지 확인
+  if (!validateNickname(nameText) || value === "none") {
+    showToast("입력한 정보를 확인해주세요");
+    return; // 유효성 검사 실패 시 종료
+  } else {
+    try {
+      await joinUser({
+        username,
+        email,
+        password,
+        nickname: nameText,
+        vegTypeId: value,
+      });
+      navigation.navigate("Joinr");
+    } catch (error) {
+      console.error("Failed to join:", error);
+      Alert.alert("오류", "회원가입에 실패했습니다.");
     }
-    // 사용자 정보가 모두 유효한지 확인
-    if (!nameText.trim() && value === "none") {
-      showToast("입력한 정보를 확인해주세요");
-      return; // 유효성 검사 실패 시 종료
-    } else {
-      try {
-        await joinUser({
-          username,
-          email,
-          password,
-          nickname: nameText,
-          vegTypeId: value,
-        });
-        navigation.navigate("Joinr");
-      } catch (error) {
-        console.error("Failed to join:", error);
-        Alert.alert("오류", "회원가입에 실패했습니다.");
-      }
-    }
-  };
+  }
+};
+
   return (
     <SafeAreaView style={styles.container}>
       <BackHeader
@@ -125,16 +134,17 @@ export default function Join3({ route, navigation }) {
           onChangeText={(name) => {
             setNameText(name);
             setIsNicknameTouched(true); // 닉네임 입력 필드가 터치됨
+            validateNickname(name); // 닉네임 유효성 검사
           }}
           placeholderTextColor={Gray_theme.gray_40}
         />
         <View style={{ marginBottom: 4 }}>
-          {isNicknameTouched && nameText.trim() === "" && (
+          {isNicknameTouched && !isNicknameValid && (
             <Text style={styles.warningText}>
-              반드시 입력해야 하는 정보입니다.
+              닉네임은 2-15자 이내로 입력해주세요.
             </Text>
           )}
-          {nameText.trim() && (
+          {isNicknameValid && (
             <Text style={styles.helperText}>사용할 수 있는 닉네임입니다.</Text>
           )}
         </View>

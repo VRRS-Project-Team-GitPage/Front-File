@@ -345,7 +345,9 @@ export default function DicScreen({ route, navigation }) {
                 setOwnDic(false);
               }}
               onPress={() => {
-                navigation.navigate("OwnDic");
+                navigation.push("AnyStack", {
+                  screen: "MyDic",
+                });
               }}
             >
               <Octicons

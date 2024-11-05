@@ -83,9 +83,13 @@ export default function Join2({ navigation }) {
   const [messageStyle, setMessageStyle] = useState(null); // 인증 메시지 스타일
   const [messageid, setMessageid] = useState(""); // 아이디 상태 메시지
 
+  // const validateEmail = (email) => {
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   setIsEmailValid(emailRegex.test(email));
+  // };
   const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    setIsEmailValid(emailRegex.test(email));
+    const emailRegex = /^[^\s@]{1,64}@[^\s@]+\.[^\s@]{2,}$/;
+    setIsEmailValid(emailRegex.test(email) && email.length <= 320);
   };
 
   const validateId = (userId) => {

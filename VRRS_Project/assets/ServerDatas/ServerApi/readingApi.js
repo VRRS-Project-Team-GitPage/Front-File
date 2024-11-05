@@ -1,6 +1,9 @@
 // 서버에서 판독 관련 내용을 저장한 파일입니다.
 import axios from "axios";
 
+// 서버 IP 주소: 실제 주소로 변경
+const SERVER_URL = "";
+
 
 // OCR 등록 함수
 export const getOCRData = async (fileUri, jwt) => {

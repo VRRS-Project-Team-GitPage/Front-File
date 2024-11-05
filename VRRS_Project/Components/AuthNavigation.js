@@ -5,6 +5,7 @@ import { useAuth } from "../assets/ServerDatas/ReuseDatas/AuthProvider";
 // 앱 전제 Stakc
 import LoginStack from "./Main_Components/Login_Components/LoginStack";
 import Main_BottomBar from "./Main_Components/Main_BottomBar";
+import SubStack from "./Main_Components/Anywhere_Components/AnyStack";
 
 const Stack = createNativeStackNavigator();
 
@@ -18,7 +19,10 @@ export default function AuthNavigation() {
       }}
     >
       {isLogin ? (
-        <Stack.Screen name="appMain" component={Main_BottomBar}></Stack.Screen>
+        <>
+          <Stack.Screen name="appMain" component={Main_BottomBar}></Stack.Screen>
+          <Stack.Screen name="appSub" component={SubStack}></Stack.Screen>
+        </>
       ) : (
         <Stack.Screen name="UserStack" component={LoginStack}></Stack.Screen>
       )}

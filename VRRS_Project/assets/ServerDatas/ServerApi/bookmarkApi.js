@@ -1,6 +1,9 @@
 // 서버에서 사전 관련 내용을 저장한 파일입니다.
 import axios from "axios";
 
+const SERVER_URL = "";
+
+
 // 북마크 조회 함수
 export const fetchBookmarks = async (jwt) => {
   try {

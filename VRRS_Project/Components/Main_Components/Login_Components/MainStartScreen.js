@@ -7,7 +7,10 @@ import MainIcons from "../../../assets/Icons/MainIcons";
 // component 관련
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
+import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
+
 export default function MainStartScrren({ navigation }) {
+  useTabBarVisibility(false);
   return (
     <SafeAreaView style={styles.container}>
       <Image

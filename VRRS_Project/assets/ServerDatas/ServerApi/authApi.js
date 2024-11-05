@@ -2,6 +2,9 @@
 // 해당 파일에 필요한 값을 저장한 후 불러와 사용해주세요
 import axios from "axios";
 
+const SERVER_URL = "";
+
+
 // 로그인 함수
 export const loginUser = async (username, password) => {
   try {

@@ -10,15 +10,23 @@ import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBa
 import Octicons from '@expo/vector-icons/Octicons';
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import { withdrawalUser } from '../../../assets/ServerDatas/ServerApi/authApi';
+import { useAuth } from "../../../assets/ServerDatas/ReuseDatas/AuthProvider";
 
 export default function User_Withdrawal({ navigation }) {
     useTabBarVisibility(false);
     // user의 정보를 불러옴
     const { jwt } = useUser();
 
+    const { isLogin, setIsLogin } = useAuth();
     const [modalVisible, setModalVisible] = useState(false);
     const [isMenuSelected, setIsMenuSelected] = useState(false); // 메뉴 선택 여부를 추적하는 상태
-
+    // 네비게이션 리셋을 위한 함수
+    const restart = () => {
+        navigation.reset({
+            index: 0,
+            routes: [{ name: "Login_Main" }], // 초기 화면으로 이동할 경로 설정
+        });
+    };
     const handleWithdrawal = async () => {
         if (!isMenuSelected) {
             Alert.alert('', '탈퇴하기 전에 필수 항목을 읽어주세요.',
@@ -34,9 +42,10 @@ export default function User_Withdrawal({ navigation }) {
                         onPress: async () => {
                             try {
                                 await withdrawalUser(jwt);
+                                setIsLogin(false);
                                 Alert.alert('탈퇴 완료', '탈퇴가 완료되었습니다.',
                                     [
-                                        { text: '확인', onPress: () => navigation.navigate('Login_Start'), style: 'cancel' },
+                                        { text: '확인', onPress: () => restart(), style: 'cancel' },
                                     ]);
                             } catch (error) {
                                 console.error('Error removing token:', error);
@@ -106,7 +115,13 @@ export default function User_Withdrawal({ navigation }) {
             >
                 <View style={styles.modalBackground}>
                     <View style={styles.modalContainer}>
-                        <Text style={styles.modalText}>삭제 안합니다.</Text>
+                        <Text style={styles.modalText}>
+                            {'\n'}
+                            탈퇴 완료 시 개인 사전 데이터 및 작성하신 리뷰는 {'\n'}모두 삭제됩니다.{'\n'}{'\n'}
+                            탈퇴로 인한 모든 책임과 조치는 [이용약관]과 [개인정보 처리 및 방침] ('내 정보' 탭에서 확인 가능합니다.)에
+                            의거하며 회원의 귀책사유로 인한 손해에 대해서는 신한대학교 졸업 프로젝트 4조가 책임을 지지 않습니다.
+                            {'\n'}
+                        </Text>
                         <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
                             <Text style={styles.closeButtonText}>확인</Text>
                         </TouchableOpacity>
@@ -179,7 +194,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalText: {
-        fontSize: 16,
+        fontSize: 14,
         fontFamily: 'Pretendard-SemiBold',
         textAlign: 'center',
         marginBottom: 20,
