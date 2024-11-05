@@ -2,23 +2,8 @@
 import axios from "axios";
 
 // 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "https://05d5-61-39-35-27.ngrok-free.app";
+const SERVER_URL = "";
 
-
-// 인기순위 URL을 생성하는 함수
-export const getProductRankUrl = (vegTypeId) => {
-  return `${SERVER_URL}/recommendation/rank/${vegTypeId}`;
-};
-
-// 카테고리 추천 URL을 생성하는 함수
-export const getCategoryUrl = (vegTypeId) => {
-  return `${SERVER_URL}/recommendation/category/${vegTypeId}`;
-};
-
-// 키워드 추천 URL을 생성하는 함수
-export const getKeywordUrl = (text) => {
-  return `${SERVER_URL}/recommendation/keyword/${text}`;
-};
 
 // 데이터를 불러오는 함수
 export const fetchRecommendData = async (jwt, vegTypeId) => {

@@ -109,11 +109,12 @@ export default function UserScreen({ navigation }) {
           <TouchableOpacity
             style={styles.activity}
             onPress={() => {
-              navigation.navigate("DicTab", {
-                screen: "OwnDic",
+              navigation.push("AnyStack", {
+                screen: "MyDic",
               });
             }}
           >
+            
             <Image
               source={MainIcons.udictionary}
               style={{ width: 72, height: 72 }}

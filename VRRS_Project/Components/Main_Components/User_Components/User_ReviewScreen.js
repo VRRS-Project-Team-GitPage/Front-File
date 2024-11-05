@@ -15,7 +15,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 // design 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import MainIcons from "../../../assets/Icons/MainIcons";
 import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
@@ -31,7 +30,7 @@ import {
   viewReview,
 } from "../../../assets/ServerDatas/ServerApi/reviewApi";
 
-export default function User_ReviewScreen({ navigation }) {
+export default function User_ReviewScreen({ navigation}) {
   useTabBarVisibility(false);
 
   const { jwt } = useUser();
@@ -52,8 +51,6 @@ export default function User_ReviewScreen({ navigation }) {
       try {
         const data = await viewReview(jwt);
         setReviews(data);
-        // const sortedData = data.sort((a, b) => new Date(a.date) - new Date(b.date));
-        // setReviews(sortedData); // 정렬된 리뷰 데이터를 설정
       } catch (error) {
         console.error("리뷰 조회 오류:", error);
       }
@@ -81,23 +78,27 @@ export default function User_ReviewScreen({ navigation }) {
       console.error(error);
     }
   };
+
   // 리뷰 삭제 핸들러
-  const handleReviewDelete = async (proId) => {
+  const handleReviewDelete = async () => {
     try {
-      // 리뷰 삭제
-      await deleteReview(jwt, proId);
-
-      // 현재 리뷰 리스트에서 삭제된 리뷰를 제외
-      setReviews((prevReviews) => prevReviews.filter(review => review.proId !== proId));
-
-      // 삭제 성공 메시지 표시 (옵션)
+      await deleteReview(jwt, productID);
+      setReviews((prevReviews) => prevReviews.filter(review => review.proId !== productID));
       showToast("리뷰가 삭제되었습니다.");
+      setDeleteModalOpen(false); // 모달 닫기
     } catch (error) {
-      console.error("리뷰 삭제 오류:", error);
-      // 삭제 실패 메시지 표시 (옵션)
-      showToast("리뷰 삭제에 실패했습니다.");
+      console.error("리뷰 삭제 중 오류:", error);
+      showToast("리뷰 삭제 중 오류가 발생하였습니다.");
     }
   };
+
+  // 삭제 모달 열기
+  const openDeleteModal = (id) => {
+    setProductID(id); // 선택한 리뷰 ID 저장
+    setDeleteModalOpen(true); // 모달 열기
+  };
+  
+
   // 추천 비추천
   const handleIsRec = () => {
     setIsRec(true);
@@ -160,14 +161,6 @@ export default function User_ReviewScreen({ navigation }) {
             keyExtractor={(item) => item.proId.toString()} // 각 제품의 고유 키 설정
             renderItem={({ item }) => {
               return (
-                <TouchableWithoutFeedback
-                  onPress={() => {
-                    const productID = item.proId;
-                    navigation.navigate("ProductInfo", {
-                      id: productID,
-                    });
-                  }}
-                >
                   <View style={styles.allContainer}>
                     <View style={styles.Container1}>
                       <View style={styles.dateContainer}>
@@ -207,6 +200,9 @@ export default function User_ReviewScreen({ navigation }) {
                         <BtnD
                           onPress={() => {
                             setSelectedReview(item);
+                            setProductID(item.proId);
+                            setIsRec(item.rec);
+                            setIsNotRec(!item.rec);
                             setDeleteModalOpen(true);
                           }}
                           containerStyle={{
@@ -247,7 +243,7 @@ export default function User_ReviewScreen({ navigation }) {
                               width: 16,
                               height: 16,
                               marginLeft: 8,
-                              marginBottom:2,
+                              marginBottom: 2,
                               tintColor: Gray_theme.gray_50
                             }}
                           />
@@ -258,7 +254,6 @@ export default function User_ReviewScreen({ navigation }) {
                       <Text style={styles.reviewText}>{item.content}</Text>
                     </View>
                   </View>
-                </TouchableWithoutFeedback>
               );
             }}
           />

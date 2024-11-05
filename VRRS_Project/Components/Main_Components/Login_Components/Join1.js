@@ -17,6 +17,7 @@ import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBa
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
 
 import terms from "../../../assets/userinfoTerm";
+import pterms from "../../../assets/privacyTerm";
 
 import Octicons from "@expo/vector-icons/Octicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -30,7 +31,6 @@ export default function Join1({ navigation }) {
   const [allAgree, setAllAgree] = useState(false);
   const [termsAgree, setTermsAgree] = useState(false);
   const [privacyAgree, setPrivacyAgree] = useState(false);
-  //const [termsText, setTermsText] = useState(termsData.terms);
   const [termsText, setTermsText] = useState(terms);
 
   const handleConfirm = () => {
@@ -231,26 +231,19 @@ export default function Join1({ navigation }) {
             style={{ ...styles.agreementBox, height: agreementHeight }}
           >
             <ScrollView style={styles.agreementScroll}>
-              <Text style={styles.tcontent}>
-                제 1 장 총칙{"\n"}제 1 조 (목적){"\n"}본 약관은 신한대학교
-                졸업프로젝트 4조(이하 “프로젝트”라 합니다)가 모바일 기기를 통해
-                운영하는 애플리케이션 ‘채식어디’ (이하 “어플”이라 합니다)에서
-                제공하는 모바일 서비스(이하 “서비스”라 한다)를 이용함에 있어
-                서비스 이용자의 권리, 의무 및 책임사항, 기타 필요한 사항을
-                규정함을 목적으로 합니다.
-                {"\n"}
-                {"\n"}제 2 조 (용어의 정의){"\n"}본 약관에서 사용하는 용어는
-                다음과 같이 정의한다.
-                {"\n"}1. “회원”이란 이 약관에 따라 이용계약을 체결하고,
-                프로젝트가 제공하는 서비스를 이용하는 자를 의미합니다.
-                {"\n"}2. “임시회원”이란 일부 정보만 제공하고 프로젝트가 제공하는
-                서비스의 일부만 이용하는 자를 의미합니다.{" "}
-              </Text>
-              <Text style={styles.tbold}>
-                * 본인은 신한대학교 졸업프로젝트 4조의 채식어디(모바일 서비스)를
-                이용함에 있어 이용약관 동의에 관한 본 동의서의 내용을 충분히
-                숙지하였으며, 이에 동의합니다. *{"\n"}
-                {"\n"}
+              <Text style={styles.agreementText}>
+                <Text style={styles.tbold}>{pterms.tbold1}</Text>
+                <Text style={styles.tcontent}>{pterms.tcontent1}</Text>
+                <Text style={styles.tbold}>{pterms.tbold2}</Text>
+                <Text style={styles.tcontent}>{pterms.tcontent2}</Text>
+                <Text style={styles.tbold}>{pterms.tbold3}</Text>
+                <Text style={styles.tcontent}>{pterms.tcontent3}</Text>
+                <Text style={styles.tbold}>{pterms.tbold4}</Text>
+                <Text style={styles.tcontent}>{pterms.tcontent4}</Text>
+                <Text style={styles.tbold}>{pterms.tbold5}</Text>
+                <Text style={styles.tcontent}>{pterms.tcontent5}</Text>
+                <Text style={styles.tbold}>{pterms.tbold6}</Text>
+                <Text style={styles.tcontent}>{pterms.tcontent6}</Text>
               </Text>
             </ScrollView>
           </Animated.View>
@@ -318,7 +311,6 @@ export default function Join1({ navigation }) {
                 <Text style={styles.tline}>{terms.tline7}</Text>
                 <Text style={styles.tcontent}>{terms.tcontent11}</Text>
                 <Text style={styles.tbold}>{terms.tbold5}</Text>
-                {/* {termsText} */}
               </Text>
             </ScrollView>
           </Animated.View>

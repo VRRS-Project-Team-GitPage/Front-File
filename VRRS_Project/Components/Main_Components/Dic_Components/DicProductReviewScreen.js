@@ -1,3 +1,4 @@
+// 사전에서 이동하는 제품 정보
 import { View, Text, TouchableOpacity, FlatList, Image } from "react-native";
 import { StyleSheet } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
@@ -24,6 +25,12 @@ import {
   fetchReviewData,
 } from "../../../assets/ServerDatas/ServerApi/dictionaryApi";
 import { deleteReview } from "../../../assets/ServerDatas/ServerApi/reviewApi";
+
+// createMaterialTopTabNavigator 오류창 숨기기
+import { LogBox } from "react-native";
+LogBox.ignoreLogs([
+  'Warning: A props object containing a "key" prop is being spread into JSX',
+]);
 
 export default function DicProductReviewScreen({ route, navigation }) {
   // user의 정보를 불러옴
