@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { Gray_theme } from "../../../assets/styles/Theme_Colors";
+import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Xheader from "../../../assets/styles/ReuseComponents/Header/xheader";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
@@ -34,10 +34,11 @@ export default function User_Feedback({ navigation }) {
       showToast("피드백을 입력해 주세요."); // 피드백이 비어있을 때 토스트 메시지
       return; // 함수 종료
     }
-  
+
     try {
       await submitFeedback("ECT", feedback, jwt);
       showToast("피드백이 제출되었습니다");
+      navigation.goBack();
       console.log("제출된 피드백:", feedback);
       setFeedback(""); // 피드백 필드 초기화
     } catch (error) {
@@ -45,7 +46,6 @@ export default function User_Feedback({ navigation }) {
       Alert.alert("오류", "피드백 제출에 실패했습니다.");
     }
   };
-  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -82,7 +82,15 @@ export default function User_Feedback({ navigation }) {
       </View>
       {/* 제출 버튼 */}
       <View style={{ ...styles.button, top: windowHeigh - 36 }}>
-        <BtnC onPress={handleSubmit}>제출하기</BtnC>
+        <BtnC
+          onPress={handleSubmit}
+          style={{
+            backgroundColor: feedback ? Main_theme.main_30 : Gray_theme.gray_40,
+            borderColor: feedback ? Main_theme.main_30 : Gray_theme.gray_40,
+          }}
+        >
+          제출하기
+        </BtnC>
       </View>
     </SafeAreaView>
   );
@@ -131,7 +139,7 @@ const styles = StyleSheet.create({
   },
   button: {
     position: "absolute",
-    width:"100%",
+    width: "100%",
     paddingHorizontal: 24,
   },
 });

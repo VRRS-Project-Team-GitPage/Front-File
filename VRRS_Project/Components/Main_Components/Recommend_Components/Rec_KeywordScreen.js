@@ -1,7 +1,8 @@
 import { View, Text, TextInput } from "react-native";
 import { StyleSheet, useWindowDimensions } from "react-native";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 // design 관련
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
@@ -15,6 +16,12 @@ export default function Rec_KeywordScreen({ navigation }) {
   const windowHeigh = useWindowDimensions().height;
 
   const [searchText, setSearchText] = useState("");
+
+  useFocusEffect(
+    useCallback(() => {
+      setSearchText("");
+    }, [])
+  );
 
   return (
     <SafeAreaView style={styles.container}>

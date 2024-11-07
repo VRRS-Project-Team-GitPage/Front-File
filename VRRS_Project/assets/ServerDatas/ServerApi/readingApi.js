@@ -1,10 +1,19 @@
 // 서버에서 판독 관련 내용을 저장한 파일입니다.
 import axios from "axios";
+import Constants from "expo-constants";
+import showToast from "../../styles/ReuseComponents/showToast";
 
-// 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "";
+// 서버 URL
+const SERVER_URL = Constants.expoConfig?.extra?.serverUrl;
 
+// OCR 기능 URL
+const OCR_URL = `${SERVER_URL}${Constants.expoConfig?.extra?.ocrEndPoint}`; // OCR URL
+console.log(OCR_URL);
+const READING_URL = `${SERVER_URL}${Constants.expoConfig?.extra?.readingEndPoint}`; // reading URL
+console.log(READING_URL);
+const UPLOAD_URL = `${SERVER_URL}${Constants.expoConfig?.extra?.uploadEndPoint}`; // 제품 업로드 URL
 
+// OCR 등록 함수
 // OCR 등록 함수
 export const getOCRData = async (fileUri, jwt) => {
   try {
@@ -33,16 +42,31 @@ export const getOCRData = async (fileUri, jwt) => {
 
     if (!response.ok) {
       // 상태 코드에 따라 에러 메시지 추가
-      const errorMessage = `Error ${response.status}: ${response.statusText}`;
-      throw new Error(errorMessage);
+      let errorMessage;
+      if (response.status === 422) {
+        const errorData = await response.json(); // 422의 경우 데이터 포함
+        errorMessage = { status: 422, data: errorData };
+      } else if (response.status === 400) {
+        errorMessage = `${response.status}`;
+      } else {
+        errorMessage = `${response.status}`;
+      }
+      throw new Error(JSON.stringify(errorMessage));
     }
 
     // JSON 응답 데이터 반환
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("OCR 요청 에러:", error.message); // 에러 메시지 로그
-    throw error;
+    const errorObj = JSON.parse(error.message);
+    if (errorObj.status === 422) {
+      showToast("원재료명을 확인해주세요");
+      console.log("OCR 요청 에러:", errorObj); // 422의 경우 데이터 로그
+      return errorObj.data;
+    } else {
+      console.log("OCR 요청 에러:", errorObj);
+      throw new Error(errorObj);
+    }
   }
 };
 

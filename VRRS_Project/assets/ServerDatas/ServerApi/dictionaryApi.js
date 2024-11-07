@@ -1,9 +1,29 @@
 // 서버에서 사전 관련 내용을 저장한 파일입니다.
 import axios from "axios";
+import Constants from "expo-constants";
 
-// 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "";
+// 서버 URL
+const SERVER_URL = Constants.expoConfig?.extra?.serverUrl;
 
+// 사전 로직 URL
+const PRODUCT_ENDPOINT = Constants.expoConfig?.extra?.productEndPoint;
+// 사전 데이터 URL
+export const getProductData = (productID) => {
+  return `${SERVER_URL}${PRODUCT_ENDPOINT}=${productID}`;
+};
+// 인기순 사전 데이터 URL
+export const getProductRankData = (productID) => {
+  return `${SERVER_URL}${PRODUCT_ENDPOINT}=${productID}&sort=popularity`;
+};
+// 사전 상세 패이지 URL 생성 함수
+export const getProductDetailUrl = (productID) => {
+  return `${SERVER_URL}${Constants.expoConfig?.extra?.productDetailEndPoint}${productID}`;
+};
+// 사전 리뷰 URL 생성 함수
+export const getProductReviewUrl = (productID) => {
+  return `${SERVER_URL}${Constants.expoConfig?.extra?.productReviewEndPoint}=${productID}`;
+};
+const SUBMIT_URL = `${SERVER_URL}${Constants.expoConfig?.extra?.feedBackEndPoint}`;
 
 // 사전 내용을 가져오는 함수
 export const fetchDictionaryData = async (jwt, url) => {

@@ -371,7 +371,7 @@ export default function DicProductScreen({ navigation, route }) {
                     >
                       {ingredients ? (
                         ingredients.map((item, index) => (
-                          <View style={styles.textBadge}>
+                          <View key={index} style={styles.textBadge}>
                             <Text style={styles.text}>{item.item}</Text>
                           </View>
                         ))
@@ -618,6 +618,11 @@ export default function DicProductScreen({ navigation, route }) {
           </View>
         </ScrollView>
       </View>
+      <View
+        style={{
+          marginBottom: 40,
+        }}
+      ></View>
     </SafeAreaView>
   );
 }

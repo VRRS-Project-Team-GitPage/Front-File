@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ScrollView,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
@@ -7,13 +14,12 @@ import Xheader from "../../../assets/styles/ReuseComponents/Header/xheader";
 import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
-import terms from '../../../assets/userinfoTerm';
-import pterms from '../../../assets/privacyTerm';
+import terms from "../../../assets/userinfoTerm";
+import pterms from "../../../assets/privacyTerm";
 
 import Octicons from "@expo/vector-icons/Octicons";
 
 export default function UserSetting({ navigation }) {
-
   useTabBarVisibility(false);
   const [isTermsVisible, setIsTermsVisible] = useState(false);
   const [isPrivacyVisible, setIsPrivacyVisible] = useState(false);
@@ -32,37 +38,52 @@ export default function UserSetting({ navigation }) {
         onPress={() => {
           navigation.goBack();
         }}
-      >
-      </Xheader>
+      ></Xheader>
       <ScrollView contentContainerStyle={styles.scrcontainer}>
         {/* 이용약관 섹션 */}
-        <TouchableOpacity style={styles.termItem} onPress={toggleTerms}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.termItem}
+          onPress={toggleTerms}
+        >
           <Text style={styles.termTitle}>이용약관</Text>
-          <Octicons name="chevron-down" size={20} color={Gray_theme.gray_40} style={styles.icon} />
+          <Octicons
+            name="chevron-down"
+            size={20}
+            color={Gray_theme.gray_40}
+            style={styles.icon}
+          />
         </TouchableOpacity>
         {isTermsVisible && (
           <View style={styles.termContent}>
-          <Text style={styles.tbold}>{pterms.tbold1}</Text>
-          <Text style={styles.tcontent}>{pterms.tcontent1}</Text>
-          <Text style={styles.tbold}>{pterms.tbold2}</Text>
-          <Text style={styles.tcontent}>{pterms.tcontent2}</Text>
-          <Text style={styles.tbold}>{pterms.tbold3}</Text>
-          <Text style={styles.tcontent}>{pterms.tcontent3}</Text>
-          <Text style={styles.tbold}>{pterms.tbold4}</Text>
-          <Text style={styles.tcontent}>{pterms.tcontent4}</Text>
-          <Text style={styles.tbold}>{pterms.tbold5}</Text>
-          <Text style={styles.tcontent}>{pterms.tcontent5}</Text>
-          <Text style={styles.tbold}>{pterms.tbold6}</Text>
-          <Text style={styles.tcontent}>{pterms.tcontent6}</Text>
-            <BtnC onPress={toggleTerms}>
-              닫기
-            </BtnC>
+            <Text style={styles.tbold}>{pterms.tbold1}</Text>
+            <Text style={styles.tcontent}>{pterms.tcontent1}</Text>
+            <Text style={styles.tbold}>{pterms.tbold2}</Text>
+            <Text style={styles.tcontent}>{pterms.tcontent2}</Text>
+            <Text style={styles.tbold}>{pterms.tbold3}</Text>
+            <Text style={styles.tcontent}>{pterms.tcontent3}</Text>
+            <Text style={styles.tbold}>{pterms.tbold4}</Text>
+            <Text style={styles.tcontent}>{pterms.tcontent4}</Text>
+            <Text style={styles.tbold}>{pterms.tbold5}</Text>
+            <Text style={styles.tcontent}>{pterms.tcontent5}</Text>
+            <Text style={styles.tbold}>{pterms.tbold6}</Text>
+            <Text style={styles.tcontent}>{pterms.tcontent6}</Text>
+            <BtnC onPress={toggleTerms}>닫기</BtnC>
           </View>
         )}
         {/* 개인정보 약관 섹션 */}
-        <TouchableOpacity style={styles.termItem} onPress={togglePrivacy}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.termItem}
+          onPress={togglePrivacy}
+        >
           <Text style={styles.termTitle}>개인정보 수집 및 처리 방침</Text>
-          <Octicons name="chevron-down" size={20} color={Gray_theme.gray_40} style={styles.icon} />
+          <Octicons
+            name="chevron-down"
+            size={20}
+            color={Gray_theme.gray_40}
+            style={styles.icon}
+          />
         </TouchableOpacity>
         {isPrivacyVisible && (
           <View style={styles.termContent}>
@@ -90,9 +111,7 @@ export default function UserSetting({ navigation }) {
             <Text style={styles.tcontent}>{terms.tcontent11}</Text>
             <Text style={styles.tbold}>{terms.tbold5}</Text>
 
-            <BtnC onPress={togglePrivacy}>
-              닫기
-            </BtnC>
+            <BtnC onPress={togglePrivacy}>닫기</BtnC>
           </View>
         )}
       </ScrollView>
@@ -106,22 +125,19 @@ const styles = StyleSheet.create({
     backgroundColor: Gray_theme.white,
   },
   scrcontainer: {
-    paddingHorizontal: 16,
-    paddingTop: 8
+    paddingTop: 8,
   },
 
   termItem: {
     flexDirection: "row",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: Gray_theme.white,
-    borderColor: Gray_theme.gray_30,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     borderBottomWidth: 1,
-    marginBottom: 8,
+    borderBottomColor: Gray_theme.gray_20,
   },
   termTitle: {
-    fontSize: 16,
-    fontWeight: 'Pretendard-Bold',
+    fontSize: 14,
+    fontFamily: "Pretendard-SemiBold",
   },
   icon: {
     marginLeft: "auto",
@@ -143,19 +159,19 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   agreementText: {
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: "Pretendard-Regular",
     fontSize: 14,
     color: Gray_theme.balck,
   },
   //약관 text효과
   tbold: {
-    fontFamily: 'Pretendard-SemiBold'
+    fontFamily: "Pretendard-SemiBold",
   },
   tline: {
-    textDecorationLine: 'underline',
-    fontSize: 16
+    textDecorationLine: "underline",
+    fontSize: 16,
   },
   tcontent: {
-    fontFamily: 'Pretendard-Regular'
+    fontFamily: "Pretendard-Regular",
   },
 });

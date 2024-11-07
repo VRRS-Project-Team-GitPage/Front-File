@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 // component 관련
 import NomalHeader from "../../../assets/styles/ReuseComponents/Header/NomalHeader";
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
+import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
 // design 관련 import
 import { Gray_theme, Main_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
@@ -24,6 +25,8 @@ import { fetchBookmarks } from "../../../assets/ServerDatas/ServerApi/bookmarkAp
 
 export default function MyDicScreen({ route, navigation }) {
   const { jwt } = useUser();
+
+  useTabBarVisibility(false);
 
   // FlatList의 참조
   const flatListRef = useRef(null);

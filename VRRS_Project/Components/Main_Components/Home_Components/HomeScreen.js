@@ -23,6 +23,10 @@ import Octicons from "@expo/vector-icons/Octicons";
 // Server data 관련
 import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import { fetchRecommendData } from "../../../assets/ServerDatas/ServerApi/recommendApi";
+import {
+  fetchDictionaryData,
+  getProductRankData,
+} from "../../../assets/ServerDatas/ServerApi/dictionaryApi";
 
 export default function HomeScreen({ navigation }) {
   // user의 정보를 불러옴
@@ -35,19 +39,23 @@ export default function HomeScreen({ navigation }) {
   const [topProductData, setTopProductData] = useState([]);
   const [topOwnProductData, setTopOwnProductData] = useState([]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const productData = await fetchRecommendData(jwt, 6);
-        const ownProductData = await fetchRecommendData(jwt, vegTypeId);
-        // 상위 10개 요소만 저장
-        setTopProductData(productData.totalRank); // 상위 10개
-        setTopOwnProductData(ownProductData.totalRank); // 상위 10개
-      } catch (error) {
-        console.error(error.message);
-      }
-    };
+  const loadData = async () => {
+    try {
+      const productData = await fetchRecommendData(jwt, 6);
+      const ownProductData = await fetchDictionaryData(
+        jwt,
+        getProductRankData(vegTypeId)
+      );
+      console.log(ownProductData.totalRank);
+      // 상위 10개 요소만 저장
+      setTopProductData(productData.totalRank); // 상위 10개
+      setTopOwnProductData(ownProductData.slice(0, 10)); // 상위 10개
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
+  useEffect(() => {
     loadData(); // 데이터 불러오기 호출
   }, []);
 
@@ -55,40 +63,41 @@ export default function HomeScreen({ navigation }) {
   useFocusEffect(
     useCallback(() => {
       scrollViewReturn();
-      subScrollViewReturn();
+      resetFlatListPosition();
     }, [])
   );
 
+  // 화면 스크롤 처음으로 돌리기
   const scrollViewRef = useRef(null);
-  const flatListRef = useRef(null);
 
-  // 스크롤뷰를 처음으로 돌리는 함수
   const scrollViewReturn = () => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({ y: 0, animated: true });
     }
   };
 
-  const subScrollViewReturn = () => {
-    if (flatListRef.current) {
-      flatListRef.current.scrollToOffset({ offset: 0, animated: true });
+  /// 추천 스크롤 처음으로 돌리기
+  const flatListRef1 = useRef(null); // 사용자 유형 인기순
+  const flatListRef2 = useRef(null); // 전체 인기순
+
+  const resetFlatListPosition = () => {
+    if (flatListRef1.current) {
+      flatListRef1.current.scrollToOffset({ offset: 0, animated: true });
+    }
+    if (flatListRef2.current) {
+      flatListRef2.current.scrollToOffset({ offset: 0, animated: true });
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      return () => {
-        // 화면이 포커싱 될 경우 해당 옵션을 default로
-        scrollViewReturn();
-        subScrollViewReturn();
-      };
-    }, [])
-  );
+  // 유저 정보가 변경되었을 때 리렌더링
+  useEffect(() => {
+    loadData();
+  }, [name, vegTypeName]);
 
   if (!user) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator />
+        <ActivityIndicator size="large" color={Main_theme.main_30} />
       </View>
     );
   }
@@ -262,7 +271,7 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
             <View style={styles.mainDicContainer}>
               <FlatList
-                ref={flatListRef}
+                ref={flatListRef1}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
                 data={topOwnProductData} // 상태로 관리되는 제품 데이터를 사용
@@ -340,7 +349,7 @@ export default function HomeScreen({ navigation }) {
             </TouchableOpacity>
             <View style={styles.mainDicContainer}>
               <FlatList
-                ref={flatListRef}
+                ref={flatListRef2}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
                 data={topProductData} // 상태로 관리되는 제품 데이터를 사용

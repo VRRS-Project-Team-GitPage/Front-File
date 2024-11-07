@@ -154,13 +154,17 @@ export default function ReportProScreen({ navigation, route }) {
       </View>
       <View style={{ ...styles.btnC, top: windowHeigh - 48 }}>
         {!(duplication || incorrect) || reportText === "" ? (
-          <Btn
+          <BtnC
             onPress={() => {
               showToast("작성 후 완료를 눌러주세요");
             }}
+            style={{
+              backgroundColor: Gray_theme.gray_40,
+              borderColor: Gray_theme.gray_40,
+            }}
           >
             제출하기
-          </Btn>
+          </BtnC>
         ) : (
           <BtnC onPress={reportError}>제출하기</BtnC>
         )}

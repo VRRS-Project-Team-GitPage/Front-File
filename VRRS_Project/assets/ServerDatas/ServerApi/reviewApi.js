@@ -1,9 +1,18 @@
 // 서버에서 제품의 리뷰 관련 내용을 저장한 파일입니다.
 import axios from "axios";
+import Constants from "expo-constants";
 
-// 서버 IP 주소: 실제 주소로 변경
-const SERVER_URL = "";
+// 서버 URL
+const SERVER_URL = Constants.expoConfig?.extra?.serverUrl;
 
+// 리뷰 로직 URL
+const REVIEW_SUBMIT_URL = `${SERVER_URL}${Constants.expoConfig?.extra?.reviewEndPoint}`; // 리뷰 등록 URL
+const REVIEW_UPDATE_URL = `${SERVER_URL}${Constants.expoConfig?.extra?.reviewUpdateEndPoint}`; // 리뷰 수정 URL
+// 리뷰 삭제 URL 생성 함수
+export const getDeleteReviewkUrl = (proId) => {
+  return `${SERVER_URL}${Constants.expoConfig?.extra?.reviewDeleteEndPoint}=${proId}`;
+};
+const REVIEW_VIEW_URL = `${SERVER_URL}${Constants.expoConfig?.extra?.reviewViewEndPoint}`; // 리뷰 조회 URL
 
 // 리뷰 등록 함수
 export const submitReview = async (jwt, reviewData) => {
