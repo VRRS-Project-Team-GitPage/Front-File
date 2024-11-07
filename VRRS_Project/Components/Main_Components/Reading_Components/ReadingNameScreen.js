@@ -75,20 +75,9 @@ export default function ProNameScreen({ route, navigation }) {
     }
   }, [isPhotoLoaded, isImgLoaded]);
 
-  // 판독 데이터를 저장
-  const [readingData, setReadingData] = useState();
-
-  // 판독 데이터 가공
-  const [exists, setExists] = useState();
-  const [fullBracket, setFullBracket] = useState();
-  const [ingredients, setIngredients] = useState("판독된 내용이 없습니다");
-  const [reportNum, setReportNum] = useState();
-  const [check, setCheck] = useState(); // 가공 완료 여부
-
-  // 로딩 화면 지정
-  const [loading, setLoading] = useState(true);
-  // 오류 코드 상태 변수 및 기본값 설정
-  const [errorMessageCode, setErrorMessageCode] = useState(null);
+  const [readingData, setReadingData] = useState(); // 판독 데이터를 저장
+  const [loading, setLoading] = useState(true); // 로딩 화면 지정
+  const [errorMessageCode, setErrorMessageCode] = useState(null); // 오류 코드 상태 변수 및 기본값 설정
 
   const fetchOCRData = async (fileName, jwt) => {
     setLoading(true);
@@ -99,15 +88,16 @@ export default function ProNameScreen({ route, navigation }) {
         setReadingData(data);
       }
     } catch (error) {
+      console.log("에러 코드", error.message);
       // 상태 코드에 따라 오류 메시지 코드 설정
-      if (error.message === "400") {
-        setErrorMessageCode(1); // 올바른 이미지를 등록해주세요
-        showToast("판독할 텍스트가 없습니다", { duration: 3000 });
-      } else if (error.message === "422") {
-        setErrorMessageCode(2); // 사진을 분석하지 못했습니다. 다시 촬영해주세요
+      if (error.message.includes("422")) {
+        const errorData = JSON.parse(error.message).data;
+        setReadingData(errorData);
+      } else if (error.message == 400) {
+        setErrorMessageCode(1); // 사진을 분석하지 못했습니다. 다시 촬영해주세요
         showToast("사진을 다시 촬영해주세요", { duration: 3000 });
       } else {
-        setErrorMessageCode(3); // 오류가 발생하였습니다
+        setErrorMessageCode(2); // 오류가 발생하였습니다
         showToast("알 수 없는 오류가 발생했습니다", { duration: 3000 });
       }
     } finally {
@@ -120,6 +110,13 @@ export default function ProNameScreen({ route, navigation }) {
       fetchOCRData(checkImage, jwt);
     }
   }, [checkImage]);
+
+  // 판독 데이터 가공
+  const [exists, setExists] = useState();
+  const [fullBracket, setFullBracket] = useState();
+  const [ingredients, setIngredients] = useState("판독된 내용이 없습니다");
+  const [reportNum, setReportNum] = useState();
+  const [check, setCheck] = useState(); // 가공 완료 여부
 
   useEffect(() => {
     if (readingData) {
@@ -317,7 +314,8 @@ export default function ProNameScreen({ route, navigation }) {
                             ...styles.errorText,
                           }}
                         >
-                          올바른 이미지를 등록해주세요.
+                          인식할 텍스트가 없습니다. {"\n"}올바른 사진을 업로드
+                          해주세요.
                         </Text>
                       )}
                       {errorMessageCode === 2 && (
@@ -327,17 +325,7 @@ export default function ProNameScreen({ route, navigation }) {
                             ...styles.errorText,
                           }}
                         >
-                          사진을 분석하지 못했습니다. 다시 촬영해주세요.
-                        </Text>
-                      )}
-                      {errorMessageCode === 3 && (
-                        <Text
-                          style={{
-                            width: windowWidth - 32,
-                            ...styles.errorText,
-                          }}
-                        >
-                          오류가 발생하였습니다.
+                          오류가 발생했습니다. 다시 시도해주세요.
                         </Text>
                       )}
 

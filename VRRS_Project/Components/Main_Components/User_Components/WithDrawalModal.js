@@ -1,10 +1,15 @@
 import { StyleSheet } from "react-native";
 import { Text, View, Modal } from "react-native";
-import { Gray_theme, Main_theme } from "../../Theme_Colors";
+import { Main_theme, Gray_theme } from "../../../assets/styles/Theme_Colors";
 import Octicons from "@expo/vector-icons/Octicons";
-import BtnC from "../Button/BtnC";
+import BtnC from "../../../assets/styles/ReuseComponents/Button/BtnC";
 
-const QuestionModal = ({ children, visible, onRequestClose, onPress }) => {
+export default function DrawalModal({
+  visible,
+  onRequestClose,
+  onPress_c,
+  onPress,
+}) {
   return (
     <Modal
       animationType="fade" //모달이 나타나는 방식
@@ -22,14 +27,33 @@ const QuestionModal = ({ children, visible, onRequestClose, onPress }) => {
         >
           <View style={styles.modalHeader}>
             {/* 모달 창의 제목이 되는 텍스트 입니다. */}
-            <Text style={styles.modalHeaderText}>{children}</Text>
+            <Text style={styles.modalHeaderText}>정말 탈퇴하시겠습니까?</Text>
+          </View>
+          <View
+            style={{
+              paddingHorizontal: 24,
+            }}
+          >
+            <Text style={styles.modalContents}>
+              {"\n"}
+              탈퇴 완료 시 개인 사전 데이터{"\n"}및 작성하신 리뷰는 모두
+              삭제됩니다.
+              {"\n"}
+              {"\n"}
+              탈퇴로 인한 모든 책임과 조치는{"\n"}[이용약관]과 [개인정보 처리 및
+              방침]{"\n"}('내 정보' 탭에서 확인 가능합니다.)에 의거하며 회원의
+              귀책사유로 인한 손해에 대해서는 신한대학교 졸업 프로젝트 B-2조가
+              {"\n"}
+              책임을 지지 않습니다.
+              {"\n"}
+            </Text>
           </View>
 
           <View style={styles.modalBtn}>
             <BtnC
               style={styles.style_cancle}
               stlye_title={styles.cancle_title}
-              onPress={onRequestClose}
+              onPress={onPress_c}
             >
               취소
             </BtnC>
@@ -41,7 +65,7 @@ const QuestionModal = ({ children, visible, onRequestClose, onPress }) => {
       </View>
     </Modal>
   );
-};
+}
 
 const styles = StyleSheet.create({
   modalBgc: {
@@ -63,7 +87,8 @@ const styles = StyleSheet.create({
   },
 
   modalHeader: {
-    paddingVertical: 36,
+    paddingTop: 36,
+    paddingBottom: 24,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -72,6 +97,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Pretendard-SemiBold",
     color: Gray_theme.balck,
+  },
+  modalContents: {
+    fontFamily: "Pretendard-Medium",
+    color: Gray_theme.gray_90,
   },
   modalBtn: {
     flexDirection: "row",
@@ -92,9 +121,8 @@ const styles = StyleSheet.create({
   style_ok: {
     flex: 1,
     justifyContent: "flex-end",
-    backgroundColor: Main_theme.main_30,
+    borderColor: Main_theme.main_reverse,
+    backgroundColor: Main_theme.main_reverse,
     marginLeft: 4,
   },
 });
-
-export default QuestionModal;

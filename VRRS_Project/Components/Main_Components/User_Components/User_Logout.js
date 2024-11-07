@@ -10,20 +10,21 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Gray_theme } from "../../../assets/styles/Theme_Colors";
-import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
-import Btn from "../../../assets/styles/ReuseComponents/Button/Btn";
-import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
-
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import Octicons from "@expo/vector-icons/Octicons";
 
-import { useAuth } from "../../../assets/ServerDatas/ReuseDatas/AuthProvider"; 
+import BackHeader from "../../../assets/styles/ReuseComponents/Header/BackHeader";
+import useTabBarVisibility from "../../../assets/styles/ReuseComponents/useTabBarVisibility ";
+import QuestionModal from "../../../assets/styles/ReuseComponents/Modal/QuestionModal";
+import showToast from "../../../assets/styles/ReuseComponents/showToast";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useAuth } from "../../../assets/ServerDatas/ReuseDatas/AuthProvider";
 
 export default function User_Logout({ navigation }) {
   useTabBarVisibility(false);
 
   const { isLogin, setIsLogin } = useAuth();
-  
+
   const [modalVisible, setModalVisible] = useState(false);
 
   // 네비게이션 리셋을 위한 함수
@@ -39,7 +40,7 @@ export default function User_Logout({ navigation }) {
       AsyncStorage.clear();
       setIsLogin(false);
       restart();
-      Alert.alert("로그아웃 완료", "로그아웃되었습니다.");
+      showToast("로그아웃 되었습니다");
     } catch (error) {
       console.error("Error removing token:", error);
       Alert.alert("오류", "로그아웃 처리 중 오류가 발생했습니다.");
@@ -47,7 +48,7 @@ export default function User_Logout({ navigation }) {
   };
 
   const handleWithdrawal = () => {
-    navigation.navigate("User_Withdrawal"); // 탈퇴하기 시 이동할 화면
+    navigation.navigate("User_Withdrawal");
   };
 
   return (
@@ -62,6 +63,7 @@ export default function User_Logout({ navigation }) {
 
       <View style={styles.menuSection}>
         <TouchableOpacity
+          activeOpacity={0.8}
           style={styles.menuItem}
           onPress={() => setModalVisible(true)}
         >
@@ -74,7 +76,11 @@ export default function User_Logout({ navigation }) {
           />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.menuItem} onPress={handleWithdrawal}>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.menuItem}
+          onPress={handleWithdrawal}
+        >
           <Text style={styles.menuText}>탈퇴하기</Text>
           <Octicons
             name="chevron-right"
@@ -84,28 +90,12 @@ export default function User_Logout({ navigation }) {
           />
         </TouchableOpacity>
       </View>
-
-      <Modal
-        transparent={true}
+      <QuestionModal
         visible={modalVisible}
-        animationType="fade"
         onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <TouchableOpacity
-              style={styles.closeIcon}
-              onPress={() => setModalVisible(false)}
-            >
-              <Octicons name="x" size={16} color="black" />
-            </TouchableOpacity>
-            <Text style={styles.modalText}>로그아웃 하시겠습니까?</Text>
-            <View style={styles.button}>
-              <Btn onPress={handleLogout}>확인</Btn>
-            </View>
-          </View>
-        </View>
-      </Modal>
+        onPress={handleLogout}
+        children={"로그아웃 하시겠습니까?"}
+      />
     </SafeAreaView>
   );
 }

@@ -1,8 +1,20 @@
 // 서버에서 사전 관련 내용을 저장한 파일입니다.
 import axios from "axios";
+import Constants from "expo-constants";
 
-const SERVER_URL = "";
+// 서버 URL
+const SERVER_URL = Constants.expoConfig?.extra?.serverUrl;
 
+// 북마크 로직 URL
+const BOOKMARK_URL = `${SERVER_URL}${Constants.expoConfig?.extra?.bookMarkEndPoint}`;
+// 북마크 등록 URL 생성 함수
+export const getBookmarkUrl = (proId) => {
+  return `${SERVER_URL}${Constants.expoConfig?.extra?.getBookMarkEndPoint}=${proId}`;
+};
+// 북마크 삭제 URL 생성 함수
+export const deleteBookmarkUrl = (proId) => {
+  return `${SERVER_URL}${Constants.expoConfig?.extra?.deletetBookMarkEndPoint}=${proId}`;
+};
 
 // 북마크 조회 함수
 export const fetchBookmarks = async (jwt) => {

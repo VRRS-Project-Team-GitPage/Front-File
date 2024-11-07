@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef, useCallback } from "react";
 import { useState, useEffect, useContext } from "react";
 import { useWindowDimensions, StyleSheet, ScrollView } from "react-native";
 import {
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useToast } from "react-native-toast-notifications";
+import { useFocusEffect } from "@react-navigation/native";
 // component 관련
 import showToast from "../../../assets/styles/ReuseComponents/showToast";
 import { truncateTextByWord } from "../../../assets/styles/ReuseComponents/truncateTextByWord";
@@ -24,7 +25,7 @@ import { useUser } from "../../../assets/ServerDatas/Users/UserContext";
 import {
   vegTypes,
   getVegTypeIdByName,
-} from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 이용자 정보
+} from "../../../assets/ServerDatas/Dummy/dummyVegTypes"; // 유형 정보
 import { SearchContext } from "../../../assets/ServerDatas/ReuseDatas/SearchContext"; // 검색 정보
 // server 관련 import
 import {
@@ -188,6 +189,13 @@ export default function DicScreen({ route, navigation }) {
   useEffect(() => {
     fetchData();
   }, [sortType, checked]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+      setSearchText("");
+    }, [])
+  );
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false); // 드롭다운 열림/닫힘 상태
 
